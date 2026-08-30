@@ -71,14 +71,44 @@ const LS_BANNERS_KEY = 'pmg_cache_banners';
 const LS_SETTINGS_KEY = 'pmg_cache_settings';
 
 export function useDataStore() {
-  // Initial state: Start clean without flashing hardcoded images while loading
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [banners, setBanners] = useState<HeroBanner[]>([]);
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
+  // Instant Smooth Hydration: Initialize immediately with cached/default data (0ms latency)
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
+    try {
+      const cached = localStorage.getItem(LS_VEHICLES_KEY);
+      return cached ? JSON.parse(cached) : VEHICLES_DATA;
+    } catch {
+      return VEHICLES_DATA;
+    }
+  });
 
-  // Loading state to prevent image flashing / flickering
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [branches, setBranches] = useState<Branch[]>(() => {
+    try {
+      const cached = localStorage.getItem(LS_BRANCHES_KEY);
+      return cached ? JSON.parse(cached) : BRANCHES_DATA;
+    } catch {
+      return BRANCHES_DATA;
+    }
+  });
+
+  const [banners, setBanners] = useState<HeroBanner[]>(() => {
+    try {
+      const cached = localStorage.getItem(LS_BANNERS_KEY);
+      return cached ? JSON.parse(cached) : DEFAULT_BANNERS;
+    } catch {
+      return DEFAULT_BANNERS;
+    }
+  });
+
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
+    try {
+      const cached = localStorage.getItem(LS_SETTINGS_KEY);
+      return cached ? JSON.parse(cached) : DEFAULT_SITE_SETTINGS;
+    } catch {
+      return DEFAULT_SITE_SETTINGS;
+    }
+  });
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);

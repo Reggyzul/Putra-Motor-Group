@@ -159,50 +159,7 @@ export default function App() {
   };
 
   // ===========================================================================
-  // 1. BRANDED LOADING STATE (Eliminates Image Flashing & Layout Jumps)
-  // ===========================================================================
-  if (isLoading && currentPage !== 'admin') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-100 flex flex-col items-center justify-center p-4">
-        <div className="text-center space-y-4 max-w-sm animate-in fade-in duration-300">
-          
-          {/* Pulsing Branded Logo */}
-          <div className="relative inline-flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full bg-blue-200/50 animate-ping absolute inset-0"></div>
-            <img
-              src="/images/pandu_logo.avif"
-              alt="Pandu Motor Group"
-              className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-emerald-500 relative z-10 bg-white"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <div className="text-base font-black tracking-tight font-['Outfit',sans-serif]">
-              <span className="text-[#DC2626]">Pandu</span>{' '}
-              <span className="text-[#DC2626]">Motor</span>{' '}
-              <span className="text-[#DC2626]">Group</span>
-            </div>
-            <div className="text-xs font-semibold text-slate-500">
-              Melayani Sepenuh Hati
-            </div>
-          </div>
-
-          {/* Smooth Progress Indicator */}
-          <div className="w-44 h-1.5 bg-slate-200/80 rounded-full overflow-hidden mx-auto shadow-inner">
-            <div className="w-full h-full bg-[#0B63E5] rounded-full animate-pulse"></div>
-          </div>
-
-          <div className="text-[11px] font-bold text-slate-400">
-            Menghubungkan ke Database & Stok Motor...
-          </div>
-
-        </div>
-      </div>
-    );
-  }
-
-  // ===========================================================================
-  // 2. ADMIN DASHBOARD VIEW (Requires Supabase Auth)
+  // 1. ADMIN DASHBOARD VIEW (Requires Supabase Auth)
   // ===========================================================================
   if (currentPage === 'admin') {
     if (authChecking) {
