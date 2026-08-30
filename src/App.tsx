@@ -414,7 +414,10 @@ export default function App() {
               </div>
             </div>
 
-            <DanaTunaiSection selectedBranch={selectedBranch} />
+            <DanaTunaiSection 
+              selectedBranch={selectedBranch} 
+              siteSettings={siteSettings} 
+            />
           </div>
         )}
 
@@ -447,7 +450,12 @@ export default function App() {
               </div>
             </div>
 
-            <TradeInSimulator selectedBranch={selectedBranch} />
+            <TradeInSimulator 
+              selectedBranch={selectedBranch} 
+              siteSettings={siteSettings}
+              vehicles={vehicles}
+              branches={branches}
+            />
           </div>
         )}
       </main>

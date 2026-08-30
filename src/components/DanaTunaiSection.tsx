@@ -6,14 +6,27 @@ import {
   HeartPulse, 
   Send 
 } from 'lucide-react';
-import { Branch } from '../types';
+import { Branch, SiteSettings } from '../types';
 import { buildWhatsAppLink } from '../utils/formatters';
 
 interface DanaTunaiSectionProps {
   selectedBranch: Branch;
+  siteSettings?: SiteSettings;
 }
 
-export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBranch }) => {
+export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ 
+  selectedBranch,
+  siteSettings,
+}) => {
+  const title = siteSettings?.danatunai_hero_title || 'Apa itu Dana Tunai?';
+  const subtitle = siteSettings?.danatunai_hero_subtitle || 'Fasilitas Dana Tunai merupakan fasilitas pinjaman khusus bagi Anda yang membutuhkan dana cepat dan aman dengan jaminan BPKB Sepeda Motor atau Mobil untuk memenuhi berbagai macam kebutuhan (modal usaha, renovasi rumah, biaya pendidikan, kesehatan, maupun kebutuhan lainnya). Kendaraan fisik tetap dapat Anda gunakan sehari-hari.';
+  const ctaText = siteSettings?.danatunai_hero_cta || 'Ajukan dana sekarang';
+  
+  const purpose1 = siteSettings?.danatunai_purpose_1 || 'Renovasi atau Furniture';
+  const purpose2 = siteSettings?.danatunai_purpose_2 || 'Biaya Pendidikan';
+  const purpose3 = siteSettings?.danatunai_purpose_3 || 'Barang Elektronik';
+  const purpose4 = siteSettings?.danatunai_purpose_4 || 'Biaya Kesehatan';
+
   const handleApplyDanaTunai = () => {
     const waUrl = buildWhatsAppLink(
       selectedBranch.whatsapp,
@@ -26,7 +39,7 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
     <div className="w-full bg-white">
       
       {/* ========================================================================= */}
-      {/* 1. APA ITU DANA TUNAI? (100% Sesuai Screenshot myDSF)                      */}
+      {/* 1. APA ITU DANA TUNAI? (Dinamis dari Supabase / Admin)                     */}
       {/* ========================================================================= */}
       <section className="w-full py-12 sm:py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,10 +49,10 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
             <div className="lg:col-span-6 space-y-5 sm:space-y-6">
               <div className="space-y-3 sm:space-y-4">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#D32F2F] tracking-tight leading-tight">
-                  Apa itu Dana Tunai?
+                  {title}
                 </h1>
                 <p className="text-slate-700 text-sm sm:text-base leading-relaxed">
-                  Fasilitas Dana Tunai merupakan fasilitas pinjaman khusus bagi Anda yang membutuhkan dana cepat dan aman dengan jaminan BPKB Sepeda Motor atau Mobil untuk memenuhi berbagai macam kebutuhan (modal usaha, renovasi rumah, biaya pendidikan, kesehatan, maupun kebutuhan lainnya). Kendaraan fisik tetap dapat Anda gunakan sehari-hari.
+                  {subtitle}
                 </p>
               </div>
 
@@ -50,13 +63,13 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
                   onClick={handleApplyDanaTunai}
                   className="px-8 sm:px-10 py-3.5 sm:py-4 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer inline-flex items-center gap-2"
                 >
-                  <span>Ajukan dana sekarang</span>
+                  <span>{ctaText}</span>
                   <Send className="w-4 h-4 shrink-0" />
                 </button>
               </div>
             </div>
 
-            {/* Right Orbital Floating Purpose Cards Graphic (Exact myDSF Layout) */}
+            {/* Right Orbital Floating Purpose Cards Graphic */}
             <div className="lg:col-span-6 relative flex items-center justify-center min-h-[340px] sm:min-h-[420px]">
               
               {/* Outer Dotted Orbital Circle */}
@@ -76,7 +89,7 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
                     <Home className="w-5 h-5" />
                   </div>
                   <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug">
-                    Renovasi atau Furniture
+                    {purpose1}
                   </span>
                 </div>
 
@@ -86,7 +99,7 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
                     <GraduationCap className="w-5 h-5" />
                   </div>
                   <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug">
-                    Biaya Pendidikan
+                    {purpose2}
                   </span>
                 </div>
 
@@ -96,7 +109,7 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
                     <Laptop className="w-5 h-5" />
                   </div>
                   <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug">
-                    Barang Elektronik
+                    {purpose3}
                   </span>
                 </div>
 
@@ -106,7 +119,7 @@ export const DanaTunaiSection: React.FC<DanaTunaiSectionProps> = ({ selectedBran
                     <HeartPulse className="w-5 h-5" />
                   </div>
                   <span className="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug">
-                    Biaya Kesehatan
+                    {purpose4}
                   </span>
                 </div>
 

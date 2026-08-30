@@ -11,7 +11,7 @@ import {
   ChevronRight,
   ShieldCheck
 } from 'lucide-react';
-import { Branch, Vehicle } from '../types';
+import { Branch, Vehicle, SiteSettings } from '../types';
 import { BRANCHES_DATA } from '../data/branches';
 import { VEHICLES_DATA } from '../data/vehicles';
 import { formatRupiah, buildWhatsAppLink } from '../utils/formatters';
@@ -19,12 +19,23 @@ import { formatRupiah, buildWhatsAppLink } from '../utils/formatters';
 interface TradeInSimulatorProps {
   selectedBranch: Branch;
   preSelectedTargetVehicle?: Vehicle | null;
+  siteSettings?: SiteSettings;
+  vehicles?: Vehicle[];
+  branches?: Branch[];
 }
 
 export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
   selectedBranch,
   preSelectedTargetVehicle = null,
+  siteSettings,
+  vehicles = VEHICLES_DATA,
+  branches = BRANCHES_DATA,
 }) => {
+  const heroTitle = siteSettings?.tradein_hero_title || 'Berencana ganti motor?\nTukar tambah bisa jadi solusi buatmu';
+  const heroSubtitle = siteSettings?.tradein_hero_subtitle || 'Tukar tambah di Pandu Motor Group memungkinkanmu menukar motor bekas dengan motor impianmu, dengan proses yang cepat, transparan, dan pilihan unit terlengkap.';
+  const heroCta = siteSettings?.tradein_hero_cta || 'Tukar tambah sekarang';
+  const heroImage = siteSettings?.tradein_hero_image || '/images/momotor_banner_nmax_aerox.avif';
+
   // Step 1: Data Motor Lama Pelanggan
   const [oldBikeBrand, setOldBikeBrand] = useState('Honda');
   const [oldBikeModel, setOldBikeModel] = useState('Vario 125 ESP');
@@ -33,7 +44,7 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
 
   // Step 2: Motor Baru Impian
   const [targetVehicleId, setTargetVehicleId] = useState<string>(
-    preSelectedTargetVehicle?.id || VEHICLES_DATA[0]?.id || ''
+    preSelectedTargetVehicle?.id || vehicles[0]?.id || ''
   );
 
   // Showroom Cabang Tujuan
@@ -114,12 +125,11 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
             {/* Left Content Typography */}
             <div className="md:col-span-7 space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <h1 className="text-2xl sm:text-4xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight">
-                  Berencana ganti motor?<br />
-                  Tukar tambah bisa jadi solusi buatmu
+                <h1 className="text-2xl sm:text-4xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight whitespace-pre-line">
+                  {heroTitle}
                 </h1>
                 <p className="text-slate-600 text-xs sm:text-base leading-relaxed max-w-xl">
-                  Tukar tambah di Pandu Motor Group memungkinkanmu menukar motor bekas dengan motor impianmu, dengan proses yang cepat, transparan, dan pilihan unit terlengkap.
+                  {heroSubtitle}
                 </p>
               </div>
 
@@ -129,16 +139,16 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
                   onClick={scrollToCalculator}
                   className="px-6 sm:px-8 py-3 sm:py-3.5 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer"
                 >
-                  Tukar tambah sekarang
+                  {heroCta}
                 </button>
               </div>
             </div>
 
-            {/* Right Hero Image */}
+            {/* Right Hero Image (Dynamic Live Preview) */}
             <div className="md:col-span-5 relative flex justify-center items-center">
               <div className="relative w-full max-w-md aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-blue-200/50 bg-white/40">
                 <img
-                  src="/images/momotor_banner_nmax_aerox.avif"
+                  src={heroImage}
                   alt="Tukar Tambah Motor Pandu Motor Group"
                   className="w-full h-full object-cover object-center"
                 />

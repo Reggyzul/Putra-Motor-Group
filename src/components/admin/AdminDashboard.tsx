@@ -22,9 +22,11 @@ import { VehicleManager } from './VehicleManager';
 import { BannerManager } from './BannerManager';
 import { BranchManager } from './BranchManager';
 import { SiteSettingsManager } from './SiteSettingsManager';
+import { ServicesManager } from './ServicesManager';
 import { DatabaseSetupGuide } from './DatabaseSetupGuide';
 import { Vehicle, Branch, HeroBanner, SiteSettings } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
+import { ArrowLeftRight } from 'lucide-react';
 
 interface AdminDashboardProps {
   vehicles: Vehicle[];
@@ -44,7 +46,7 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type AdminTab = 'overview' | 'vehicles' | 'banners' | 'branches' | 'settings' | 'database';
+type AdminTab = 'overview' | 'vehicles' | 'banners' | 'branches' | 'services' | 'settings' | 'database';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   vehicles,
@@ -76,6 +78,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     { id: 'vehicles', label: 'Kelola Stok Motor', icon: Bike, badge: `${vehicles.length}` },
     { id: 'banners', label: 'Hero Promo Banner', icon: ImageIcon, badge: `${banners.length}` },
     { id: 'branches', label: 'Cabang Showroom', icon: Building2, badge: `${branches.length}` },
+    { id: 'services', label: 'Tukar Tambah & Dana Tunai', icon: ArrowLeftRight, badge: null },
     { id: 'settings', label: 'Pengaturan Website', icon: Settings, badge: null },
     { id: 'database', label: 'Status DB & Keep-Alive', icon: Database, badge: 'Aktif' },
   ];
@@ -423,7 +426,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
-          {/* TAB 5: SITE SETTINGS */}
+          {/* TAB 5: SERVICES (TUKAR TAMBAH & DANA TUNAI) */}
+          {activeTab === 'services' && (
+            <ServicesManager
+              siteSettings={siteSettings}
+              onSaveSiteSettings={onSaveSiteSettings}
+            />
+          )}
+
+          {/* TAB 6: SITE SETTINGS */}
           {activeTab === 'settings' && (
             <SiteSettingsManager
               siteSettings={siteSettings}
