@@ -65,63 +65,37 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   brand_name: 'Pandu Motor Group',
 };
 
-// Local storage keys for instant hydration
 const LS_VEHICLES_KEY = 'pmg_cache_vehicles';
 const LS_BRANCHES_KEY = 'pmg_cache_branches';
 const LS_BANNERS_KEY = 'pmg_cache_banners';
 const LS_SETTINGS_KEY = 'pmg_cache_settings';
 
 export function useDataStore() {
-  // 1. Instant hydration initialization from localStorage or defaults (0ms delay)
-  const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
-    try {
-      const cached = localStorage.getItem(LS_VEHICLES_KEY);
-      return cached ? JSON.parse(cached) : VEHICLES_DATA;
-    } catch {
-      return VEHICLES_DATA;
-    }
-  });
+  // Initial state: Start clean without flashing hardcoded images while loading
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [banners, setBanners] = useState<HeroBanner[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
 
-  const [branches, setBranches] = useState<Branch[]>(() => {
-    try {
-      const cached = localStorage.getItem(LS_BRANCHES_KEY);
-      return cached ? JSON.parse(cached) : BRANCHES_DATA;
-    } catch {
-      return BRANCHES_DATA;
-    }
-  });
-
-  const [banners, setBanners] = useState<HeroBanner[]>(() => {
-    try {
-      const cached = localStorage.getItem(LS_BANNERS_KEY);
-      return cached ? JSON.parse(cached) : DEFAULT_BANNERS;
-    } catch {
-      return DEFAULT_BANNERS;
-    }
-  });
-
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
-    try {
-      const cached = localStorage.getItem(LS_SETTINGS_KEY);
-      return cached ? JSON.parse(cached) : DEFAULT_SITE_SETTINGS;
-    } catch {
-      return DEFAULT_SITE_SETTINGS;
-    }
-  });
-
-  const [isSyncing, setIsSyncing] = useState(false);
+  // Loading state to prevent image flashing / flickering
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
-  const [supabaseConnected, setSupabaseConnected] = useState(true);
+  const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);
 
-  // 2. Fetch and Sync from Supabase in the background
+  // Fetch and Sync directly from Supabase
   const syncWithSupabase = useCallback(async () => {
     setIsSyncing(true);
     try {
       // Ping keepalive
       await pingSupabaseKeepAlive();
 
-      // A. Fetch Vehicles
-      const { data: dbVehicles, error: vErr } = await supabase.from('vehicles').select('*');
+      // A. Fetch Vehicles from Supabase
+      const { data: dbVehicles, error: vErr } = await supabase
+        .from('vehicles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (!vErr && dbVehicles && dbVehicles.length > 0) {
         const formatted: Vehicle[] = dbVehicles.map((v: any) => ({
           id: v.id,
@@ -151,10 +125,16 @@ export function useDataStore() {
         }));
         setVehicles(formatted);
         localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(formatted));
+      } else {
+        // Fallback only if database has not been seeded yet
+        setVehicles(VEHICLES_DATA);
       }
 
-      // B. Fetch Branches
-      const { data: dbBranches, error: bErr } = await supabase.from('branches').select('*');
+      // B. Fetch Branches from Supabase
+      const { data: dbBranches, error: bErr } = await supabase
+        .from('branches')
+        .select('*');
+
       if (!bErr && dbBranches && dbBranches.length > 0) {
         const formatted: Branch[] = dbBranches.map((b: any) => ({
           id: b.id,
@@ -175,13 +155,16 @@ export function useDataStore() {
         }));
         setBranches(formatted);
         localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(formatted));
+      } else {
+        setBranches(BRANCHES_DATA);
       }
 
-      // C. Fetch Banners
+      // C. Fetch Banners from Supabase
       const { data: dbBanners, error: bnErr } = await supabase
         .from('hero_banners')
         .select('*')
         .order('order_index', { ascending: true });
+
       if (!bnErr && dbBanners && dbBanners.length > 0) {
         const formatted: HeroBanner[] = dbBanners.map((bn: any) => ({
           id: bn.id,
@@ -199,10 +182,15 @@ export function useDataStore() {
         }));
         setBanners(formatted);
         localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
+      } else {
+        setBanners(DEFAULT_BANNERS);
       }
 
-      // D. Fetch Site Settings
-      const { data: dbSettings, error: sErr } = await supabase.from('site_settings').select('*');
+      // D. Fetch Site Settings from Supabase
+      const { data: dbSettings, error: sErr } = await supabase
+        .from('site_settings')
+        .select('*');
+
       if (!sErr && dbSettings && dbSettings.length > 0) {
         const settingsMap: SiteSettings = { ...DEFAULT_SITE_SETTINGS };
         dbSettings.forEach((row: any) => {
@@ -210,26 +198,33 @@ export function useDataStore() {
         });
         setSiteSettings(settingsMap);
         localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(settingsMap));
+      } else {
+        setSiteSettings(DEFAULT_SITE_SETTINGS);
       }
 
       setSupabaseConnected(true);
       setLastSynced(new Date());
     } catch (err) {
-      console.warn('Supabase sync warning (using cached data):', err);
+      console.warn('Supabase sync notice:', err);
+      // If error occurs, fallback cleanly
+      setVehicles(VEHICLES_DATA);
+      setBranches(BRANCHES_DATA);
+      setBanners(DEFAULT_BANNERS);
+      setSiteSettings(DEFAULT_SITE_SETTINGS);
       setSupabaseConnected(false);
     } finally {
+      setIsLoading(false);
       setIsSyncing(false);
     }
   }, []);
 
-  // Initial mount sync & Keep-Alive ping
+  // Initial fetch on mount
   useEffect(() => {
     syncWithSupabase();
   }, [syncWithSupabase]);
 
-  // 3. MUTATION: Save Vehicle (Insert / Update)
+  // MUTATION: Save Vehicle (Insert / Update)
   const saveVehicle = async (vehicle: Vehicle): Promise<{ success: boolean; error?: string }> => {
-    // 1. Optimistic local update
     const updated = vehicles.some((v) => v.id === vehicle.id)
       ? vehicles.map((v) => (v.id === vehicle.id ? vehicle : v))
       : [vehicle, ...vehicles];
@@ -237,7 +232,6 @@ export function useDataStore() {
     setVehicles(updated);
     localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
 
-    // 2. Persist to Supabase
     try {
       const dbPayload = {
         id: vehicle.id,
@@ -262,12 +256,12 @@ export function useDataStore() {
       if (error) throw error;
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase vehicle upsert warning:', err);
+      console.warn('Supabase vehicle upsert notice:', err);
       return { success: true, error: err.message };
     }
   };
 
-  // 4. MUTATION: Delete Vehicle
+  // MUTATION: Delete Vehicle
   const deleteVehicle = async (id: string): Promise<{ success: boolean; error?: string }> => {
     const updated = vehicles.filter((v) => v.id !== id);
     setVehicles(updated);
@@ -278,12 +272,12 @@ export function useDataStore() {
       if (error) throw error;
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase vehicle delete warning:', err);
+      console.warn('Supabase vehicle delete notice:', err);
       return { success: true, error: err.message };
     }
   };
 
-  // 5. MUTATION: Save Branch
+  // MUTATION: Save Branch
   const saveBranch = async (branch: Branch): Promise<{ success: boolean; error?: string }> => {
     const updated = branches.map((b) => (b.id === branch.id ? branch : b));
     setBranches(updated);
@@ -313,12 +307,12 @@ export function useDataStore() {
       if (error) throw error;
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase branch upsert warning:', err);
+      console.warn('Supabase branch upsert notice:', err);
       return { success: true, error: err.message };
     }
   };
 
-  // 6. MUTATION: Save Banner
+  // MUTATION: Save Banner
   const saveBanner = async (banner: HeroBanner): Promise<{ success: boolean; error?: string }> => {
     const updated = banners.some((b) => b.id === banner.id)
       ? banners.map((b) => (b.id === banner.id ? banner : b))
@@ -348,12 +342,12 @@ export function useDataStore() {
       if (error) throw error;
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase banner upsert warning:', err);
+      console.warn('Supabase banner upsert notice:', err);
       return { success: true, error: err.message };
     }
   };
 
-  // 7. MUTATION: Delete Banner
+  // MUTATION: Delete Banner
   const deleteBanner = async (id: string): Promise<{ success: boolean; error?: string }> => {
     const updated = banners.filter((b) => b.id !== id);
     setBanners(updated);
@@ -364,12 +358,12 @@ export function useDataStore() {
       if (error) throw error;
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase banner delete warning:', err);
+      console.warn('Supabase banner delete notice:', err);
       return { success: true, error: err.message };
     }
   };
 
-  // 8. MUTATION: Save Site Settings
+  // MUTATION: Save Site Settings
   const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise<{ success: boolean; error?: string }> => {
     const updated = { ...siteSettings, ...settings };
     setSiteSettings(updated);
@@ -386,7 +380,7 @@ export function useDataStore() {
       await Promise.all(upsertPromises);
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase site settings upsert warning:', err);
+      console.warn('Supabase site settings upsert notice:', err);
       return { success: true, error: err.message };
     }
   };
@@ -396,6 +390,7 @@ export function useDataStore() {
     branches,
     banners,
     siteSettings,
+    isLoading,
     isSyncing,
     lastSynced,
     supabaseConnected,
