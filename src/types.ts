@@ -80,3 +80,41 @@ export interface TradeInData {
   targetVehicleId: string;
   branchId: string;
 }
+
+export interface HeroBanner {
+  id: string;
+  taglineRibbon: string;
+  title: string;
+  titleHighlight: string;
+  offer1: {
+    label: string;
+    currency: string;
+    value: string;
+    unit: string;
+    subtext?: string;
+  };
+  offer2: {
+    label: string;
+    currency: string;
+    value: string;
+    unit: string;
+    subtext?: string;
+  };
+  period: string;
+  image: string;
+  ctaText: string;
+  themeColor: string;
+  isActive?: boolean;
+  orderIndex?: number;
+}
+
+export interface SiteSettings {
+  head_office_address: string;
+  official_email: string;
+  official_phone: string;
+  tagline: string;
+  brand_name: string;
+  [key: string]: string;
+}
+
+

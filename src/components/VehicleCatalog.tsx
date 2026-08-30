@@ -21,6 +21,8 @@ interface VehicleCatalogProps {
   isLandingPage?: boolean;
   pageTitle?: string;
   pageSubtitle?: string;
+  vehicles?: Vehicle[];
+  branches?: Branch[];
 }
 
 export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
@@ -33,6 +35,8 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   isLandingPage = false,
   pageTitle,
   pageSubtitle,
+  vehicles = VEHICLES_DATA,
+  branches = BRANCHES_DATA,
 }) => {
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<string>(initialCondition);
@@ -74,7 +78,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
   // Filter logic
   const filteredVehicles = useMemo(() => {
-    return VEHICLES_DATA.filter((v) => {
+    return vehicles.filter((v) => {
       // Brand filter
       if (selectedBrand !== 'all' && v.brand.toLowerCase() !== selectedBrand.toLowerCase()) {
         return false;

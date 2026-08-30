@@ -11,16 +11,75 @@ import { TradeInSimulator } from './components/TradeInSimulator';
 import { BranchShowcase } from './components/BranchShowcase';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+import { AdminLogin } from './components/admin/AdminLogin';
+import { useDataStore } from './hooks/useDataStore';
+import { supabase } from './lib/supabase';
 import { ArrowLeft, Home, ChevronRight, BadgeDollarSign, ArrowLeftRight, Building2, Bike } from 'lucide-react';
 
-export type PageView = 'home' | 'dana-tunai' | 'tukar-tambah' | 'cabang' | 'katalog' | 'detail';
+export type PageView = 'home' | 'dana-tunai' | 'tukar-tambah' | 'cabang' | 'katalog' | 'detail' | 'admin';
 
 export default function App() {
-  const [selectedBranch, setSelectedBranch] = useState<Branch>(BRANCHES_DATA[0]);
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(VEHICLES_DATA[0]);
+  // 1. Unified Data Store with Zero-Delay Hydration & Supabase sync
+  const {
+    vehicles,
+    branches,
+    banners,
+    siteSettings,
+    isSyncing,
+    supabaseConnected,
+    syncWithSupabase,
+    saveVehicle,
+    deleteVehicle,
+    saveBranch,
+    saveBanner,
+    deleteBanner,
+    saveSiteSettings,
+  } = useDataStore();
+
+  const [selectedBranch, setSelectedBranch] = useState<Branch>(branches[0] || BRANCHES_DATA[0]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(vehicles[0] || VEHICLES_DATA[0]);
   const [currentPage, setCurrentPage] = useState<PageView>('home');
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
+  
+  // Auth state for Admin Dashboard
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [authChecking, setAuthChecking] = useState<boolean>(true);
+
+  // Sync selected branch if branches update
+  useEffect(() => {
+    if (branches && branches.length > 0) {
+      const matched = branches.find((b) => b.id === selectedBranch.id) || branches[0];
+      setSelectedBranch(matched);
+    }
+  }, [branches]);
+
+  // Check Supabase Auth Session
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAdminAuthenticated(!!session);
+      setAuthChecking(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdminAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Listen to hash changes (e.g. #admin)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setCurrentPage('admin');
+      }
+    };
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Scroll to top whenever page changes
   useEffect(() => {
@@ -38,6 +97,17 @@ export default function App() {
   };
 
   const handleNavigate = (target: string) => {
+    if (target === 'admin') {
+      window.location.hash = 'admin';
+      setCurrentPage('admin');
+      return;
+    }
+
+    // Reset hash if not admin
+    if (window.location.hash === '#admin') {
+      window.history.replaceState(null, '', ' ');
+    }
+
     if (target === 'dana-tunai') {
       setCurrentPage('dana-tunai');
       return;
@@ -81,8 +151,57 @@ export default function App() {
     }
   };
 
+  // ===========================================================================
+  // ADMIN DASHBOARD VIEW (Requires Supabase Auth)
+  // ===========================================================================
+  if (currentPage === 'admin') {
+    if (authChecking) {
+      return (
+        <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+          <div className="text-center space-y-3">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="text-xs font-bold text-slate-600">Memeriksa Akses Admin...</div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!isAdminAuthenticated) {
+      return (
+        <AdminLogin
+          onLoginSuccess={() => setIsAdminAuthenticated(true)}
+          onBackToWebsite={() => handleNavigate('home')}
+        />
+      );
+    }
+
+    return (
+      <AdminDashboard
+        vehicles={vehicles}
+        branches={branches}
+        banners={banners}
+        siteSettings={siteSettings}
+        isSyncing={isSyncing}
+        supabaseConnected={supabaseConnected}
+        onSync={syncWithSupabase}
+        onSaveVehicle={saveVehicle}
+        onDeleteVehicle={deleteVehicle}
+        onSaveBranch={saveBranch}
+        onSaveBanner={saveBanner}
+        onDeleteBanner={deleteBanner}
+        onSaveSiteSettings={saveSiteSettings}
+        onBackToWebsite={() => handleNavigate('home')}
+        onLogout={() => setIsAdminAuthenticated(false)}
+      />
+    );
+  }
+
+  // ===========================================================================
+  // PUBLIC WEBSITE VIEWS (Instant Hydration & Zero Delay)
+  // ===========================================================================
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+      
       {/* Top Header Navbar with Live Search Sync */}
       <Navbar
         selectedBranch={selectedBranch}
@@ -93,22 +212,24 @@ export default function App() {
         onSearchChange={setGlobalSearchQuery}
         onSearchSubmit={handleSearchSubmit}
         onSelectVehicle={handleSelectVehicle}
+        vehicles={vehicles}
+        siteSettings={siteSettings}
       />
 
       {/* Main Content Area */}
       <main className="flex-1">
-        {/* ========================================================================= */}
-        {/* VIEW 1: LANDING PAGE (Home)                                               */}
-        {/* ========================================================================= */}
+        
+        {/* VIEW 1: LANDING PAGE (Home) */}
         {currentPage === 'home' && (
           <div className="animate-in fade-in duration-200">
-            {/* 1. Hero Carousel Banner & 3 Layanan Utama (Beli Motor, Dana Tunai, Tukar Tambah) */}
+            {/* 1. Hero Carousel Banner & 3 Layanan Utama */}
             <Hero
               selectedBranch={selectedBranch}
               onNavigate={handleNavigate}
+              banners={banners}
             />
 
-            {/* 2. Katalog Motor (12 Motor Pilihan + Klik membuka Detail) */}
+            {/* 2. Katalog Motor Dinamis (Klik membuka Detail) */}
             <VehicleCatalog
               selectedBranch={selectedBranch}
               onNavigate={handleNavigate}
@@ -116,13 +237,13 @@ export default function App() {
               searchQuery={globalSearchQuery}
               onSearchChange={setGlobalSearchQuery}
               isLandingPage={true}
+              vehicles={vehicles}
+              branches={branches}
             />
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 2: HALAMAN DETAIL MOTOR (Deskripsi Membedakan Baru/Bekas Lengkap)     */}
-        {/* ========================================================================= */}
+        {/* VIEW 2: HALAMAN DETAIL MOTOR */}
         {currentPage === 'detail' && selectedVehicle && (
           <VehicleDetail
             vehicle={selectedVehicle}
@@ -131,12 +252,10 @@ export default function App() {
           />
         )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 3: HALAMAN 4 CABANG SHOWROOM (Dedicated Next Page)                   */}
-        {/* ========================================================================= */}
+        {/* VIEW 3: HALAMAN 4 CABANG SHOWROOM */}
         {currentPage === 'cabang' && (
           <div className="animate-in fade-in duration-200">
-            {/* Breadcrumb Navigation Bar */}
+            {/* Breadcrumb */}
             <div className="bg-white border-b border-gray-200 py-3 shadow-2xs">
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
                 <button
@@ -166,16 +285,15 @@ export default function App() {
             <BranchShowcase
               selectedBranch={selectedBranch}
               onSelectBranch={setSelectedBranch}
+              branches={branches}
             />
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 4: HALAMAN KATALOG LENGKAP MOTOR (Satu Kesatuan Baru & Bekas)         */}
-        {/* ========================================================================= */}
+        {/* VIEW 4: HALAMAN KATALOG LENGKAP MOTOR */}
         {currentPage === 'katalog' && (
           <div className="animate-in fade-in duration-200">
-            {/* Breadcrumb Navigation Bar */}
+            {/* Breadcrumb */}
             <div className="bg-white border-b border-gray-200 py-3 shadow-2xs">
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
                 <button
@@ -211,16 +329,16 @@ export default function App() {
               isLandingPage={false}
               pageTitle="Katalog Lengkap Motor Pandu Motor Group"
               pageSubtitle="Jelajahi seluruh pilihan motor baru & motor bekas berkualitas dari seluruh jaringan showroom Pandu Motor Group."
+              vehicles={vehicles}
+              branches={branches}
             />
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 5: HALAMAN DANA TUNAI (Dedicated Next Page)                          */}
-        {/* ========================================================================= */}
+        {/* VIEW 5: HALAMAN DANA TUNAI */}
         {currentPage === 'dana-tunai' && (
           <div className="animate-in fade-in duration-200">
-            {/* Breadcrumb Navigation Bar */}
+            {/* Breadcrumb */}
             <div className="bg-white border-b border-gray-200 py-3 shadow-2xs">
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
                 <button
@@ -246,17 +364,14 @@ export default function App() {
               </div>
             </div>
 
-            {/* Dedicated Dana Tunai Section */}
             <DanaTunaiSection selectedBranch={selectedBranch} />
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 6: HALAMAN TUKAR TAMBAH (Dedicated Next Page)                        */}
-        {/* ========================================================================= */}
+        {/* VIEW 6: HALAMAN TUKAR TAMBAH */}
         {currentPage === 'tukar-tambah' && (
           <div className="animate-in fade-in duration-200">
-            {/* Breadcrumb Navigation Bar */}
+            {/* Breadcrumb */}
             <div className="bg-white border-b border-gray-200 py-3 shadow-2xs">
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
                 <button
@@ -282,17 +397,17 @@ export default function App() {
               </div>
             </div>
 
-            {/* Dedicated Trade-In Section */}
             <TradeInSimulator selectedBranch={selectedBranch} />
           </div>
         )}
       </main>
 
-      {/* Footer */}
+      {/* Footer with Dynamic Settings & Admin Access Link */}
       <Footer
         onNavigate={handleNavigate}
         selectedBranch={selectedBranch}
         onSelectBranch={setSelectedBranch}
+        siteSettings={siteSettings}
       />
 
       {/* Floating Fast Contact WhatsApp Widget */}

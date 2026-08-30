@@ -18,15 +18,17 @@ import { buildWhatsAppLink } from '../utils/formatters';
 interface BranchShowcaseProps {
   selectedBranch: Branch;
   onSelectBranch: (branch: Branch) => void;
+  branches?: Branch[];
 }
 
 export const BranchShowcase: React.FC<BranchShowcaseProps> = ({
   selectedBranch,
   onSelectBranch,
+  branches = BRANCHES_DATA,
 }) => {
   const [activeTabBranchId, setActiveTabBranchId] = useState<string>(selectedBranch.id);
 
-  const activeBranch = BRANCHES_DATA.find((b) => b.id === activeTabBranchId) || selectedBranch;
+  const activeBranch = branches.find((b) => b.id === activeTabBranchId) || selectedBranch;
 
   const facilities = [
     { icon: Award, label: 'Showroom Display Bersih & Lengkap' },
@@ -60,7 +62,7 @@ export const BranchShowcase: React.FC<BranchShowcaseProps> = ({
 
         {/* Tab Buttons for Branches (2 cols on mobile, 4 cols on desktop) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-6 sm:mb-8">
-          {BRANCHES_DATA.map((branch) => {
+          {branches.map((branch) => {
             const isActive = activeTabBranchId === branch.id;
             return (
               <button

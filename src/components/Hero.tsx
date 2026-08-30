@@ -13,14 +13,6 @@ import {
 import { Branch } from '../types';
 import { buildWhatsAppLink } from '../utils/formatters';
 
-interface HeroProps {
-  selectedBranch: Branch;
-  onNavigate: (sectionId: string) => void;
-  onQuickFilter?: (category?: string, condition?: string) => void;
-  onOpenAuth?: (tab: 'login' | 'register') => void;
-  onSelectBrand?: (brand: string) => void;
-}
-
 interface BannerSlide {
   id: string;
   taglineRibbon: string;
@@ -94,29 +86,42 @@ const BANNER_SLIDES: BannerSlide[] = [
   },
 ];
 
+interface HeroProps {
+  selectedBranch: Branch;
+  onNavigate: (sectionId: string) => void;
+  onQuickFilter?: (category?: string, condition?: string) => void;
+  onOpenAuth?: (tab: 'login' | 'register') => void;
+  onSelectBrand?: (brand: string) => void;
+  banners?: BannerSlide[];
+}
+
 export const Hero: React.FC<HeroProps> = ({
   selectedBranch,
   onNavigate,
+  banners = BANNER_SLIDES,
 }) => {
+  const activeBanners = banners.filter((b: any) => b.isActive !== false);
+  const slides = activeBanners.length > 0 ? activeBanners : BANNER_SLIDES;
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   // Auto slide
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % BANNER_SLIDES.length);
+      setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const nextSlide = () => {
-    setCurrentSlideIndex((prev) => (prev + 1) % BANNER_SLIDES.length);
+    setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlideIndex((prev) => (prev - 1 + BANNER_SLIDES.length) % BANNER_SLIDES.length);
+    setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
-  const currentSlide = BANNER_SLIDES[currentSlideIndex];
+  const currentSlide = slides[currentSlideIndex] || slides[0];
 
   const handleApplyPromo = () => {
     const waUrl = buildWhatsAppLink(

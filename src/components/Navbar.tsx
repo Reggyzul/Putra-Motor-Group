@@ -17,6 +17,8 @@ interface NavbarProps {
   onSearchChange: (query: string) => void;
   onSearchSubmit: (query: string) => void;
   onSelectVehicle?: (vehicle: Vehicle) => void;
+  vehicles?: Vehicle[];
+  siteSettings?: SiteSettings;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -25,6 +27,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSearchChange,
   onSearchSubmit,
   onSelectVehicle,
+  vehicles = VEHICLES_DATA,
+  siteSettings,
 }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchBoxRef = useRef<HTMLDivElement>(null);
@@ -33,14 +37,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const searchSuggestions = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
-    return VEHICLES_DATA.filter((v) => {
+    return vehicles.filter((v) => {
       return (
         v.name.toLowerCase().includes(q) ||
         v.brand.toLowerCase().includes(q) ||
         v.description.toLowerCase().includes(q)
       );
     }).slice(0, 5);
-  }, [searchQuery]);
+  }, [searchQuery, vehicles]);
 
   // Close search suggestions on click outside
   useEffect(() => {

@@ -11,19 +11,25 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { COMPANY_INFO, BRANCHES_DATA } from '../data/branches';
-import { Branch } from '../types';
+import { Branch, SiteSettings } from '../types';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
   selectedBranch: Branch;
   onSelectBranch: (branch: Branch) => void;
+  siteSettings?: SiteSettings;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onNavigate,
   selectedBranch,
   onSelectBranch,
+  siteSettings,
 }) => {
+  const headOffice = siteSettings?.head_office_address || 'Jl. Kartini No. 204 A-B, Kisaran barat, Asahan Sumatera Utara';
+  const email = siteSettings?.official_email || 'putramotorgroup.id@gmail.com';
+  const phone = siteSettings?.official_phone || '0822-7647-7628';
+  const tagline = siteSettings?.tagline || COMPANY_INFO.tagline;
   return (
     <footer className="bg-slate-900 text-slate-300 text-xs">
       
@@ -88,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <div>
                   <span className="font-bold text-white">Kantor Pusat:</span>
                   <div className="text-slate-300 text-[11px] leading-relaxed mt-0.5">
-                    Jl. Kartini No. 204 A-B, Kisaran barat, Asahan Sumatera Utara
+                    {headOffice}
                   </div>
                 </div>
               </div>
@@ -98,10 +104,10 @@ export const Footer: React.FC<FooterProps> = ({
                 <div className="text-[11px]">
                   <span className="font-bold text-white">Email:</span>{' '}
                   <a 
-                    href="mailto:putramotorgroup.id@gmail.com" 
+                    href={`mailto:${email}`} 
                     className="text-blue-400 hover:text-blue-300 underline font-mono"
                   >
-                    putramotorgroup.id@gmail.com
+                    {email}
                   </a>
                 </div>
               </div>
@@ -210,12 +216,14 @@ export const Footer: React.FC<FooterProps> = ({
           <div>
             © 2026 Pandu Motor Group. Hak Cipta Dilindungi Undang-Undang.
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <span className="hover:text-slate-400 cursor-pointer">Syarat & Ketentuan</span>
             <span>•</span>
             <span className="hover:text-slate-400 cursor-pointer">Kebijakan Privasi</span>
             <span>•</span>
             <span onClick={() => onNavigate('cabang')} className="hover:text-slate-400 cursor-pointer">4 Cabang Showroom</span>
+            <span>•</span>
+            <span onClick={() => onNavigate('admin')} className="hover:text-amber-400 text-slate-400 font-semibold cursor-pointer">Admin Login</span>
           </div>
         </div>
 

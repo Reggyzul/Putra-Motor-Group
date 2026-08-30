@@ -1,0 +1,324 @@
+import React, { useState } from 'react';
+import { Edit3, MapPin, Phone, MessageSquare, Clock, Upload, X, Check, Building2 } from 'lucide-react';
+import { Branch } from '../../types';
+import { uploadImageFile } from '../../lib/supabase';
+
+interface BranchManagerProps {
+  branches: Branch[];
+  onSaveBranch: (branch: Branch) => Promise<{ success: boolean; error?: string }>;
+}
+
+export const BranchManager: React.FC<BranchManagerProps> = ({
+  branches,
+  onSaveBranch,
+}) => {
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const [formData, setFormData] = useState<Branch>({
+    id: '',
+    name: '',
+    companyName: '',
+    code: '',
+    city: '',
+    province: '',
+    address: '',
+    phone: '',
+    whatsapp: '',
+    email: '',
+    googleMapsUrl: '',
+    operationalHours: '',
+    image: '',
+    logo: '',
+  });
+
+  const handleOpenEdit = (branch: Branch) => {
+    setEditingBranch(branch);
+    setFormData({ ...branch });
+  };
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImage(true);
+    try {
+      const file = files[0];
+      const uploadedUrl = await uploadImageFile(file, 'pandu-motor-images', 'branches');
+      setFormData((prev) => ({ ...prev, image: uploadedUrl }));
+    } catch (err: any) {
+      alert('Gagal mengupload foto cabang: ' + err.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingLogo(true);
+    try {
+      const file = files[0];
+      const uploadedUrl = await uploadImageFile(file, 'pandu-motor-images', 'logos');
+      setFormData((prev) => ({ ...prev, logo: uploadedUrl }));
+    } catch (err: any) {
+      alert('Gagal mengupload logo: ' + err.message);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    const res = await onSaveBranch(formData);
+    setIsSaving(false);
+    if (res.success) {
+      setEditingBranch(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      
+      {/* Header */}
+      <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-2xs">
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900">
+          Kelola 4 Cabang Showroom Resmi
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          Ubah foto bangunan, logo resmi dealer, kontak WhatsApp, dan alamat cabang
+        </p>
+      </div>
+
+      {/* Branches List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {branches.map((branch) => (
+          <div key={branch.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+            
+            <div>
+              {/* Showroom Photo 100% Uncropped with contain */}
+              <div className="relative aspect-[16/10] bg-slate-50 p-2 flex items-center justify-center border-b border-gray-100">
+                <img
+                  src={branch.image}
+                  alt={branch.name}
+                  className="w-full h-full object-contain rounded-xl"
+                />
+                <div className="absolute top-3 left-3 bg-slate-900/90 text-white text-[10px] font-black px-2.5 py-1 rounded-lg">
+                  {branch.code}
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-5 space-y-3">
+                
+                {/* Logo & Title */}
+                <div className="flex items-center gap-3">
+                  {branch.logo && (
+                    <img
+                      src={branch.logo}
+                      alt={branch.name}
+                      className="w-12 h-12 rounded-xl object-contain border border-gray-200 bg-white p-1 shadow-2xs shrink-0"
+                    />
+                  )}
+                  <div>
+                    <span className="text-[10px] font-bold text-blue-600 uppercase">
+                      {branch.companyName}
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 leading-tight">
+                      {branch.name}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="space-y-1.5 text-xs text-slate-600">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                    <span className="line-clamp-2">{branch.address}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-slate-800">WA: {branch.whatsapp}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>{branch.operationalHours}</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Edit Action Button */}
+            <div className="p-4 border-t border-gray-100 bg-slate-50/50 flex justify-end">
+              <button
+                type="button"
+                onClick={() => handleOpenEdit(branch)}
+                className="w-full sm:w-auto px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Edit Cabang & Foto</span>
+              </button>
+            </div>
+
+          </div>
+        ))}
+      </div>
+
+      {/* Edit Branch Modal */}
+      {editingBranch && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-blue-100 overflow-hidden">
+            
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-blue-50/50">
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-slate-900">
+                  Edit Showroom: {editingBranch.name}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Update foto showroom fisik, logo dealer, dan nomor kontak WhatsApp
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingBranch(null)}
+                className="w-8 h-8 rounded-full bg-white text-slate-400 hover:text-slate-700 flex items-center justify-center border border-gray-200 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
+              
+              {/* Foto Showroom Live Preview */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Foto Bangunan Showroom</label>
+                <div className="aspect-[16/9] rounded-2xl bg-slate-100 overflow-hidden border border-gray-200 flex items-center justify-center p-2">
+                  <img src={formData.image} alt="Preview Showroom" className="w-full h-full object-contain rounded-xl" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+                  />
+                  <label className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl text-xs cursor-pointer shrink-0">
+                    <Upload className="w-3.5 h-3.5 inline mr-1" />
+                    {uploadingImage ? '...' : 'Upload Foto'}
+                    <input type="file" accept="image/*" onChange={handleUploadImage} className="hidden" />
+                  </label>
+                </div>
+              </div>
+
+              {/* Logo Showroom Live Preview */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Logo Resmi Profil Dealer</label>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-gray-300 p-1 flex items-center justify-center shrink-0">
+                    {formData.logo ? (
+                      <img src={formData.logo} alt="Preview Logo" className="w-full h-full object-contain rounded-xl" />
+                    ) : (
+                      <Building2 className="w-6 h-6 text-slate-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={formData.logo || ''}
+                      onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                      placeholder="URL Logo Dealer..."
+                      className="flex-1 px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+                    />
+                    <label className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl text-xs cursor-pointer shrink-0">
+                      <Upload className="w-3.5 h-3.5 inline mr-1" />
+                      {uploadingLogo ? '...' : 'Upload Logo'}
+                      <input type="file" accept="image/*" onChange={handleUploadLogo} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Text Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nama Showroom</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500 font-bold"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Alamat Lengkap</label>
+                  <textarea
+                    rows={2}
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp (Format: 628xxx)</label>
+                  <input
+                    type="text"
+                    value={formData.whatsapp}
+                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500 font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Telepon Tampil</label>
+                  <input
+                    type="text"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500 font-semibold"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Jam Operasional</label>
+                  <input
+                    type="text"
+                    value={formData.operationalHours}
+                    onChange={(e) => setFormData({ ...formData, operationalHours: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingBranch(null)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"
+                >
+                  {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
