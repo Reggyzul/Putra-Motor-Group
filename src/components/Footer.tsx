@@ -79,9 +79,9 @@ export const Footer: React.FC<FooterProps> = ({
                 className="w-10 h-10 rounded-full object-cover shadow-sm border border-emerald-500/40 bg-white"
               />
               <div className="flex items-center text-xl font-black">
-                <span className="text-white font-['Outfit',sans-serif]">Pandu</span>
-                <span className="text-blue-400 font-['Outfit',sans-serif] ml-1">Motor</span>
-                <span className="text-[10px] font-black text-amber-400 uppercase ml-1.5 tracking-wider">GROUP</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
               </div>
             </div>
             

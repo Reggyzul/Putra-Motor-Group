@@ -77,28 +77,28 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* Main Row: Logo Sejajar, Desktop Search, & Cabang Kami */}
-        <div className="flex items-center justify-between h-14 sm:h-18 gap-2 sm:gap-4 lg:gap-6">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4 lg:gap-6">
           
-          {/* 1. Pandu Motor Group Logo (Sejajar, Teks Merah, Tagline Melayani Sepenuh Hati, Geser Sedikit ke Kanan di HP) */}
+          {/* 1. Pandu Motor Group Logo (Lebih Besar & Presisi, Teks Merah Elegan) */}
           <div 
             onClick={() => onNavigate('hero')}
-            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer shrink-0 select-none group min-w-0 pl-1.5 sm:pl-0"
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer shrink-0 select-none group min-w-0 pl-0.5 sm:pl-0"
           >
             <img 
               src="/images/pandu_logo.avif" 
               alt="Pandu Motor Group Logo" 
-              className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full object-cover shadow-2xs group-hover:scale-105 transition-all duration-200 shrink-0 border border-emerald-500/40 bg-white"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-full object-cover shadow-md group-hover:scale-105 transition-all duration-200 shrink-0 border-2 border-emerald-500/60 bg-white"
             />
 
             <div className="flex flex-col min-w-0">
               {/* Nama Logo Sejajar dalam 1 Baris */}
-              <div className="flex items-center text-xs sm:text-base md:text-lg font-black tracking-tight leading-tight whitespace-nowrap">
+              <div className="flex items-center text-xs sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap">
                 <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
                 <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
                 <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
               </div>
               {/* Tagline: Melayani Sepenuh Hati */}
-              <div className="text-[8px] sm:text-[10px] md:text-[11px] font-bold text-slate-600 tracking-tight mt-0.5 leading-none">
+              <div className="text-[9px] sm:text-[11px] md:text-xs font-bold text-slate-700 tracking-tight mt-0.5 leading-none">
                 Melayani Sepenuh Hati
               </div>
             </div>
@@ -176,14 +176,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* 3. Action Button (Cabang Kami) */}
+          {/* 3. Action Button (Cabang Kami - Sedikit Lebih Kecil & Presisi di HP) */}
           <div className="flex items-center shrink-0">
             <button
               type="button"
               onClick={() => onNavigate('cabang')}
-              className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-slate-800 hover:text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold text-slate-800 hover:text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
             >
-              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
+              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
               <span>Cabang Kami</span>
             </button>
           </div>
