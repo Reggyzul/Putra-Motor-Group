@@ -1,0 +1,6 @@
+{
+  "name": "Pandu Motor Group",
+  "description": "Showroom Resmi Jual Beli Motor Baru & Bekas Berkualitas, Tukar Tambah, serta Layanan Dana Tunai Gadai BPKB Cepat & Terpercaya. Melayani Sepenuh Hati.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
