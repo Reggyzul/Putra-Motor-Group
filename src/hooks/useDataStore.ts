@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, pingSupabaseKeepAlive } from '../lib/supabase';
-import { Vehicle, Branch, HeroBanner, SiteSettings } from '../types';
+import { Vehicle, Branch, HeroBanner, SiteSettings, Announcement } from '../types';
 import { VEHICLES_DATA } from '../data/vehicles';
 import { BRANCHES_DATA } from '../data/branches';
 
@@ -65,13 +65,42 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   brand_name: 'Pandu Motor Group',
 };
 
+export const DEFAULT_ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: 'ann-1',
+    title: 'SOP Penerimaan & Standarisasi Cek Fisik Unit Masuk 4 Cabang',
+    category: 'Operasional',
+    content: 'Diberitahukan kepada seluruh Kepala Cabang dan Tim Mekanik (Kisaran, Perdagangan, Cikampak, Dumai), setiap unit motor baru maupun bekas yang masuk wajib melewati 20 titik inspeksi fisik, cek nomor rangka/mesin, dan pengecekan kelistrikan sebelum dipajang di area display showroom.',
+    author: 'Direksi Kantor Pusat',
+    isPinned: true,
+    image: '/images/pandu motor kisaran.avif',
+    attachments: [
+      { name: 'Form_Inspeksi_20_Titik_SOP.pdf', url: '#', size: '1.2 MB', type: 'PDF' },
+      { name: 'Jadwal_Rolling_Stok_Mingguan.xlsx', url: '#', size: '420 KB', type: 'EXCEL' },
+    ],
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'ann-2',
+    title: 'Program Insentif Penjualan & Target Semester II',
+    category: 'Penting',
+    content: 'Selamat kepada cabang Kisaran dan Perdagangan yang telah melampaui target penjualan bulan lalu. Untuk Semester II, manajemen memberlakukan skema bonus tambahan bagi sales counter dan marketing lapangan untuk setiap unit kredit dan dana tunai BPKB yang berhasil closing.',
+    author: 'HRD & Finance',
+    isPinned: true,
+    image: '/images/pandu_logo.avif',
+    attachments: [],
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+];
+
 const LS_VEHICLES_KEY = 'pmg_cache_vehicles';
 const LS_BRANCHES_KEY = 'pmg_cache_branches';
 const LS_BANNERS_KEY = 'pmg_cache_banners';
 const LS_SETTINGS_KEY = 'pmg_cache_settings';
+const LS_ANNOUNCEMENTS_KEY = 'pmg_cache_announcements';
 
 export function useDataStore() {
-  // Instant Smooth Hydration: Initialize immediately with cached/default data (0ms latency)
+  // Instant Smooth Hydration: Initialize immediately with cached/default data
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     try {
       const cached = localStorage.getItem(LS_VEHICLES_KEY);
@@ -105,6 +134,15 @@ export function useDataStore() {
       return cached ? JSON.parse(cached) : DEFAULT_SITE_SETTINGS;
     } catch {
       return DEFAULT_SITE_SETTINGS;
+    }
+  });
+
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    try {
+      const cached = localStorage.getItem(LS_ANNOUNCEMENTS_KEY);
+      return cached ? JSON.parse(cached) : DEFAULT_ANNOUNCEMENTS;
+    } catch {
+      return DEFAULT_ANNOUNCEMENTS;
     }
   });
 
@@ -155,9 +193,6 @@ export function useDataStore() {
         }));
         setVehicles(formatted);
         localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(formatted));
-      } else {
-        // Fallback only if database has not been seeded yet
-        setVehicles(VEHICLES_DATA);
       }
 
       // B. Fetch Branches from Supabase
@@ -185,8 +220,6 @@ export function useDataStore() {
         }));
         setBranches(formatted);
         localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(formatted));
-      } else {
-        setBranches(BRANCHES_DATA);
       }
 
       // C. Fetch Banners from Supabase
@@ -212,8 +245,6 @@ export function useDataStore() {
         }));
         setBanners(formatted);
         localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
-      } else {
-        setBanners(DEFAULT_BANNERS);
       }
 
       // D. Fetch Site Settings from Supabase
@@ -228,19 +259,36 @@ export function useDataStore() {
         });
         setSiteSettings(settingsMap);
         localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(settingsMap));
-      } else {
-        setSiteSettings(DEFAULT_SITE_SETTINGS);
+      }
+
+      // E. Fetch Announcements (Internal Office Update - Admin Only)
+      const { data: dbAnnouncements, error: aErr } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (!aErr && dbAnnouncements && dbAnnouncements.length > 0) {
+        const formatted: Announcement[] = dbAnnouncements.map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          category: a.category || 'Umum',
+          content: a.content,
+          author: a.author || 'Kantor Pusat',
+          isPinned: Boolean(a.is_pinned),
+          image: a.image,
+          attachments: Array.isArray(a.attachments) ? a.attachments : [],
+          createdAt: a.created_at || new Date().toISOString(),
+          updatedAt: a.updated_at,
+        }));
+        setAnnouncements(formatted);
+        localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(formatted));
       }
 
       setSupabaseConnected(true);
       setLastSynced(new Date());
     } catch (err) {
       console.warn('Supabase sync notice:', err);
-      // If error occurs, fallback cleanly
-      setVehicles(VEHICLES_DATA);
-      setBranches(BRANCHES_DATA);
-      setBanners(DEFAULT_BANNERS);
-      setSiteSettings(DEFAULT_SITE_SETTINGS);
       setSupabaseConnected(false);
     } finally {
       setIsLoading(false);
@@ -253,7 +301,7 @@ export function useDataStore() {
     syncWithSupabase();
   }, [syncWithSupabase]);
 
-  // MUTATION: Save Vehicle (Insert / Update)
+  // MUTATION: Save Vehicle
   const saveVehicle = async (vehicle: Vehicle): Promise<{ success: boolean; error?: string }> => {
     const updated = vehicles.some((v) => v.id === vehicle.id)
       ? vehicles.map((v) => (v.id === vehicle.id ? vehicle : v))
@@ -415,11 +463,59 @@ export function useDataStore() {
     }
   };
 
+  // MUTATION: Save Announcement (Admin Only)
+  const saveAnnouncement = async (announcement: Announcement): Promise<{ success: boolean; error?: string }> => {
+    const updated = announcements.some((a) => a.id === announcement.id)
+      ? announcements.map((a) => (a.id === announcement.id ? announcement : a))
+      : [announcement, ...announcements];
+
+    setAnnouncements(updated);
+    localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
+
+    try {
+      const dbPayload = {
+        id: announcement.id,
+        title: announcement.title,
+        category: announcement.category,
+        content: announcement.content,
+        author: announcement.author,
+        is_pinned: announcement.isPinned ?? false,
+        image: announcement.image,
+        attachments: announcement.attachments || [],
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase.from('announcements').upsert(dbPayload);
+      if (error) throw error;
+      return { success: true };
+    } catch (err: any) {
+      console.warn('Supabase announcement upsert notice:', err);
+      return { success: true, error: err.message };
+    }
+  };
+
+  // MUTATION: Delete Announcement (Admin Only)
+  const deleteAnnouncement = async (id: string): Promise<{ success: boolean; error?: string }> => {
+    const updated = announcements.filter((a) => a.id !== id);
+    setAnnouncements(updated);
+    localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
+
+    try {
+      const { error } = await supabase.from('announcements').delete().eq('id', id);
+      if (error) throw error;
+      return { success: true };
+    } catch (err: any) {
+      console.warn('Supabase announcement delete notice:', err);
+      return { success: true, error: err.message };
+    }
+  };
+
   return {
     vehicles,
     branches,
     banners,
     siteSettings,
+    announcements,
     isLoading,
     isSyncing,
     lastSynced,
@@ -431,5 +527,7 @@ export function useDataStore() {
     saveBanner,
     deleteBanner,
     saveSiteSettings,
+    saveAnnouncement,
+    deleteAnnouncement,
   };
 }

@@ -71,6 +71,20 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 5. TABEL PENGUMUMAN INTERNAL KANTOR (ANNOUNCEMENTS - HANYA AKSES ADMIN)
+CREATE TABLE IF NOT EXISTS public.announcements (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'Umum',
+    content TEXT NOT NULL,
+    author TEXT DEFAULT 'Kantor Pusat',
+    is_pinned BOOLEAN DEFAULT FALSE,
+    image TEXT,
+    attachments JSONB DEFAULT '[]'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Pengunjung umum bisa melihat (SELECT), Admin login bisa mengubah (ALL)
@@ -80,13 +94,25 @@ ALTER TABLE public.vehicles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.branches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hero_banners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
--- Policy: Publik bisa membaca data
+-- Policy: Publik bisa membaca data umum
 DROP POLICY IF EXISTS "Public can read vehicles" ON public.vehicles;
 CREATE POLICY "Public can read vehicles" ON public.vehicles FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Public can read branches" ON public.branches;
 CREATE POLICY "Public can read branches" ON public.branches FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can read hero_banners" ON public.hero_banners;
+CREATE POLICY "Public can read hero_banners" ON public.hero_banners FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can read site_settings" ON public.site_settings;
+CREATE POLICY "Public can read site_settings" ON public.site_settings FOR SELECT USING (true);
+
+-- Policy: Announcements hanya bisa diakses oleh Admin Authenticated
+DROP POLICY IF EXISTS "Authenticated users can manage announcements" ON public.announcements;
+CREATE POLICY "Authenticated users can manage announcements" ON public.announcements FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
 
 DROP POLICY IF EXISTS "Public can read hero_banners" ON public.hero_banners;
 CREATE POLICY "Public can read hero_banners" ON public.hero_banners FOR SELECT USING (true);

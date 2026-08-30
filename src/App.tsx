@@ -26,6 +26,7 @@ export default function App() {
     branches,
     banners,
     siteSettings,
+    announcements,
     isLoading,
     isSyncing,
     supabaseConnected,
@@ -36,6 +37,8 @@ export default function App() {
     saveBanner,
     deleteBanner,
     saveSiteSettings,
+    saveAnnouncement,
+    deleteAnnouncement,
   } = useDataStore();
 
   const [selectedBranch, setSelectedBranch] = useState<Branch>(branches[0] || BRANCHES_DATA[0]);
@@ -188,6 +191,7 @@ export default function App() {
         branches={branches}
         banners={banners}
         siteSettings={siteSettings}
+        announcements={announcements}
         isSyncing={isSyncing}
         supabaseConnected={supabaseConnected}
         onSync={syncWithSupabase}
@@ -197,6 +201,8 @@ export default function App() {
         onSaveBanner={saveBanner}
         onDeleteBanner={deleteBanner}
         onSaveSiteSettings={saveSiteSettings}
+        onSaveAnnouncement={saveAnnouncement}
+        onDeleteAnnouncement={deleteAnnouncement}
         onBackToWebsite={() => handleNavigate('home')}
         onLogout={() => setIsAdminAuthenticated(false)}
       />

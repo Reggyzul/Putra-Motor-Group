@@ -117,4 +117,27 @@ export interface SiteSettings {
   [key: string]: string;
 }
 
+export interface AnnouncementAttachment {
+  name: string;
+  url: string;
+  size?: string;
+  type?: string;
+}
+
+export type AnnouncementCategory = 'Penting' | 'Operasional' | 'Promo Internal' | 'Agenda Kantor' | 'Umum';
+
+export interface Announcement {
+  id: string;
+  title: string;
+  category: AnnouncementCategory;
+  content: string;
+  author: string;
+  isPinned?: boolean;
+  image?: string;
+  attachments?: AnnouncementAttachment[];
+  createdAt: string;
+  updatedAt?: string;
+}
+
+
 

@@ -15,7 +15,13 @@ import {
   Sparkles,
   TrendingUp,
   ShieldCheck,
-  Globe
+  Globe,
+  Megaphone,
+  Pin,
+  Paperclip,
+  ArrowLeftRight,
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { VehicleManager } from './VehicleManager';
@@ -23,16 +29,17 @@ import { BannerManager } from './BannerManager';
 import { BranchManager } from './BranchManager';
 import { SiteSettingsManager } from './SiteSettingsManager';
 import { ServicesManager } from './ServicesManager';
+import { AnnouncementManager } from './AnnouncementManager';
 import { DatabaseSetupGuide } from './DatabaseSetupGuide';
-import { Vehicle, Branch, HeroBanner, SiteSettings } from '../../types';
+import { Vehicle, Branch, HeroBanner, SiteSettings, Announcement } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
-import { ArrowLeftRight } from 'lucide-react';
 
 interface AdminDashboardProps {
   vehicles: Vehicle[];
   branches: Branch[];
   banners: HeroBanner[];
   siteSettings: SiteSettings;
+  announcements: Announcement[];
   isSyncing: boolean;
   supabaseConnected: boolean;
   onSync: () => void;
@@ -42,17 +49,20 @@ interface AdminDashboardProps {
   onSaveBanner: (banner: HeroBanner) => Promise<{ success: boolean; error?: string }>;
   onDeleteBanner: (id: string) => Promise<{ success: boolean; error?: string }>;
   onSaveSiteSettings: (settings: Partial<SiteSettings>) => Promise<{ success: boolean; error?: string }>;
+  onSaveAnnouncement: (announcement: Announcement) => Promise<{ success: boolean; error?: string }>;
+  onDeleteAnnouncement: (id: string) => Promise<{ success: boolean; error?: string }>;
   onBackToWebsite: () => void;
   onLogout: () => void;
 }
 
-type AdminTab = 'overview' | 'vehicles' | 'banners' | 'branches' | 'services' | 'settings' | 'database';
+type AdminTab = 'overview' | 'announcements' | 'vehicles' | 'banners' | 'branches' | 'services' | 'settings' | 'database';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   vehicles,
   branches,
   banners,
   siteSettings,
+  announcements,
   isSyncing,
   supabaseConnected,
   onSync,
@@ -62,11 +72,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onSaveBanner,
   onDeleteBanner,
   onSaveSiteSettings,
+  onSaveAnnouncement,
+  onDeleteAnnouncement,
   onBackToWebsite,
   onLogout,
 }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [selectedAnnouncementDetail, setSelectedAnnouncementDetail] = useState<Announcement | null>(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -75,6 +88,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const navItems = [
     { id: 'overview', label: 'Ringkasan Dashboard', icon: LayoutDashboard, badge: null },
+    { id: 'announcements', label: 'Pengumuman Kantor', icon: Megaphone, badge: `${announcements.length}` },
     { id: 'vehicles', label: 'Kelola Stok Motor', icon: Bike, badge: `${vehicles.length}` },
     { id: 'banners', label: 'Hero Promo Banner', icon: ImageIcon, badge: `${banners.length}` },
     { id: 'branches', label: 'Cabang Showroom', icon: Building2, badge: `${branches.length}` },
@@ -82,6 +96,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     { id: 'settings', label: 'Pengaturan Website', icon: Settings, badge: null },
     { id: 'database', label: 'Status DB & Keep-Alive', icon: Database, badge: 'Aktif' },
   ];
+
+  const latestAnnouncement = announcements[0];
 
   return (
     <div className="min-h-screen bg-[#F4F7FC] text-slate-800 flex font-['Plus_Jakarta_Sans',sans-serif]">
@@ -256,6 +272,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in">
               
+              {/* ================================================================= */}
+              {/* TOP ANNOUNCEMENT TICKER CARD (Khusus Admin)                       */}
+              {/* ================================================================= */}
+              {latestAnnouncement && (
+                <div className="bg-gradient-to-r from-amber-500/15 via-blue-50 to-white border border-amber-200/90 rounded-3xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                      <Megaphone className="w-5 h-5 animate-bounce" />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                          {latestAnnouncement.category}
+                        </span>
+                        {latestAnnouncement.isPinned && (
+                          <span className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                            <Pin className="w-3 h-3 fill-amber-600 text-amber-600" />
+                            <span>Penting</span>
+                          </span>
+                        )}
+                        <span className="text-[11px] text-slate-400 font-medium">
+                          Update Kantor • {new Date(latestAnnouncement.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate mt-1">
+                        {latestAnnouncement.title}
+                      </h4>
+                      <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">
+                        {latestAnnouncement.content}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAnnouncementDetail(latestAnnouncement)}
+                      className="px-3.5 py-2 bg-white hover:bg-blue-50 text-[#0B63E5] border border-blue-200 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"
+                    >
+                      Baca Pengumuman
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('announcements')}
+                      className="px-3.5 py-2 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-xs"
+                    >
+                      Kelola Semua ({announcements.length}) →
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Welcome Banner */}
               <div className="bg-gradient-to-r from-[#0B63E5] to-blue-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
                 <div className="relative z-10 max-w-xl space-y-2">
@@ -272,10 +342,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              {/* 4 Stat Cards */}
+              {/* Stat Cards Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 
-                {/* 1. Total Motor */}
+                {/* 1. Pengumuman Kantor */}
+                <div 
+                  onClick={() => setActiveTab('announcements')}
+                  className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition cursor-pointer group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Megaphone className="w-5 h-5" />
+                  </div>
+                  <div className="text-xs font-bold text-slate-400">Pengumuman Kantor</div>
+                  <div className="text-2xl font-black text-slate-900 mt-0.5">{announcements.length} Memo</div>
+                </div>
+
+                {/* 2. Total Motor */}
                 <div 
                   onClick={() => setActiveTab('vehicles')}
                   className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition cursor-pointer group"
@@ -287,7 +369,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="text-2xl font-black text-slate-900 mt-0.5">{vehicles.length} Unit</div>
                 </div>
 
-                {/* 2. Total Cabang */}
+                {/* 3. Total Cabang */}
                 <div 
                   onClick={() => setActiveTab('branches')}
                   className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition cursor-pointer group"
@@ -299,7 +381,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="text-2xl font-black text-slate-900 mt-0.5">{branches.length} Lokasi</div>
                 </div>
 
-                {/* 3. Hero Promo Banner */}
+                {/* 4. Hero Promo Banner */}
                 <div 
                   onClick={() => setActiveTab('banners')}
                   className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition cursor-pointer group"
@@ -309,18 +391,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                   <div className="text-xs font-bold text-slate-400">Promo Banner Aktif</div>
                   <div className="text-2xl font-black text-slate-900 mt-0.5">{banners.length} Slide</div>
-                </div>
-
-                {/* 4. Sistem Keep-Alive */}
-                <div 
-                  onClick={() => setActiveTab('database')}
-                  className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md transition cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs font-bold text-slate-400">Status Keep-Alive</div>
-                  <div className="text-2xl font-black text-emerald-600 mt-0.5">100% Aktif</div>
                 </div>
 
               </div>
@@ -399,7 +469,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
-          {/* TAB 2: VEHICLES */}
+          {/* TAB 2: ANNOUNCEMENTS */}
+          {activeTab === 'announcements' && (
+            <AnnouncementManager
+              announcements={announcements}
+              onSaveAnnouncement={onSaveAnnouncement}
+              onDeleteAnnouncement={onDeleteAnnouncement}
+            />
+          )}
+
+          {/* TAB 3: VEHICLES */}
           {activeTab === 'vehicles' && (
             <VehicleManager
               vehicles={vehicles}
@@ -409,7 +488,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
-          {/* TAB 3: BANNERS */}
+          {/* TAB 4: BANNERS */}
           {activeTab === 'banners' && (
             <BannerManager
               banners={banners}
@@ -418,7 +497,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
-          {/* TAB 4: BRANCHES */}
+          {/* TAB 5: BRANCHES */}
           {activeTab === 'branches' && (
             <BranchManager
               branches={branches}
@@ -426,7 +505,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
-          {/* TAB 5: SERVICES (TUKAR TAMBAH & DANA TUNAI) */}
+          {/* TAB 6: SERVICES (TUKAR TAMBAH & DANA TUNAI) */}
           {activeTab === 'services' && (
             <ServicesManager
               siteSettings={siteSettings}
@@ -434,7 +513,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
-          {/* TAB 6: SITE SETTINGS */}
+          {/* TAB 7: SITE SETTINGS */}
           {activeTab === 'settings' && (
             <SiteSettingsManager
               siteSettings={siteSettings}
@@ -442,7 +521,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             />
           )}
 
-          {/* TAB 6: DATABASE & KEEP-ALIVE */}
+          {/* TAB 8: DATABASE & KEEP-ALIVE */}
           {activeTab === 'database' && (
             <DatabaseSetupGuide />
           )}
@@ -450,6 +529,93 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </main>
 
       </div>
+
+      {/* ========================================================================= */}
+      {/* QUICK ANNOUNCEMENT DETAIL MODAL FROM OVERVIEW                             */}
+      {/* ========================================================================= */}
+      {selectedAnnouncementDetail && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-blue-100 overflow-hidden">
+            
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-blue-50/50">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                  {selectedAnnouncementDetail.category}
+                </span>
+                <span className="text-xs text-slate-400 font-semibold">
+                  {new Date(selectedAnnouncementDetail.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedAnnouncementDetail(null)}
+                className="w-8 h-8 rounded-full bg-white text-slate-400 hover:text-slate-700 flex items-center justify-center border border-gray-200 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-snug">
+                {selectedAnnouncementDetail.title}
+              </h2>
+
+              {selectedAnnouncementDetail.image && (
+                <div className="rounded-2xl overflow-hidden border border-gray-200 max-h-72">
+                  <img src={selectedAnnouncementDetail.image} alt={selectedAnnouncementDetail.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line font-medium">
+                {selectedAnnouncementDetail.content}
+              </div>
+
+              {selectedAnnouncementDetail.attachments && selectedAnnouncementDetail.attachments.length > 0 && (
+                <div className="pt-4 border-t border-gray-100 space-y-2">
+                  <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <Paperclip className="w-4 h-4 text-blue-600" />
+                    <span>Dokumen Terlampir:</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {selectedAnnouncementDetail.attachments.map((att, i) => (
+                      <a
+                        key={i}
+                        href={att.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-blue-50 border border-gray-200 text-xs font-bold text-slate-800 hover:text-blue-600 transition"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <FileText className="w-4 h-4 text-blue-600 shrink-0" />
+                          <span className="truncate">{att.name}</span>
+                        </div>
+                        <span className="text-[11px] text-blue-600 font-mono shrink-0 ml-2">
+                          Unduh / Buka Dokumen →
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-gray-100 text-xs text-slate-400 font-semibold">
+                Diterbitkan oleh: <strong>{selectedAnnouncementDetail.author}</strong>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-gray-100 bg-slate-50 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedAnnouncementDetail(null)}
+                className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
