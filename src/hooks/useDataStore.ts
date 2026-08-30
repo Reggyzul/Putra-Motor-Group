@@ -100,7 +100,6 @@ const LS_SETTINGS_KEY = 'pmg_cache_settings';
 const LS_ANNOUNCEMENTS_KEY = 'pmg_cache_announcements';
 
 export function useDataStore() {
-  // Instant Smooth Hydration: Initialize immediately with cached/default data
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     try {
       const cached = localStorage.getItem(LS_VEHICLES_KEY);
@@ -150,6 +149,7 @@ export function useDataStore() {
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);
+  const [dbTablesReady, setDbTablesReady] = useState<boolean>(true);
 
   // Fetch and Sync directly from Supabase
   const syncWithSupabase = useCallback(async () => {
@@ -164,7 +164,10 @@ export function useDataStore() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!vErr && dbVehicles && dbVehicles.length > 0) {
+      if (vErr && vErr.code === 'PGRST205') {
+        setDbTablesReady(false);
+      } else if (!vErr && dbVehicles && dbVehicles.length > 0) {
+        setDbTablesReady(true);
         const formatted: Vehicle[] = dbVehicles.map((v: any) => ({
           id: v.id,
           name: v.name,
@@ -261,7 +264,7 @@ export function useDataStore() {
         localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(settingsMap));
       }
 
-      // E. Fetch Announcements (Internal Office Update - Admin Only)
+      // E. Fetch Announcements from Supabase
       const { data: dbAnnouncements, error: aErr } = await supabase
         .from('announcements')
         .select('*')
@@ -296,20 +299,40 @@ export function useDataStore() {
     }
   }, []);
 
-  // Initial fetch on mount
+  // Multi-Device Realtime Listener & Window Focus Synchronization
   useEffect(() => {
     syncWithSupabase();
+
+    // 1. Supabase Realtime Broadcast Subscription
+    const channel = supabase
+      .channel('schema-db-realtime-changes')
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+        syncWithSupabase();
+      })
+      .subscribe();
+
+    // 2. Window Focus & Visibility Listener (Auto-fetch when switching back to app)
+    const handleFocus = () => syncWithSupabase();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') syncWithSupabase();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // 3. Periodic 15s poll
+    const interval = setInterval(syncWithSupabase, 15000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      clearInterval(interval);
+    };
   }, [syncWithSupabase]);
 
-  // MUTATION: Save Vehicle
+  // MUTATION: Save Vehicle (Insert / Update to Cloud & Local)
   const saveVehicle = async (vehicle: Vehicle): Promise<{ success: boolean; error?: string }> => {
-    const updated = vehicles.some((v) => v.id === vehicle.id)
-      ? vehicles.map((v) => (v.id === vehicle.id ? vehicle : v))
-      : [vehicle, ...vehicles];
-
-    setVehicles(updated);
-    localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
-
     try {
       const dbPayload = {
         id: vehicle.id,
@@ -331,36 +354,50 @@ export function useDataStore() {
       };
 
       const { error } = await supabase.from('vehicles').upsert(dbPayload);
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
+
+      // Optimistic local update after cloud save succeeds
+      const updated = vehicles.some((v) => v.id === vehicle.id)
+        ? vehicles.map((v) => (v.id === vehicle.id ? vehicle : v))
+        : [vehicle, ...vehicles];
+
+      setVehicles(updated);
+      localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
+      setDbTablesReady(true);
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase vehicle upsert notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase vehicle save error:', err);
+      const isMissingTable = err.code === 'PGRST205' || err.message?.includes('schema cache');
+      if (isMissingTable) setDbTablesReady(false);
+      return { 
+        success: false, 
+        error: isMissingTable 
+          ? 'Tabel Supabase belum dibuat! Buka menu "Status DB & Keep-Alive", salin script SQL, lalu jalankan di Supabase SQL Editor.' 
+          : err.message 
+      };
     }
   };
 
   // MUTATION: Delete Vehicle
   const deleteVehicle = async (id: string): Promise<{ success: boolean; error?: string }> => {
-    const updated = vehicles.filter((v) => v.id !== id);
-    setVehicles(updated);
-    localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
-
     try {
       const { error } = await supabase.from('vehicles').delete().eq('id', id);
       if (error) throw error;
+
+      const updated = vehicles.filter((v) => v.id !== id);
+      setVehicles(updated);
+      localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase vehicle delete notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase vehicle delete error:', err);
+      return { success: false, error: err.message };
     }
   };
 
   // MUTATION: Save Branch
   const saveBranch = async (branch: Branch): Promise<{ success: boolean; error?: string }> => {
-    const updated = branches.map((b) => (b.id === branch.id ? branch : b));
-    setBranches(updated);
-    localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(updated));
-
     try {
       const dbPayload = {
         id: branch.id,
@@ -383,22 +420,19 @@ export function useDataStore() {
 
       const { error } = await supabase.from('branches').upsert(dbPayload);
       if (error) throw error;
+
+      const updated = branches.map((b) => (b.id === branch.id ? branch : b));
+      setBranches(updated);
+      localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase branch upsert notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase branch save error:', err);
+      return { success: false, error: err.message };
     }
   };
 
   // MUTATION: Save Banner
   const saveBanner = async (banner: HeroBanner): Promise<{ success: boolean; error?: string }> => {
-    const updated = banners.some((b) => b.id === banner.id)
-      ? banners.map((b) => (b.id === banner.id ? banner : b))
-      : [...banners, banner];
-
-    setBanners(updated);
-    localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
-
     try {
       const dbPayload = {
         id: banner.id,
@@ -418,35 +452,38 @@ export function useDataStore() {
 
       const { error } = await supabase.from('hero_banners').upsert(dbPayload);
       if (error) throw error;
+
+      const updated = banners.some((b) => b.id === banner.id)
+        ? banners.map((b) => (b.id === banner.id ? banner : b))
+        : [...banners, banner];
+
+      setBanners(updated);
+      localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase banner upsert notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase banner save error:', err);
+      return { success: false, error: err.message };
     }
   };
 
   // MUTATION: Delete Banner
   const deleteBanner = async (id: string): Promise<{ success: boolean; error?: string }> => {
-    const updated = banners.filter((b) => b.id !== id);
-    setBanners(updated);
-    localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
-
     try {
       const { error } = await supabase.from('hero_banners').delete().eq('id', id);
       if (error) throw error;
+
+      const updated = banners.filter((b) => b.id !== id);
+      setBanners(updated);
+      localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase banner delete notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase banner delete error:', err);
+      return { success: false, error: err.message };
     }
   };
 
   // MUTATION: Save Site Settings
   const saveSiteSettings = async (settings: Partial<SiteSettings>): Promise<{ success: boolean; error?: string }> => {
-    const updated = { ...siteSettings, ...settings };
-    setSiteSettings(updated);
-    localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(updated));
-
     try {
       const upsertPromises = Object.entries(settings).map(([key, value]) =>
         supabase.from('site_settings').upsert({
@@ -455,23 +492,22 @@ export function useDataStore() {
           updated_at: new Date().toISOString(),
         })
       );
-      await Promise.all(upsertPromises);
+      const results = await Promise.all(upsertPromises);
+      const firstError = results.find((r) => r.error)?.error;
+      if (firstError) throw firstError;
+
+      const updated = { ...siteSettings, ...settings };
+      setSiteSettings(updated);
+      localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase site settings upsert notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase site settings save error:', err);
+      return { success: false, error: err.message };
     }
   };
 
-  // MUTATION: Save Announcement (Admin Only)
+  // MUTATION: Save Announcement
   const saveAnnouncement = async (announcement: Announcement): Promise<{ success: boolean; error?: string }> => {
-    const updated = announcements.some((a) => a.id === announcement.id)
-      ? announcements.map((a) => (a.id === announcement.id ? announcement : a))
-      : [announcement, ...announcements];
-
-    setAnnouncements(updated);
-    localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
-
     try {
       const dbPayload = {
         id: announcement.id,
@@ -487,26 +523,33 @@ export function useDataStore() {
 
       const { error } = await supabase.from('announcements').upsert(dbPayload);
       if (error) throw error;
+
+      const updated = announcements.some((a) => a.id === announcement.id)
+        ? announcements.map((a) => (a.id === announcement.id ? announcement : a))
+        : [announcement, ...announcements];
+
+      setAnnouncements(updated);
+      localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase announcement upsert notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase announcement save error:', err);
+      return { success: false, error: err.message };
     }
   };
 
-  // MUTATION: Delete Announcement (Admin Only)
+  // MUTATION: Delete Announcement
   const deleteAnnouncement = async (id: string): Promise<{ success: boolean; error?: string }> => {
-    const updated = announcements.filter((a) => a.id !== id);
-    setAnnouncements(updated);
-    localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
-
     try {
       const { error } = await supabase.from('announcements').delete().eq('id', id);
       if (error) throw error;
+
+      const updated = announcements.filter((a) => a.id !== id);
+      setAnnouncements(updated);
+      localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase announcement delete notice:', err);
-      return { success: true, error: err.message };
+      console.error('Supabase announcement delete error:', err);
+      return { success: false, error: err.message };
     }
   };
 
@@ -520,6 +563,7 @@ export function useDataStore() {
     isSyncing,
     lastSynced,
     supabaseConnected,
+    dbTablesReady,
     syncWithSupabase,
     saveVehicle,
     deleteVehicle,

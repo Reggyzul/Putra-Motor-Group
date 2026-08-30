@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS public.vehicles (
     images JSONB NOT NULL DEFAULT '[]'::jsonb,
     branch_id TEXT NOT NULL DEFAULT 'kisaran',
     installment_estimates JSONB DEFAULT '{"tenor11": 0, "tenor23": 0, "tenor35": 0}'::jsonb,
+    is_featured BOOLEAN DEFAULT FALSE,
+    is_hot_promo BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -96,23 +98,12 @@ ALTER TABLE public.hero_banners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
--- Policy: Publik bisa membaca data umum
+-- Policy: Publik bisa membaca data
 DROP POLICY IF EXISTS "Public can read vehicles" ON public.vehicles;
 CREATE POLICY "Public can read vehicles" ON public.vehicles FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Public can read branches" ON public.branches;
 CREATE POLICY "Public can read branches" ON public.branches FOR SELECT USING (true);
-
-DROP POLICY IF EXISTS "Public can read hero_banners" ON public.hero_banners;
-CREATE POLICY "Public can read hero_banners" ON public.hero_banners FOR SELECT USING (true);
-
-DROP POLICY IF EXISTS "Public can read site_settings" ON public.site_settings;
-CREATE POLICY "Public can read site_settings" ON public.site_settings FOR SELECT USING (true);
-
--- Policy: Announcements hanya bisa diakses oleh Admin Authenticated
-DROP POLICY IF EXISTS "Authenticated users can manage announcements" ON public.announcements;
-CREATE POLICY "Authenticated users can manage announcements" ON public.announcements FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
 
 DROP POLICY IF EXISTS "Public can read hero_banners" ON public.hero_banners;
 CREATE POLICY "Public can read hero_banners" ON public.hero_banners FOR SELECT USING (true);
@@ -132,6 +123,9 @@ CREATE POLICY "Authenticated users can manage hero_banners" ON public.hero_banne
 
 DROP POLICY IF EXISTS "Authenticated users can manage site_settings" ON public.site_settings;
 CREATE POLICY "Authenticated users can manage site_settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Authenticated users can manage announcements" ON public.announcements;
+CREATE POLICY "Authenticated users can manage announcements" ON public.announcements FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ============================================================================
 -- SEED INITIAL DATA (DATA AWAL LENGKAP PANDU MOTOR GROUP)
@@ -160,5 +154,34 @@ VALUES
 ('official_email', 'putramotorgroup.id@gmail.com', 'Alamat Email Resmi'),
 ('official_phone', '0822-7647-7628', 'Nomor Telepon & WhatsApp Resmi'),
 ('tagline', 'Melayani Sepenuh Hati', 'Slogan / Tagline Brand'),
-('brand_name', 'Pandu Motor Group', 'Nama Brand Utama')
+('brand_name', 'Pandu Motor Group', 'Nama Brand Utama'),
+('tradein_hero_title', 'Berencana ganti motor? Tukar tambah bisa jadi solusi buatmu', 'Judul Tukar Tambah'),
+('tradein_hero_subtitle', 'Tukar tambah di Pandu Motor Group memungkinkanmu menukar motor bekas dengan motor impianmu, dengan proses yang cepat, transparan, dan pilihan unit terlengkap.', 'Deskripsi Tukar Tambah'),
+('tradein_hero_cta', 'Tukar tambah sekarang', 'Tombol CTA Tukar Tambah'),
+('tradein_hero_image', '/images/momotor_banner_nmax_aerox.avif', 'Foto Hero Tukar Tambah'),
+('danatunai_hero_title', 'Apa itu Dana Tunai?', 'Judul Dana Tunai'),
+('danatunai_hero_subtitle', 'Fasilitas Dana Tunai merupakan fasilitas pinjaman khusus bagi Anda yang membutuhkan dana cepat dan aman dengan jaminan BPKB Sepeda Motor atau Mobil untuk memenuhi berbagai macam kebutuhan (modal usaha, renovasi rumah, biaya pendidikan, kesehatan, maupun kebutuhan lainnya). Kendaraan fisik tetap dapat Anda gunakan sehari-hari.', 'Deskripsi Dana Tunai'),
+('danatunai_hero_cta', 'Ajukan dana sekarang', 'Tombol CTA Dana Tunai'),
+('danatunai_purpose_1', 'Renovasi atau Furniture', 'Peruntukan 1'),
+('danatunai_purpose_2', 'Biaya Pendidikan', 'Peruntukan 2'),
+('danatunai_purpose_3', 'Barang Elektronik', 'Peruntukan 3'),
+('danatunai_purpose_4', 'Biaya Kesehatan', 'Peruntukan 4')
 ON CONFLICT (key) DO NOTHING;
+
+-- Seed Pengumuman Kantor
+INSERT INTO public.announcements (id, title, category, content, author, is_pinned, image, attachments)
+VALUES
+('ann-1', 'SOP Penerimaan & Standarisasi Cek Fisik Unit Masuk 4 Cabang', 'Operasional', 'Diberitahukan kepada seluruh Kepala Cabang dan Tim Mekanik (Kisaran, Perdagangan, Cikampak, Dumai), setiap unit motor baru maupun bekas yang masuk wajib melewati 20 titik inspeksi fisik, cek nomor rangka/mesin, dan pengecekan kelistrikan sebelum dipajang di area display showroom.', 'Direksi Kantor Pusat', true, '/images/pandu motor kisaran.avif', '[{"name": "Form_Inspeksi_20_Titik_SOP.pdf", "url": "#", "size": "1.2 MB", "type": "PDF"}]'::jsonb),
+('ann-2', 'Program Insentif Penjualan & Target Semester II', 'Penting', 'Selamat kepada cabang Kisaran dan Perdagangan yang telah melampaui target penjualan bulan lalu. Untuk Semester II, manajemen memberlakukan skema bonus tambahan bagi sales counter dan marketing lapangan untuk setiap unit kredit dan dana tunai BPKB yang berhasil closing.', 'HRD & Finance', true, '/images/pandu_logo.avif', '[]'::jsonb)
+ON CONFLICT (id) DO NOTHING;
+
+-- Seed Stok Motor Awal
+INSERT INTO public.vehicles (id, name, brand, category, condition, year, price, dp_min, mileage, transmission, engine_capacity, description, images, branch_id, installment_estimates, is_featured)
+VALUES
+('pm-vario125-esp-cbs', 'VARIO 125 ESP CBS', 'Honda', 'matic', 'bekas', 2022, 20600000, 2000000, 8500, 'Automatic', '125 cc eSP', 'Kondisi 98% mulus terawat, mesin halus standar dealer, servis rutin, ban tebal siap pakai.', '["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'kisaran', '{"tenor11": 1980000, "tenor23": 1120000, "tenor35": 883609}'::jsonb, true),
+('pm-beat-dlx-smart-key', 'BEAT DLX SMART KEY', 'Honda', 'matic', 'bekas', 2021, 15700000, 1500000, 4200, 'Automatic', '110 cc eSP', 'Tipe tertinggi Deluxe Smart Key, body mulus kinclong tanpa lecet berarti, kelistrikan & starter lancar jaya.', '["https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'perdagangan', '{"tenor11": 1510000, "tenor23": 860000, "tenor35": 673430}'::jsonb, true),
+('pm-scoopy-prestige-2023', 'SCOOPY PRESTIGE SMART KEY', 'Honda', 'matic', 'bekas', 2023, 21800000, 2500000, 6100, 'Automatic', '110 cc eSP', 'Kondisi istimewa tangan pertama dari baru, warna favorit Prestige White, velg emas mewah.', '["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'cikampak', '{"tenor11": 2090000, "tenor23": 1180000, "tenor35": 935000}'::jsonb, true),
+('pm-nmax-155-connected', 'ALL NEW NMAX 155 CONNECTED', 'Yamaha', 'maxi', 'bekas', 2022, 28900000, 3000000, 9200, 'Automatic', '155 cc VVA', 'Fitur Y-Connect aktif, mesin bertenaga VVA, suspensi tabung belakang empuk, ban tebal depan-belakang.', '["https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'dumai', '{"tenor11": 2770000, "tenor23": 1570000, "tenor35": 1239000}'::jsonb, true),
+('pm-aerox-155-cybercity', 'AEROX 155 CYBERCITY VVA', 'Yamaha', 'maxi', 'bekas', 2023, 27500000, 2800000, 5400, 'Automatic', '155 cc VVA', 'Edisi spesial livery Cybercity bunglon gradasi ungu-biru, tarikan spontan kencang, bodi mulus 99%.', '["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'kisaran', '{"tenor11": 2640000, "tenor23": 1490000, "tenor35": 1179000}'::jsonb, true),
+('pm-pcx-160-abs', 'HONDA ALL NEW PCX 160 ABS', 'Honda', 'maxi', 'baru', 2024, 36500000, 3500000, 0, 'Automatic', '160 cc eSP+ 4-Valve', 'Unit baru 100% dari dealer resmi Honda Pandu Motor Group. Sistem pengereman ABS + HSTC aman di jalan basah.', '["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'kisaran', '{"tenor11": 3500000, "tenor23": 1980000, "tenor35": 1565000}'::jsonb, true)
+ON CONFLICT (id) DO NOTHING;

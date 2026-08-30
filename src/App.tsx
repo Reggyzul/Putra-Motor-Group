@@ -30,6 +30,7 @@ export default function App() {
     isLoading,
     isSyncing,
     supabaseConnected,
+    dbTablesReady,
     syncWithSupabase,
     saveVehicle,
     deleteVehicle,
@@ -194,6 +195,7 @@ export default function App() {
         announcements={announcements}
         isSyncing={isSyncing}
         supabaseConnected={supabaseConnected}
+        dbTablesReady={dbTablesReady}
         onSync={syncWithSupabase}
         onSaveVehicle={saveVehicle}
         onDeleteVehicle={deleteVehicle}

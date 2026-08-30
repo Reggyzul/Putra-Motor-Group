@@ -42,6 +42,7 @@ interface AdminDashboardProps {
   announcements: Announcement[];
   isSyncing: boolean;
   supabaseConnected: boolean;
+  dbTablesReady?: boolean;
   onSync: () => void;
   onSaveVehicle: (vehicle: Vehicle) => Promise<{ success: boolean; error?: string }>;
   onDeleteVehicle: (id: string) => Promise<{ success: boolean; error?: string }>;
@@ -65,6 +66,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   announcements,
   isSyncing,
   supabaseConnected,
+  dbTablesReady = true,
   onSync,
   onSaveVehicle,
   onDeleteVehicle,
@@ -266,8 +268,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </header>
 
         {/* Main Content Body */}
-        <main className="p-4 sm:p-8 flex-1 max-w-6xl w-full mx-auto">
+        <main className="p-4 sm:p-8 flex-1 max-w-6xl w-full mx-auto space-y-6">
           
+          {/* CRITICAL WARNING: Tables Not Created Yet */}
+          {!dbTablesReady && (
+            <div className="bg-red-500/10 border-2 border-red-500 rounded-3xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                  <Database className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-red-900">
+                    Tabel Database Supabase Belum Diinisialisasi
+                  </h4>
+                  <p className="text-xs text-red-800 mt-0.5 leading-relaxed">
+                    Perubahan data belum bisa tersinkron ke device lain karena tabel cloud di Supabase belum dibuat.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('database')}
+                className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow-sm transition flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
+              >
+                <span>Buka Setup SQL & Sinkronkan Sekarang →</span>
+              </button>
+            </div>
+          )}
+
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in">
