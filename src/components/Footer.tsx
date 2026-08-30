@@ -8,7 +8,8 @@ import {
   ShieldCheck, 
   BadgeDollarSign, 
   Calculator, 
-  ArrowRight
+  ArrowRight,
+  Lock
 } from 'lucide-react';
 import { COMPANY_INFO, BRANCHES_DATA } from '../data/branches';
 import { Branch, SiteSettings } from '../types';
@@ -30,6 +31,7 @@ export const Footer: React.FC<FooterProps> = ({
   const email = siteSettings?.official_email || 'putramotorgroup.id@gmail.com';
   const phone = siteSettings?.official_phone || '0822-7647-7628';
   const tagline = siteSettings?.tagline || COMPANY_INFO.tagline;
+
   return (
     <footer className="bg-slate-900 text-slate-300 text-xs">
       
@@ -41,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({
               Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
             </div>
             <div className="text-xs text-blue-100 mt-0.5">
-              Pandu Motor Group selalu berkomitmen <strong>“{COMPANY_INFO.tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara & Riau.
+              Pandu Motor Group selalu berkomitmen <strong>“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara & Riau.
             </div>
           </div>
 
@@ -200,11 +202,22 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li className="flex items-center gap-2">
                 <PhoneCall className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>0822-7647-7628</span>
+                <span>{phone}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <span>Buka Setiap Hari: 08.00 - 17.00 WIB</span>
+              </li>
+              {/* Admin Login Dipindahkan Tepat di Bawah Buka Setiap Hari */}
+              <li className="pt-2 border-t border-slate-800/80">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('admin')}
+                  className="flex items-center gap-1.5 text-slate-400 hover:text-amber-400 font-semibold transition cursor-pointer text-xs group"
+                >
+                  <Lock className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 shrink-0" />
+                  <span>Admin Login</span>
+                </button>
               </li>
             </ul>
           </div>
@@ -212,19 +225,8 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Legal & Copyright */}
-        <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-          <div>
-            © 2026 Pandu Motor Group. Hak Cipta Dilindungi Undang-Undang.
-          </div>
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="hover:text-slate-400 cursor-pointer">Syarat & Ketentuan</span>
-            <span>•</span>
-            <span className="hover:text-slate-400 cursor-pointer">Kebijakan Privasi</span>
-            <span>•</span>
-            <span onClick={() => onNavigate('cabang')} className="hover:text-slate-400 cursor-pointer">4 Cabang Showroom</span>
-            <span>•</span>
-            <span onClick={() => onNavigate('admin')} className="hover:text-amber-400 text-slate-400 font-semibold cursor-pointer">Admin Login</span>
-          </div>
+        <div className="mt-10 pt-6 border-t border-slate-800 text-center text-[11px] text-slate-500">
+          © 2026 Pandu Motor Group. Hak Cipta Dilindungi Undang-Undang.
         </div>
 
       </div>
