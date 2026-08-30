@@ -138,7 +138,7 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
             <div className="md:col-span-5 relative flex justify-center items-center">
               <div className="relative w-full max-w-md aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-blue-200/50 bg-white/40">
                 <img
-                  src="/images/momotor_banner_nmax_aerox.jpg"
+                  src="/images/momotor_banner_nmax_aerox.avif"
                   alt="Tukar Tambah Motor Pandu Motor Group"
                   className="w-full h-full object-cover object-center"
                 />

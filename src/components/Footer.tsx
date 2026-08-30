@@ -66,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="lg:col-span-2 space-y-3.5">
             <div className="flex items-center gap-2.5">
               <img 
-                src="/images/pandu_logo.png" 
+                src="/images/pandu_logo.avif" 
                 alt="Pandu Motor Group Logo" 
                 className="w-10 h-10 rounded-full object-cover shadow-sm border border-emerald-500/40 bg-white"
               />

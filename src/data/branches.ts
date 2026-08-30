@@ -19,8 +19,8 @@ export const BRANCHES_DATA: Branch[] = [
       tiktok: '@pandumotorkisaran',
     },
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
-    image: '/images/pandu motor kisaran.jpg',
-    logo: '/images/logo_pandumotor.png',
+    image: '/images/pandu motor kisaran.avif',
+    logo: '/images/logo_pandumotor.avif',
   },
   {
     id: 'perdagangan',
@@ -40,8 +40,8 @@ export const BRANCHES_DATA: Branch[] = [
       tiktok: '@Pandumotorperdagangan',
     },
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
-    image: '/images/pandu motor 2.jpg',
-    logo: '/images/logo_pandumotor.png',
+    image: '/images/pandu motor 2.avif',
+    logo: '/images/logo_pandumotor.avif',
   },
   {
     id: 'cikampak',
@@ -61,8 +61,8 @@ export const BRANCHES_DATA: Branch[] = [
       tiktok: '@ikabinamotor',
     },
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
-    image: '/images/ikabina.jpg',
-    logo: '/images/logo_ikabina.jpg',
+    image: '/images/ikabina.avif',
+    logo: '/images/logo_ikabina.avif',
   },
   {
     id: 'dumai',
@@ -82,8 +82,8 @@ export const BRANCHES_DATA: Branch[] = [
       tiktok: '@MotorianDayaDumai',
     },
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
-    image: '/images/motoran daya bukit.jpg',
-    logo: '/images/logo_motoriandaya.jpg',
+    image: '/images/motoran daya bukit.avif',
+    logo: '/images/logo_motoriandaya.avif',
   },
 ];
 

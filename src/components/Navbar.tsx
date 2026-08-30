@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2 sm:gap-2.5 cursor-pointer shrink-0 select-none group min-w-0 pl-1.5 sm:pl-0"
           >
             <img 
-              src="/images/pandu_logo.png" 
+              src="/images/pandu_logo.avif" 
               alt="Pandu Motor Group Logo" 
               className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full object-cover shadow-2xs group-hover:scale-105 transition-all duration-200 shrink-0 border border-emerald-500/40 bg-white"
             />
