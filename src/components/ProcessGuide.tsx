@@ -58,12 +58,11 @@ export const ProcessGuide: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0B63E5] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            Panduan Mudah & Transparan
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <span>Panduan Mudah &amp; Transparan</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            Alur Pembelian & Pengajuan di Pandu Motor Group
+            Alur Transaksi di Putra Motor Group
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm">
             Langkah mudah membeli motor impian dan pengajuan dana tunai tanpa ribet.
@@ -72,12 +71,12 @@ export const ProcessGuide: React.FC = () => {
 
         {/* 1. Alur Beli Motor */}
         <div className="mb-12">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-xl bg-blue-50 text-[#0B63E5]">
+          <div className="flex items-center gap-2.5 mb-6">
+            <div className="p-2 rounded-xl bg-slate-100 text-slate-800">
               <Bike className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Alur Beli Motor (Cash & Kredit)</h3>
+              <h3 className="text-base font-bold text-slate-900">Alur Beli Motor (Cash &amp; Kredit)</h3>
               <p className="text-xs text-slate-500">4 langkah mudah miliki motor baru / bekas berkualitas</p>
             </div>
           </div>
@@ -86,9 +85,9 @@ export const ProcessGuide: React.FC = () => {
             {buySteps.map((step, idx) => (
               <div
                 key={idx}
-                className="relative bg-white border border-gray-200 rounded-2xl p-5 shadow-xs hover:border-blue-500 hover:shadow-md transition-all duration-200"
+                className="relative bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs hover:border-slate-400 hover:shadow-sm transition-all duration-200"
               >
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0B63E5] font-black text-base flex items-center justify-center mb-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center mb-3">
                   {step.num}
                 </div>
                 <h4 className="text-sm font-bold text-slate-900 mb-1">{step.title}</h4>
@@ -100,8 +99,8 @@ export const ProcessGuide: React.FC = () => {
 
         {/* 2. Alur Dana Tunai */}
         <div>
-          <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+          <div className="flex items-center gap-2.5 mb-6">
+            <div className="p-2 rounded-xl bg-slate-100 text-slate-800">
               <BadgeDollarSign className="w-5 h-5" />
             </div>
             <div>
@@ -114,9 +113,9 @@ export const ProcessGuide: React.FC = () => {
             {danaTunaiSteps.map((step, idx) => (
               <div
                 key={idx}
-                className="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs hover:border-emerald-500 hover:shadow-md transition-all duration-200"
+                className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs hover:border-slate-400 hover:shadow-sm transition-all duration-200"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 font-black text-base flex items-center justify-center mb-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center mb-3">
                   {step.num}
                 </div>
                 <h4 className="text-sm font-bold text-slate-900 mb-1">{step.title}</h4>

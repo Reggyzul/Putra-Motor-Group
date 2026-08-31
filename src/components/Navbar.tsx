@@ -73,13 +73,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#C5DCFA] border-b border-[#A4CBF9] shadow-xs backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* Main Row: Logo Sejajar, Desktop Search, & Cabang Kami */}
         <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4 lg:gap-6">
           
-          {/* 1. Pandu Motor Group Logo (Lebih Besar & Presisi, Teks Merah Elegan) */}
+          {/* 1. Pandu Motor Group Logo (Lebih Besar, Elegan & Mewah) */}
           <div 
             onClick={() => onNavigate('hero')}
             className="flex items-center gap-2.5 sm:gap-3 cursor-pointer shrink-0 select-none group min-w-0 pl-0.5 sm:pl-0"
@@ -87,18 +87,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <img 
               src="/images/pandu_logo.avif" 
               alt="Pandu Motor Group Logo" 
-              className="w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-full object-cover shadow-md group-hover:scale-105 transition-all duration-200 shrink-0 border-2 border-emerald-500/60 bg-white"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-full object-cover shadow-xs group-hover:scale-105 transition-all duration-200 shrink-0 border border-slate-200 bg-white"
             />
 
             <div className="flex flex-col min-w-0">
               {/* Nama Logo Sejajar dalam 1 Baris */}
-              <div className="flex items-center text-xs sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap">
-                <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
-                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
-                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
+              <div className="flex items-center text-sm sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap text-slate-900">
+                <span className="font-['Outfit',sans-serif]">Pandu</span>
+                <span className="font-['Outfit',sans-serif] ml-1">Motor</span>
+                <span className="font-['Outfit',sans-serif] ml-1 text-amber-600">Group</span>
               </div>
               {/* Tagline: Melayani Sepenuh Hati */}
-              <div className="text-[9px] sm:text-[11px] md:text-xs font-bold text-slate-700 tracking-tight mt-0.5 leading-none">
+              <div className="text-[9px] sm:text-[11px] md:text-xs font-semibold text-slate-500 tracking-tight mt-0.5 leading-none">
                 Melayani Sepenuh Hati
               </div>
             </div>
@@ -116,12 +116,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setIsSearchFocused(true);
                 }}
                 placeholder="Cari motor impian (NMax, BeAT, PCX, Vario, Scoopy)..."
-                className="w-full pl-4 pr-10 py-2 text-xs sm:text-sm bg-white hover:bg-white focus:bg-white border border-blue-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all shadow-2xs"
+                className="w-full pl-4 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 transition-all shadow-2xs"
               />
               <button
                 type="submit"
                 aria-label="Cari Motor"
-                className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition-colors cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
               >
                 <Search className="w-4 h-4" />
               </button>
@@ -129,22 +129,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Live Search Suggestions Dropdown */}
             {isSearchFocused && searchSuggestions.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-in fade-in duration-150">
-                <div className="p-2 border-b border-gray-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50 animate-in fade-in duration-150">
+                <div className="p-2.5 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Hasil Stok Motor Tersedia:
                 </div>
-                <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
                   {searchSuggestions.map((v) => (
                     <button
                       key={v.id}
                       type="button"
                       onClick={() => handleSelectSuggestion(v)}
-                      className="w-full p-2.5 hover:bg-blue-50/70 transition flex items-center gap-3 text-left cursor-pointer group"
+                      className="w-full p-2.5 hover:bg-slate-50 transition flex items-center gap-3 text-left cursor-pointer group"
                     >
                       <img
                         src={v.images[0]}
                         alt={v.name}
-                        className="w-12 h-9 object-cover rounded-lg border border-gray-200 shrink-0"
+                        className="w-12 h-9 object-cover rounded-lg border border-slate-200 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-bold text-slate-900 group-hover:text-blue-600 truncate">
@@ -155,10 +155,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-xs font-black text-[#0B63E5]">
+                        <div className="text-xs font-black text-slate-900">
                           {formatRupiah(v.price)}
                         </div>
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 uppercase">
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 uppercase">
                           {v.condition}
                         </span>
                       </div>
@@ -168,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   type="button"
                   onClick={handleSearch}
-                  className="w-full py-2 bg-slate-50 hover:bg-slate-100 text-[#0B63E5] font-bold text-xs text-center border-t border-gray-100 cursor-pointer"
+                  className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-900 font-bold text-xs text-center border-t border-slate-100 cursor-pointer"
                 >
                   Lihat Semua Hasil di Katalog ({searchSuggestions.length}+ Unit) →
                 </button>
@@ -181,9 +181,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('cabang')}
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold text-slate-800 hover:text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
             >
-              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
               <span>Cabang Kami</span>
             </button>
           </div>
@@ -191,19 +191,19 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Search Bar Row (Presisi di HP) */}
-        <div className="pb-2.5 md:hidden">
+        <div className="pb-3 md:hidden">
           <form onSubmit={handleSearch} className="relative flex items-center">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Cari motor (NMax, BeAT, PCX, Vario, Scoopy)..."
-              className="w-full pl-3.5 pr-9 py-2 text-xs bg-white hover:bg-white focus:bg-white border border-blue-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
+              className="w-full pl-3.5 pr-9 py-2 text-xs bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400 shadow-2xs"
             />
             <button
               type="submit"
               aria-label="Cari Motor"
-              className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-blue-600"
+              className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-800"
             >
               <Search className="w-4 h-4" />
             </button>

@@ -171,8 +171,8 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                     onClick={() => setSelectedCondition(c.id)}
                     className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
                       selectedCondition === c.id
-                        ? 'bg-[#0B63E5] text-white shadow-2xs'
-                        : 'bg-slate-50 border border-gray-200 text-slate-700 hover:bg-slate-100'
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     {c.label}
@@ -193,8 +193,8 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                     onClick={() => setSelectedBrand(b.id)}
                     className={`flex-1 py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
                       selectedBrand === b.id
-                        ? 'bg-slate-900 text-white shadow-2xs'
-                        : 'bg-slate-50 border border-gray-200 text-slate-700 hover:bg-slate-100'
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     {b.label}
@@ -205,7 +205,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
             {/* Active search filter badge info */}
             {searchQuery.trim() && (
-              <div className="flex items-center gap-2 text-xs text-slate-600 bg-blue-50 p-2.5 rounded-xl border border-blue-200">
+              <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-100 p-2.5 rounded-xl border border-slate-200">
                 <span>Menampilkan hasil pencarian untuk: <strong>"{searchQuery}"</strong> ({filteredVehicles.length} motor ditemukan)</span>
                 <button
                   type="button"
@@ -232,7 +232,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
               <div
                 key={vehicle.id}
                 onClick={() => handleCardClick(vehicle)}
-                className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer group hover:border-blue-400"
+                className="bg-white border border-slate-200/90 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer group hover:border-slate-400"
               >
                 {/* Image Section */}
                 <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
@@ -243,14 +243,14 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                     loading="lazy"
                   />
 
-                  {/* Badge Kondisi (Top Left) */}
+                  {/* Badge Kondisi (Top Left - Refined Minimalist) */}
                   <div className="absolute top-2 left-2 flex flex-col gap-1">
-                    <span className={`px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-wider shadow-2xs ${
+                    <span className={`px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-xs ${
                       vehicle.condition === 'baru'
-                        ? 'bg-[#0B63E5] text-white'
-                        : 'bg-slate-900/90 text-white backdrop-blur-xs'
+                        ? 'bg-slate-900 text-amber-400 border border-slate-800'
+                        : 'bg-slate-900/90 text-slate-200 backdrop-blur-xs'
                     }`}>
-                      {vehicle.condition === 'baru' ? 'Baru 100%' : 'Bekas Mulus'}
+                      {vehicle.condition === 'baru' ? 'Baru 100%' : 'Bekas Pilihan'}
                     </span>
                   </div>
 
@@ -296,22 +296,18 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                     </div>
 
                     {/* Title: VARIO 125 ESP CBS */}
-                    <h3 className="text-xs sm:text-[13px] font-extrabold text-slate-800 uppercase tracking-tight line-clamp-1 mt-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-xs sm:text-[13px] font-bold text-slate-800 uppercase tracking-tight line-clamp-1 mt-2 group-hover:text-blue-600 transition-colors">
                       {vehicle.name}
                     </h3>
 
                     {/* Keterangan Tersedia Baru / Bekas */}
-                    <div className="text-[10px] sm:text-[11px] font-medium mt-1 flex items-center gap-1.5 flex-wrap">
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
-                        vehicle.condition === 'baru' 
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200' 
-                          : 'bg-slate-100 text-slate-700 border border-slate-200'
-                      }`}>
-                        {vehicle.condition === 'baru' ? 'Tersedia Baru' : 'Tersedia Bekas'}
+                    <div className="text-[10px] sm:text-[11px] font-medium mt-1.5 flex items-center gap-1.5 flex-wrap">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                        {vehicle.condition === 'baru' ? 'Unit Baru' : 'Unit Bekas'}
                       </span>
-                      <span className="text-slate-400">•</span>
+                      <span className="text-slate-300">•</span>
                       <span className="text-slate-500">{vehicle.year}</span>
-                      <span className="text-slate-400">•</span>
+                      <span className="text-slate-300">•</span>
                       <span className="text-slate-500">
                         {vehicle.condition === 'baru' ? '0 km' : `${(vehicle.mileage || 5000).toLocaleString('id-ID')} km`}
                       </span>

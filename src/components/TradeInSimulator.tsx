@@ -116,19 +116,22 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
     <div className="w-full bg-[#F8FAFC]">
       
       {/* ========================================================================= */}
-      {/* 1. HERO TOP BANNER (100% Persis momotor.id Style: Soft Blue #EBF3FE)       */}
+      {/* 1. HERO BANNER SECTION (Refined Luxury Aesthetic) */}
       {/* ========================================================================= */}
-      <section className="bg-[#EBF3FE] border-b border-blue-100 py-10 sm:py-16">
+      <section className="bg-slate-900 text-white border-b border-slate-800 py-10 sm:py-16">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             
             {/* Left Content Typography */}
             <div className="md:col-span-7 space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <h1 className="text-2xl sm:text-4xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight whitespace-pre-line">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-amber-400 text-xs font-semibold uppercase tracking-wider">
+                  <span>Layanan Tukar Tambah Resmi</span>
+                </div>
+                <h1 className="text-2xl sm:text-4xl md:text-[42px] font-black text-white tracking-tight leading-tight whitespace-pre-line">
                   {heroTitle}
                 </h1>
-                <p className="text-slate-600 text-xs sm:text-base leading-relaxed max-w-xl">
+                <p className="text-slate-300 text-xs sm:text-base leading-relaxed max-w-xl">
                   {heroSubtitle}
                 </p>
               </div>
@@ -137,7 +140,7 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
                 <button
                   type="button"
                   onClick={scrollToCalculator}
-                  className="px-6 sm:px-8 py-3 sm:py-3.5 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer"
+                  className="px-6 sm:px-8 py-3 sm:py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 cursor-pointer"
                 >
                   {heroCta}
                 </button>
@@ -146,7 +149,7 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
 
             {/* Right Hero Image (Dynamic Live Preview) */}
             <div className="md:col-span-5 relative flex justify-center items-center">
-              <div className="relative w-full max-w-md aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-blue-200/50 bg-white/40">
+              <div className="relative w-full max-w-md aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-slate-800 bg-slate-800/40">
                 <img
                   src={heroImage}
                   alt="Tukar Tambah Motor Pandu Motor Group"
@@ -167,7 +170,7 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
         {/* Title */}
         <div className="mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Kalkulator & Form Tukar Tambah Simpel
+            Kalkulator &amp; Form Tukar Tambah Simpel
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
             Ketahui estimasi harga taksiran motor lama Anda dan hitung selisih bayar dalam 3 langkah mudah.
@@ -181,9 +184,9 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
           <div className="lg:col-span-7 space-y-5">
             
             {/* Box 1: Motor Lama */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
-              <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-black text-xs flex items-center justify-center">1</div>
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center">1</div>
                 <h3 className="text-sm sm:text-base font-bold text-slate-900">Data Motor Lama Anda</h3>
               </div>
 

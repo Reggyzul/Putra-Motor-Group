@@ -44,59 +44,52 @@ export const Footer: React.FC<FooterProps> = ({
       
       {showCtaBanners && (
         <>
-          {/* 1. TOP SLIM BANNER: Mau Menjual Motor Anda? Putra Motor Group Solusinya! */}
-          <div className="bg-gradient-to-r from-slate-950 via-[#072418] to-slate-900 text-white py-3.5 sm:py-4 border-b border-emerald-500/20 relative overflow-hidden shadow-inner">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left relative z-10">
-              <div className="min-w-0">
-                <div className="text-sm sm:text-base md:text-lg font-black text-white tracking-tight">
-                  {siteSettings?.jualmotor_banner_title || 'Mau menjual motor anda? Putra Motor Group Solusinya!'}
+          {/* 1. TOP BANNER: Jual Motor, Tukar Tambah, & Dana Tunai (Harmonized Luxury Style) */}
+          <div className="bg-slate-950 text-white border-t border-b border-slate-800/80">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-5 text-center lg:text-left">
+                
+                {/* Left Side: Jual Motor Highlight */}
+                <div className="max-w-xl">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-semibold text-amber-400 mb-1.5">
+                    <span>Layanan Resmi Showroom</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                    {siteSettings?.jualmotor_banner_title || 'Mau menjual motor anda? Putra Motor Group Solusinya!'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {siteSettings?.jualmotor_banner_subtitle || 'Taksiran harga terbaik & pembayaran langsung lunas di 4 cabang showroom resmi kami.'}
+                  </p>
                 </div>
-                <div className="text-[11px] sm:text-xs text-slate-300 mt-0.5">
-                  {siteSettings?.jualmotor_banner_subtitle || 'Taksiran harga terbaik & pembayaran langsung lunas di 4 cabang showroom resmi kami.'}
-                </div>
-              </div>
 
-              <div className="shrink-0">
-                <button
-                  type="button"
-                  onClick={() => onNavigate('jual-motor')}
-                  className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap group"
-                >
-                  <Bike className="w-3.5 h-3.5 text-slate-950 group-hover:scale-110 transition-transform" />
-                  <span>{siteSettings?.jualmotor_banner_cta || 'Jual Motor'}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-950 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              </div>
-            </div>
-          </div>
+                {/* Right Side: Quick Action Buttons (Harmonized) */}
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('jual-motor')}
+                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <Bike className="w-3.5 h-3.5" />
+                    <span>{siteSettings?.jualmotor_banner_cta || 'Jual Motor'}</span>
+                  </button>
 
-          {/* 2. Secondary Banner Call to Action */}
-          <div className="bg-gradient-to-r from-[#0B63E5] to-blue-800 text-white py-5 sm:py-6 border-b border-blue-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-              <div>
-                <div className="text-base sm:text-lg font-bold">
-                  Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
-                </div>
-                <div className="text-[11px] sm:text-xs text-blue-100 mt-0.5">
-                  Pandu Motor Group selalu berkomitmen <strong>“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
-                </div>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('tukar-tambah')}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs shadow-2xs transition-all cursor-pointer active:scale-95"
+                  >
+                    Tukar Tambah
+                  </button>
 
-              <div className="flex items-center gap-2.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => onNavigate('tukar-tambah')}
-                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs shadow-md transition cursor-pointer active:scale-95"
-                >
-                  Tukar Tambah Motor
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('dana-tunai')}
-                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition cursor-pointer active:scale-95"
-                >
-                  Dana Tunai BPKB
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('dana-tunai')}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs shadow-2xs transition-all cursor-pointer active:scale-95"
+                  >
+                    Dana Tunai BPKB
+                  </button>
+                </div>
+
               </div>
             </div>
           </div>

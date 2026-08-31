@@ -55,15 +55,14 @@ export const TrustFeatures: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0B63E5] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            Keunggulan Pandu Motor Group
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <span>Keunggulan Showroom Kami</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
             Mengapa Memilih Kami Sebagai Mitra Motor Impian Anda?
           </h2>
           <p className="text-slate-500 text-sm sm:text-base">
-            Dengan komitmen <span className="text-[#0B63E5] font-semibold">“Melayani Sepenuh Hati”</span> untuk kenyamanan dan keamanan transaksi Anda.
+            Dengan komitmen <span className="text-slate-900 font-bold">“Melayani Sepenuh Hati”</span> untuk kenyamanan dan keamanan transaksi Anda.
           </p>
         </div>
 
@@ -74,14 +73,14 @@ export const TrustFeatures: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="relative rounded-2xl bg-white border border-gray-200 p-6 flex flex-col justify-between hover:border-blue-500 hover:shadow-lg transition-all duration-300 group"
+                className="relative rounded-2xl bg-white border border-slate-200/90 p-6 flex flex-col justify-between hover:border-slate-400 hover:shadow-md transition-all duration-300 group shadow-2xs"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0B63E5] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-gray-200 uppercase">
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 uppercase">
                       {item.tag}
                     </span>
                   </div>
@@ -89,7 +88,7 @@ export const TrustFeatures: React.FC = () => {
                   <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                     {item.title}
                   </h3>
-                  <div className="text-xs font-semibold text-[#0B63E5] mt-0.5 mb-2">
+                  <div className="text-xs font-semibold text-amber-600 mt-0.5 mb-2">
                     {item.subtitle}
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed">
@@ -97,7 +96,7 @@ export const TrustFeatures: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="mt-5 pt-3.5 border-t border-gray-100 flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center gap-2 text-[11px] text-slate-500 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Garansi Kepuasan Pelanggan</span>
                 </div>
@@ -107,14 +106,14 @@ export const TrustFeatures: React.FC = () => {
         </div>
 
         {/* Mini Trust Banner with Operational Hours */}
-        <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-50 via-slate-50 to-amber-50 border border-blue-100 p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-8 rounded-2xl bg-slate-50 border border-slate-200 p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-left">
-            <div className="w-11 h-11 rounded-full bg-white shadow-xs border border-gray-200 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5 text-[#0B63E5]" />
+            <div className="w-11 h-11 rounded-full bg-white shadow-2xs border border-slate-200 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-slate-700" />
             </div>
             <div>
               <div className="text-sm font-bold text-slate-900">
-                Jam Operasional Showroom & Layanan Pelanggan
+                Jam Operasional Showroom &amp; Layanan Pelanggan
               </div>
               <div className="text-xs text-slate-600 mt-0.5">
                 Buka setiap hari (Senin s/d Minggu) pukul <strong>08.00 WIB s/d 17.00 WIB</strong>.
@@ -122,9 +121,9 @@ export const TrustFeatures: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-[#0B63E5] font-bold px-4 py-2 rounded-xl bg-white border border-blue-200 shadow-xs whitespace-nowrap">
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-            <span>Terpercaya & Berizin OJK</span>
+          <div className="flex items-center gap-2 text-xs text-slate-800 font-bold px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs whitespace-nowrap">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Terpercaya &amp; Bergaransi</span>
           </div>
         </div>
 

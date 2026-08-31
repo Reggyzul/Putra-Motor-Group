@@ -85,26 +85,26 @@ export const SellMotorSection: React.FC<SellMotorSectionProps> = ({
       : 'Berdasarkan taksiran showroom';
 
     const message = 
-`Halo ${branch.name} (Putra Motor Group), saya ingin mengajukan penawaran JUAL MOTOR dengan rincian berikut:
+`Halo ${branch.name} (Putra Motor Group), saya ingin mengajukan penawaran Jual Motor dengan rincian berikut:
 
-📋 DATA PENJUAL:
-• Nama: ${ownerName}
-• No. WhatsApp / HP: ${phoneNumber}
-• Kota / Lokasi: ${cityLocation || '-'}
+DATA PENJUAL:
+- Nama: ${ownerName}
+- No. WhatsApp / HP: ${phoneNumber}
+- Kota / Lokasi: ${cityLocation || '-'}
 
-🏍️ DETAIL SPESIFIKASI MOTOR:
-• Merk: ${brand}
-• Model / Tipe: ${modelType}
-• Tahun Pembuatan: ${manufactureYear}
-• Transmisi: ${transmission}
-• Jarak Tempuh: ${mileage ? `${mileage} KM` : '-'}
-• Kondisi Fisik & Mesin: ${condition}
-• Kelengkapan Surat: ${documents}
-• Status Pajak: ${taxStatus}
-• Ekspektasi Harga Jual: ${priceText}
-• Catatan Tambahan: ${notes || '-'}
+DETAIL KENDARAAN:
+- Merk: ${brand}
+- Model / Tipe: ${modelType}
+- Tahun Pembuatan: ${manufactureYear}
+- Transmisi: ${transmission}
+- Jarak Tempuh: ${mileage ? `${mileage} KM` : '-'}
+- Kondisi Fisik & Mesin: ${condition}
+- Kelengkapan Surat: ${documents}
+- Status Pajak: ${taxStatus}
+- Ekspektasi Harga Jual: ${priceText}
+- Catatan Tambahan: ${notes || '-'}
 
-Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Terima kasih!`;
+Mohon info taksiran harga terbaik dan jadwal inspeksi unit di showroom. Terima kasih!`;
 
     const waUrl = buildWhatsAppLink(branch.whatsapp, message);
     window.open(waUrl, '_blank');
@@ -113,40 +113,37 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
   return (
     <div className="w-full bg-[#F8FAFC] pb-16">
       
-      {/* Slim & Compact Top Hero Banner */}
-      <div className="bg-gradient-to-r from-[#0d346c] via-[#0B63E5] to-[#047857] text-white py-5 sm:py-6 relative overflow-hidden shadow-xs">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.12),transparent_60%)]" />
-        
+      {/* Slim & Compact Top Hero Banner (Refined Luxury Navy) */}
+      <div className="bg-slate-900 text-white py-6 sm:py-7 border-b border-slate-800 relative overflow-hidden shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs font-bold text-amber-300 mb-1.5">
-                <Sparkles className="w-3 h-3" />
-                <span>Mau Menjual Motor Anda? Putra Motor Group Solusinya!</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[10px] sm:text-xs font-semibold text-amber-400 mb-2">
+                <span>Layanan Jual Motor Putra Motor Group</span>
               </div>
 
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight text-white">
                 {siteSettings?.jualmotor_hero_title || 'Jual Motor Cepat & Aman, Taksiran Harga Terbaik'}
               </h1>
 
-              <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-2xl">
+              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
                 {siteSettings?.jualmotor_hero_subtitle || 'Isi rincian motor di bawah dan pilih cabang showroom terdekat untuk konfirmasi langsung via WhatsApp.'}
               </p>
             </div>
 
             {/* Compact Badges Row */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] font-semibold text-slate-100 border border-white/15">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 text-xs font-medium text-slate-200 border border-slate-700">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
                 <span>Harga Transparan</span>
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] font-semibold text-slate-100 border border-white/15">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 text-xs font-medium text-slate-200 border border-slate-700">
                 <Banknote className="w-3.5 h-3.5 text-amber-400" />
                 <span>Langsung Lunas</span>
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] font-semibold text-slate-100 border border-white/15">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Resmi &amp; Aman</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 text-xs font-medium text-slate-200 border border-slate-700">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span>Resmi &amp; Bergaransi</span>
               </span>
             </div>
 
@@ -414,10 +411,10 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
 
                 <button
                   type="submit"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#0B63E5] to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Kirim & Pilih Cabang Showroom</span>
+                  <Send className="w-4 h-4 text-amber-400" />
+                  <span>Kirim &amp; Pilih Cabang Showroom</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -429,19 +426,19 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
           <div className="lg:col-span-4 space-y-6">
             
             {/* Keunggulan Card */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-2xl p-6 shadow-2xs border border-slate-200/80">
+              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Kenapa Jual di Putra Motor Group?</span>
+                <span>Keunggulan Jual Motor di Showroom Kami</span>
               </h3>
 
               <div className="space-y-3.5 text-xs text-slate-600">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 font-bold">
+                  <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 font-bold">
                     1
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">
+                    <strong className="text-slate-900 block mb-0.5">
                       {siteSettings?.jualmotor_advantage_1_title || 'Taksiran Harga Tertinggi'}
                     </strong>
                     {siteSettings?.jualmotor_advantage_1_desc || 'Penilaian adil berdasarkan kondisi riil dan tren pasar motor terkini.'}
@@ -449,11 +446,11 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold">
+                  <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 font-bold">
                     2
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">
+                    <strong className="text-slate-900 block mb-0.5">
                       {siteSettings?.jualmotor_advantage_2_title || 'Pembayaran Langsung Lunas'}
                     </strong>
                     {siteSettings?.jualmotor_advantage_2_desc || 'Uang langsung cair via transfer rekening atau cash saat kesepakatan tercapai.'}
@@ -461,11 +458,11 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 font-bold">
+                  <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 font-bold">
                     3
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">
+                    <strong className="text-slate-900 block mb-0.5">
                       {siteSettings?.jualmotor_advantage_3_title || 'Bisa Jemput Unit'}
                     </strong>
                     {siteSettings?.jualmotor_advantage_3_desc || 'Tim showroom siap membantu cek unit di lokasi Anda atau kunjungi cabang terdekat.'}
@@ -473,11 +470,11 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 font-bold">
+                  <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 font-bold">
                     4
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">
+                    <strong className="text-slate-900 block mb-0.5">
                       {siteSettings?.jualmotor_advantage_4_title || 'Bebas Ribet & Aman'}
                     </strong>
                     {siteSettings?.jualmotor_advantage_4_desc || 'Proses administrasi serah terima surat dan kwitansi resmi dealer terpercaya.'}
