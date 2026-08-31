@@ -98,8 +98,23 @@ const LS_BRANCHES_KEY = 'pmg_cache_branches';
 const LS_BANNERS_KEY = 'pmg_cache_banners';
 const LS_SETTINGS_KEY = 'pmg_cache_settings';
 const LS_ANNOUNCEMENTS_KEY = 'pmg_cache_announcements';
+const CACHE_VERSION = 'pmg_v3_maps_and_phones';
 
 export function useDataStore() {
+  // Auto-bust stale cache on client browsers
+  try {
+    if (typeof window !== 'undefined') {
+      const currentVer = localStorage.getItem('pmg_app_version');
+      if (currentVer !== CACHE_VERSION) {
+        localStorage.removeItem(LS_BRANCHES_KEY);
+        localStorage.removeItem(LS_SETTINGS_KEY);
+        localStorage.setItem('pmg_app_version', CACHE_VERSION);
+      }
+    }
+  } catch {
+    // ignore
+  }
+
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     try {
       const cached = localStorage.getItem(LS_VEHICLES_KEY);
