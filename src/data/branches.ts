@@ -1,5 +1,12 @@
 import { Branch } from '../types';
 
+export const BRANCH_MAPS_URLS: Record<string, string> = {
+  kisaran: 'https://maps.app.goo.gl/TQbnnh9NAoyRbyBK8',
+  perdagangan: 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw',
+  cikampak: 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw',
+  dumai: 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw',
+};
+
 export const BRANCHES_DATA: Branch[] = [
   {
     id: 'kisaran',

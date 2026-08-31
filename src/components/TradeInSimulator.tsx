@@ -12,7 +12,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { Branch, Vehicle, SiteSettings } from '../types';
-import { BRANCHES_DATA } from '../data/branches';
+import { BRANCHES_DATA, BRANCH_MAPS_URLS } from '../data/branches';
 import { VEHICLES_DATA } from '../data/vehicles';
 import { formatRupiah, buildWhatsAppLink } from '../utils/formatters';
 
@@ -413,12 +413,13 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
 
                   <div className="pt-3 mt-3 border-t border-gray-200 flex items-center justify-between gap-2">
                     <a
-                      href={branch.googleMapsUrl}
+                      href={BRANCH_MAPS_URLS[branch.id] || branch.googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-blue-600 hover:underline"
+                      className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
                     >
-                      Maps →
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Petunjuk Arah (Maps) →</span>
                     </a>
 
                     <a

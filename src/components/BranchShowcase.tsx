@@ -12,7 +12,7 @@ import {
   Coffee
 } from 'lucide-react';
 import { Branch } from '../types';
-import { BRANCHES_DATA } from '../data/branches';
+import { BRANCHES_DATA, BRANCH_MAPS_URLS } from '../data/branches';
 import { buildWhatsAppLink } from '../utils/formatters';
 
 interface BranchShowcaseProps {
@@ -172,7 +172,7 @@ export const BranchShowcase: React.FC<BranchShowcaseProps> = ({
                 </a>
 
                 <a
-                  href={activeBranch.googleMapsUrl}
+                  href={BRANCH_MAPS_URLS[activeBranch.id] || activeBranch.googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-2.5 sm:py-3 px-3.5 sm:px-4 bg-white hover:bg-slate-100 text-slate-800 border border-gray-300 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 active:scale-95 text-center shadow-2xs cursor-pointer"

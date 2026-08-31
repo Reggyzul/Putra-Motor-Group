@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase, pingSupabaseKeepAlive } from '../lib/supabase';
 import { Vehicle, Branch, HeroBanner, SiteSettings, Announcement } from '../types';
 import { VEHICLES_DATA } from '../data/vehicles';
-import { BRANCHES_DATA } from '../data/branches';
+import { BRANCHES_DATA, BRANCH_MAPS_URLS } from '../data/branches';
 
 export const DEFAULT_BANNERS: HeroBanner[] = [
   {
@@ -114,12 +114,22 @@ export function useDataStore() {
       const cached = localStorage.getItem(LS_BRANCHES_KEY);
       if (cached) {
         const parsed: Branch[] = JSON.parse(cached);
-        // If cached has outdated duplicate phone for other branches, update with fresh BRANCHES_DATA
-        if (parsed.some((b) => b.id === 'perdagangan' && b.phone === '0822-7647-7628')) {
+        // If cached has outdated duplicate phone or old maps URL search query, update with fresh BRANCHES_DATA
+        if (
+          parsed.some(
+            (b) =>
+              (b.id === 'perdagangan' && b.phone === '0822-7647-7628') ||
+              !b.googleMapsUrl ||
+              b.googleMapsUrl.includes('maps.google.com/?q=')
+          )
+        ) {
           localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(BRANCHES_DATA));
           return BRANCHES_DATA;
         }
-        return parsed;
+        return parsed.map((b) => ({
+          ...b,
+          googleMapsUrl: BRANCH_MAPS_URLS[b.id] || b.googleMapsUrl,
+        }));
       }
       return BRANCHES_DATA;
     } catch {
@@ -224,7 +234,7 @@ export function useDataStore() {
           phone: b.phone,
           whatsapp: b.whatsapp,
           email: b.email,
-          googleMapsUrl: b.google_maps_url,
+          googleMapsUrl: BRANCH_MAPS_URLS[b.id] || (b.google_maps_url && !b.google_maps_url.includes('maps.google.com/?q=') ? b.google_maps_url : (BRANCH_MAPS_URLS[b.id] || '')),
           operationalHours: b.operational_hours,
           image: b.image,
           logo: b.logo,
