@@ -7,6 +7,77 @@ export const BRANCH_MAPS_URLS: Record<string, string> = {
   dumai: 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw',
 };
 
+export interface BranchSocialItem {
+  name: string;
+  handle: string;
+  url: string;
+}
+
+export const BRANCH_SOCIAL_LINKS: Record<string, {
+  facebook?: BranchSocialItem;
+  instagram?: BranchSocialItem;
+  tiktok?: BranchSocialItem;
+}> = {
+  kisaran: {
+    facebook: {
+      name: 'Facebook',
+      handle: 'pandu motor kisaran',
+      url: 'https://www.facebook.com/search/top?q=pandu%20motor%20kisaran',
+    },
+    instagram: {
+      name: 'Instagram',
+      handle: '@pandumotorkisaran',
+      url: 'https://www.instagram.com/pandumotorkisaran',
+    },
+    tiktok: {
+      name: 'TikTok',
+      handle: '@pandumotorkisaran',
+      url: 'https://www.tiktok.com/@pandumotorkisaran',
+    },
+  },
+  perdagangan: {
+    facebook: {
+      name: 'Facebook',
+      handle: 'pandu motor perdagangan',
+      url: 'https://www.facebook.com/search/top?q=pandu%20motor%20perdagangan',
+    },
+    instagram: {
+      name: 'Instagram',
+      handle: '@pandu_perdagangan',
+      url: 'https://www.instagram.com/pandu_perdagangan',
+    },
+    tiktok: {
+      name: 'TikTok',
+      handle: '@Pandumotorperdagangan',
+      url: 'https://www.tiktok.com/@Pandumotorperdagangan',
+    },
+  },
+  cikampak: {
+    facebook: {
+      name: 'Facebook',
+      handle: 'ikabina motor',
+      url: 'https://www.facebook.com/search/top?q=ikabina%20motor',
+    },
+  },
+  dumai: {
+    facebook: {
+      name: 'Facebook',
+      handle: 'Motorian Daya',
+      url: 'https://www.facebook.com/search/top?q=Motorian%20Daya',
+    },
+    instagram: {
+      name: 'Instagram',
+      handle: '@motoriandaya',
+      url: 'https://www.instagram.com/motoriandaya',
+    },
+    tiktok: {
+      name: 'TikTok',
+      handle: '@MotorianDayaDumai',
+      url: 'https://www.tiktok.com/@MotorianDayaDumai',
+    },
+  },
+};
+
 export const BRANCHES_DATA: Branch[] = [
   {
     id: 'kisaran',
@@ -21,7 +92,7 @@ export const BRANCHES_DATA: Branch[] = [
     email: 'pandumotor20@gmail.com',
     googleMapsUrl: 'https://maps.app.goo.gl/JWgjwnCJrjnXKyot6',
     socialMedia: {
-      facebook: 'Pandu Motor Kisaran',
+      facebook: 'pandu motor kisaran',
       instagram: '@pandumotorkisaran',
       tiktok: '@pandumotorkisaran',
     },
@@ -42,7 +113,7 @@ export const BRANCHES_DATA: Branch[] = [
     email: 'pandumotorperdagangan@gmail.com',
     googleMapsUrl: 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw',
     socialMedia: {
-      facebook: 'Pandu Motor Perdagangan',
+      facebook: 'pandu motor perdagangan',
       instagram: '@pandu_perdagangan',
       tiktok: '@Pandumotorperdagangan',
     },
@@ -63,9 +134,7 @@ export const BRANCHES_DATA: Branch[] = [
     email: 'ikabinacikampak@yahoo.com',
     googleMapsUrl: 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw',
     socialMedia: {
-      facebook: 'Ikabina Motor',
-      instagram: '@ikabinamotor',
-      tiktok: '@ikabinamotor',
+      facebook: 'ikabina motor',
     },
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
     image: '/images/ikabina.avif',
