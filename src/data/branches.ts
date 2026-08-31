@@ -1,7 +1,7 @@
 import { Branch } from '../types';
 
 export const BRANCH_MAPS_URLS: Record<string, string> = {
-  kisaran: 'https://maps.app.goo.gl/TQbnnh9NAoyRbyBK8',
+  kisaran: 'https://maps.app.goo.gl/JWgjwnCJrjnXKyot6',
   perdagangan: 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw',
   cikampak: 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw',
   dumai: 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw',
@@ -19,7 +19,7 @@ export const BRANCHES_DATA: Branch[] = [
     phone: '0822-7647-7628',
     whatsapp: '6282276477628',
     email: 'pandumotor20@gmail.com',
-    googleMapsUrl: 'https://maps.app.goo.gl/TQbnnh9NAoyRbyBK8',
+    googleMapsUrl: 'https://maps.app.goo.gl/JWgjwnCJrjnXKyot6',
     socialMedia: {
       facebook: 'Pandu Motor Kisaran',
       instagram: '@pandumotorkisaran',
