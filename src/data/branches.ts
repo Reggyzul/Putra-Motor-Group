@@ -12,7 +12,7 @@ export const BRANCHES_DATA: Branch[] = [
     phone: '0822-7647-7628',
     whatsapp: '6282276477628',
     email: 'pandumotor20@gmail.com',
-    googleMapsUrl: 'https://maps.google.com/?q=Jl.+Kartini+No.+204+A-B+Kisaran+Barat+Asahan',
+    googleMapsUrl: 'https://maps.app.goo.gl/TQbnnh9NAoyRbyBK8',
     socialMedia: {
       facebook: 'Pandu Motor Kisaran',
       instagram: '@pandumotorkisaran',
@@ -33,7 +33,7 @@ export const BRANCHES_DATA: Branch[] = [
     phone: '0822-7647-7628',
     whatsapp: '6282276477628',
     email: 'pandumotorperdagangan@gmail.com',
-    googleMapsUrl: 'https://maps.google.com/?q=Jl.+Rajamin+Purba+No.+02+Perdagangan+Simalungun',
+    googleMapsUrl: 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw',
     socialMedia: {
       facebook: 'Pandu Motor Perdagangan',
       instagram: '@pandu_perdagangan',
@@ -54,7 +54,7 @@ export const BRANCHES_DATA: Branch[] = [
     phone: '0822-7647-7628',
     whatsapp: '6282276477628',
     email: 'ikabinacikampak@yahoo.com',
-    googleMapsUrl: 'https://maps.google.com/?q=Desa+Aek+Batu+Torgamba+Labuhan+Batu+Selatan',
+    googleMapsUrl: 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw',
     socialMedia: {
       facebook: 'Ikabina Motor',
       instagram: '@ikabinamotor',
@@ -75,7 +75,7 @@ export const BRANCHES_DATA: Branch[] = [
     phone: '0822-7647-7628',
     whatsapp: '6282276477628',
     email: 'motoriandaya@gmail.com',
-    googleMapsUrl: 'https://maps.google.com/?q=Pasar+Sukaramai+Bukit+Kayu+Kapur+Dumai+Riau',
+    googleMapsUrl: 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw',
     socialMedia: {
       facebook: 'Motorian Daya',
       instagram: '@motoriandaya',

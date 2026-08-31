@@ -144,15 +144,16 @@ CREATE POLICY "Authenticated users can manage announcements" ON public.announcem
 -- 1. SEED 4 CABANG SHOWROOM
 INSERT INTO public.branches (id, name, company_name, code, city, province, address, phone, whatsapp, email, google_maps_url, operational_hours, image, logo)
 VALUES
-('kisaran', 'Pandu Motor Kisaran', 'CV. Pandu Motor', 'PM-KSR', 'Kisaran Barat, Asahan', 'Sumatera Utara', 'Jl. Kartini No. 204 A-B, Kisaran Barat, Asahan, Sumatera Utara', '0822-7647-7628', '6282276477628', 'pandumotor20@gmail.com', 'https://maps.google.com/?q=Jl.+Kartini+No.+204+A-B+Kisaran+Barat+Asahan', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/pandu motor kisaran.avif', '/images/logo_pandumotor.avif'),
-('perdagangan', 'Pandu Motor Perdagangan', 'CV. Pandu Motor', 'PM-PDG', 'Perdagangan, Simalungun', 'Sumatera Utara', 'Jl. Rajamin Purba No. 02, Perdagangan, Kab. Simalungun, Sumatera Utara', '0822-7647-7628', '6282276477628', 'pandumotorperdagangan@gmail.com', 'https://maps.google.com/?q=Jl.+Rajamin+Purba+No.+02+Perdagangan+Simalungun', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/pandu motor 2.avif', '/images/logo_pandumotor.avif'),
-('cikampak', 'Ikabina Motor Cikampak', 'CV. Ikabina Motor', 'IM-CKP', 'Torgamba, Labuhanbatu Selatan', 'Sumatera Utara', 'Jl. Lintas Sumatera Riau, Desa Aek Batu, Torgamba, Labuhan Batu Selatan, Sumatera Utara', '0822-7647-7628', '6282276477628', 'ikabinacikampak@yahoo.com', 'https://maps.google.com/?q=Desa+Aek+Batu+Torgamba+Labuhan+Batu+Selatan', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/ikabina.avif', '/images/logo_ikabina.avif'),
-('dumai', 'Motorian Daya Bukit Kapur', 'CV. Motorian Daya', 'MD-DMI', 'Bukit Kapur, Dumai', 'Riau', 'Jl. Soekarno Hatta Pasar Sukaramai, Bukit Kayu Kapur, Bukit Kapur, Dumai - Riau', '0822-7647-7628', '6282276477628', 'motoriandaya@gmail.com', 'https://maps.google.com/?q=Pasar+Sukaramai+Bukit+Kayu+Kapur+Dumai+Riau', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/motoran daya bukit.avif', '/images/logo_motoriandaya.avif')
+('kisaran', 'Pandu Motor Kisaran', 'CV. Pandu Motor', 'PM-KSR', 'Kisaran Barat, Asahan', 'Sumatera Utara', 'Jl. Kartini No. 204 A-B, Kisaran Barat, Asahan, Sumatera Utara', '0822-7647-7628', '6282276477628', 'pandumotor20@gmail.com', 'https://maps.app.goo.gl/TQbnnh9NAoyRbyBK8', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/pandu motor kisaran.avif', '/images/logo_pandumotor.avif'),
+('perdagangan', 'Pandu Motor Perdagangan', 'CV. Pandu Motor', 'PM-PDG', 'Perdagangan, Simalungun', 'Sumatera Utara', 'Jl. Rajamin Purba No. 02, Perdagangan, Kab. Simalungun, Sumatera Utara', '0822-7647-7628', '6282276477628', 'pandumotorperdagangan@gmail.com', 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/pandu motor 2.avif', '/images/logo_pandumotor.avif'),
+('cikampak', 'Ikabina Motor Cikampak', 'CV. Ikabina Motor', 'IM-CKP', 'Torgamba, Labuhanbatu Selatan', 'Sumatera Utara', 'Jl. Lintas Sumatera Riau, Desa Aek Batu, Torgamba, Labuhan Batu Selatan, Sumatera Utara', '0822-7647-7628', '6282276477628', 'ikabinacikampak@yahoo.com', 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/ikabina.avif', '/images/logo_ikabina.avif'),
+('dumai', 'Motorian Daya Bukit Kapur', 'CV. Motorian Daya', 'MD-DMI', 'Bukit Kapur, Dumai', 'Riau', 'Jl. Soekarno Hatta Pasar Sukaramai, Bukit Kayu Kapur, Bukit Kapur, Dumai - Riau', '0822-7647-7628', '6282276477628', 'motoriandaya@gmail.com', 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw', 'Setiap Hari: 08.00 - 17.00 WIB', '/images/motoran daya bukit.avif', '/images/logo_motoriandaya.avif')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     address = EXCLUDED.address,
     phone = EXCLUDED.phone,
-    whatsapp = EXCLUDED.whatsapp;
+    whatsapp = EXCLUDED.whatsapp,
+    google_maps_url = EXCLUDED.google_maps_url;
 
 -- 2. SEED HERO BANNER PROMO
 INSERT INTO public.hero_banners (id, tagline_ribbon, title, title_highlight, offer1, offer2, period, image, cta_text, theme_color, is_active, order_index)
