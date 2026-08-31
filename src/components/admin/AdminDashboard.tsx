@@ -93,8 +93,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     { id: 'announcements', label: 'Pengumuman Kantor', icon: Megaphone, badge: `${announcements.length}` },
     { id: 'vehicles', label: 'Kelola Stok Motor', icon: Bike, badge: `${vehicles.length}` },
     { id: 'banners', label: 'Hero Promo Banner', icon: ImageIcon, badge: `${banners.length}` },
-    { id: 'branches', label: 'Cabang Showroom', icon: Building2, badge: `${branches.length}` },
-    { id: 'services', label: 'Tukar Tambah & Dana Tunai', icon: ArrowLeftRight, badge: null },
+    { id: 'branches', label: 'Cabang & Medsos', icon: Building2, badge: `${branches.length}` },
+    { id: 'services', label: 'Layanan (Jual, Tukar, Dana)', icon: ArrowLeftRight, badge: 'Update' },
     { id: 'settings', label: 'Pengaturan Website', icon: Settings, badge: null },
     { id: 'database', label: 'Status DB & Keep-Alive', icon: Database, badge: 'Aktif' },
   ];

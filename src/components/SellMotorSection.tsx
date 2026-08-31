@@ -27,6 +27,7 @@ interface SellMotorSectionProps {
 
 export const SellMotorSection: React.FC<SellMotorSectionProps> = ({
   branches = BRANCHES_DATA,
+  siteSettings,
 }) => {
   // Form State
   const [ownerName, setOwnerName] = useState('');
@@ -125,11 +126,11 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
               </div>
 
               <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight leading-tight">
-                Jual Motor Cepat &amp; Aman, <span className="text-amber-300">Taksiran Harga Terbaik</span>
+                {siteSettings?.jualmotor_hero_title || 'Jual Motor Cepat & Aman, Taksiran Harga Terbaik'}
               </h1>
 
               <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-2xl">
-                Isi rincian motor di bawah dan pilih cabang showroom terdekat untuk konfirmasi langsung via WhatsApp.
+                {siteSettings?.jualmotor_hero_subtitle || 'Isi rincian motor di bawah dan pilih cabang showroom terdekat untuk konfirmasi langsung via WhatsApp.'}
               </p>
             </div>
 
@@ -440,8 +441,10 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                     1
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">Taksiran Harga Tertinggi</strong>
-                    Penilaian adil berdasarkan kondisi riil dan tren pasar motor terkini.
+                    <strong className="text-slate-800 block mb-0.5">
+                      {siteSettings?.jualmotor_advantage_1_title || 'Taksiran Harga Tertinggi'}
+                    </strong>
+                    {siteSettings?.jualmotor_advantage_1_desc || 'Penilaian adil berdasarkan kondisi riil dan tren pasar motor terkini.'}
                   </div>
                 </div>
 
@@ -450,8 +453,10 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                     2
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">Pembayaran Langsung Lunas</strong>
-                    Uang langsung cair via transfer rekening atau cash saat kesepakatan tercapai.
+                    <strong className="text-slate-800 block mb-0.5">
+                      {siteSettings?.jualmotor_advantage_2_title || 'Pembayaran Langsung Lunas'}
+                    </strong>
+                    {siteSettings?.jualmotor_advantage_2_desc || 'Uang langsung cair via transfer rekening atau cash saat kesepakatan tercapai.'}
                   </div>
                 </div>
 
@@ -460,8 +465,10 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                     3
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">Bisa Jemput Unit</strong>
-                    Tim showroom siap membantu cek unit di lokasi Anda atau kunjungi cabang terdekat.
+                    <strong className="text-slate-800 block mb-0.5">
+                      {siteSettings?.jualmotor_advantage_3_title || 'Bisa Jemput Unit'}
+                    </strong>
+                    {siteSettings?.jualmotor_advantage_3_desc || 'Tim showroom siap membantu cek unit di lokasi Anda atau kunjungi cabang terdekat.'}
                   </div>
                 </div>
 
@@ -470,8 +477,10 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
                     4
                   </div>
                   <div>
-                    <strong className="text-slate-800 block mb-0.5">Bebas Ribet & Aman</strong>
-                    Proses administrasi serah terima surat dan kwitansi resmi dealer terpercaya.
+                    <strong className="text-slate-800 block mb-0.5">
+                      {siteSettings?.jualmotor_advantage_4_title || 'Bebas Ribet & Aman'}
+                    </strong>
+                    {siteSettings?.jualmotor_advantage_4_desc || 'Proses administrasi serah terima surat dan kwitansi resmi dealer terpercaya.'}
                   </div>
                 </div>
               </div>

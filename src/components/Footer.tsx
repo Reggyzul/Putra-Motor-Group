@@ -49,10 +49,10 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left relative z-10">
               <div className="min-w-0">
                 <div className="text-sm sm:text-base md:text-lg font-black text-white tracking-tight">
-                  Mau menjual motor anda? <span className="text-amber-400">Putra Motor Group Solusinya!</span>
+                  {siteSettings?.jualmotor_banner_title || 'Mau menjual motor anda? Putra Motor Group Solusinya!'}
                 </div>
                 <div className="text-[11px] sm:text-xs text-slate-300 mt-0.5">
-                  Taksiran harga terbaik &amp; pembayaran langsung lunas di 4 cabang showroom resmi kami.
+                  {siteSettings?.jualmotor_banner_subtitle || 'Taksiran harga terbaik & pembayaran langsung lunas di 4 cabang showroom resmi kami.'}
                 </div>
               </div>
 
@@ -63,7 +63,7 @@ export const Footer: React.FC<FooterProps> = ({
                   className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap group"
                 >
                   <Bike className="w-3.5 h-3.5 text-slate-950 group-hover:scale-110 transition-transform" />
-                  <span>Jual Motor</span>
+                  <span>{siteSettings?.jualmotor_banner_cta || 'Jual Motor'}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-slate-950 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>

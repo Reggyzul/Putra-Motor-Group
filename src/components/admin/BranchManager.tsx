@@ -32,11 +32,29 @@ export const BranchManager: React.FC<BranchManagerProps> = ({
     operationalHours: '',
     image: '',
     logo: '',
+    socialMedia: {
+      facebook: '',
+      facebookUrl: '',
+      instagram: '',
+      instagramUrl: '',
+      tiktok: '',
+      tiktokUrl: '',
+    },
   });
 
   const handleOpenEdit = (branch: Branch) => {
     setEditingBranch(branch);
-    setFormData({ ...branch });
+    setFormData({
+      ...branch,
+      socialMedia: {
+        facebook: branch.socialMedia?.facebook || '',
+        facebookUrl: branch.socialMedia?.facebookUrl || '',
+        instagram: branch.socialMedia?.instagram || '',
+        instagramUrl: branch.socialMedia?.instagramUrl || '',
+        tiktok: branch.socialMedia?.tiktok || '',
+        tiktokUrl: branch.socialMedia?.tiktokUrl || '',
+      },
+    });
   };
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -292,6 +310,141 @@ export const BranchManager: React.FC<BranchManagerProps> = ({
                     onChange={(e) => setFormData({ ...formData, operationalHours: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
                   />
+                </div>
+
+                {/* Google Maps URL */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Link Petunjuk Arah (Google Maps URL)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.googleMapsUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })}
+                    placeholder="https://maps.app.goo.gl/..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500 font-mono text-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Media Sosial Resmi Cabang Editor */}
+              <div className="pt-3 border-t border-gray-200 space-y-3 bg-slate-50 p-4 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+                    Akun &amp; Link Media Sosial Cabang
+                  </h4>
+                  <span className="text-[10px] text-slate-500 font-medium">Bisa diklik langsung di halaman cabang</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Facebook */}
+                  <div className="p-3 bg-white rounded-xl border border-gray-200 space-y-2">
+                    <div className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                      <span>Facebook</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Nama Akun FB / Pencarian</label>
+                        <input
+                          type="text"
+                          placeholder="contoh: pandu motor kisaran"
+                          value={formData.socialMedia?.facebook || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            socialMedia: { ...formData.socialMedia, facebook: e.target.value }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Link / URL Facebook Langsung</label>
+                        <input
+                          type="text"
+                          placeholder="https://www.facebook.com/..."
+                          value={formData.socialMedia?.facebookUrl || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            socialMedia: { ...formData.socialMedia, facebookUrl: e.target.value }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-mono text-blue-600"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Instagram */}
+                  <div className="p-3 bg-white rounded-xl border border-gray-200 space-y-2">
+                    <div className="text-xs font-bold text-rose-700 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                      <span>Instagram</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Username / Handle IG</label>
+                        <input
+                          type="text"
+                          placeholder="contoh: @pandumotorkisaran"
+                          value={formData.socialMedia?.instagram || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            socialMedia: { ...formData.socialMedia, instagram: e.target.value }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Link / URL Instagram Langsung</label>
+                        <input
+                          type="text"
+                          placeholder="https://www.instagram.com/..."
+                          value={formData.socialMedia?.instagramUrl || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            socialMedia: { ...formData.socialMedia, instagramUrl: e.target.value }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-mono text-rose-600"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TikTok */}
+                  <div className="p-3 bg-white rounded-xl border border-gray-200 space-y-2">
+                    <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-black"></span>
+                      <span>TikTok</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Username / Handle TikTok</label>
+                        <input
+                          type="text"
+                          placeholder="contoh: @pandumotorkisaran"
+                          value={formData.socialMedia?.tiktok || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            socialMedia: { ...formData.socialMedia, tiktok: e.target.value }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Link / URL TikTok Langsung</label>
+                        <input
+                          type="text"
+                          placeholder="https://www.tiktok.com/@..."
+                          value={formData.socialMedia?.tiktokUrl || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            socialMedia: { ...formData.socialMedia, tiktokUrl: e.target.value }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-mono text-slate-800"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 

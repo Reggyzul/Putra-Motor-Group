@@ -12,8 +12,12 @@ export interface Branch {
   googleMapsUrl: string;
   socialMedia: {
     facebook?: string;
+    facebookUrl?: string;
     instagram?: string;
+    instagramUrl?: string;
     tiktok?: string;
+    tiktokUrl?: string;
+    [key: string]: string | undefined;
   };
   operationalHours: string;
   image: string;

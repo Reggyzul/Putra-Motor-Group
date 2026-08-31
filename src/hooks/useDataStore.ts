@@ -98,7 +98,7 @@ const LS_BRANCHES_KEY = 'pmg_cache_branches';
 const LS_BANNERS_KEY = 'pmg_cache_banners';
 const LS_SETTINGS_KEY = 'pmg_cache_settings';
 const LS_ANNOUNCEMENTS_KEY = 'pmg_cache_announcements';
-const CACHE_VERSION = 'pmg_v5_branch_socials';
+const CACHE_VERSION = 'pmg_v6_admin_jual_and_socials';
 
 export function useDataStore() {
   // Auto-bust stale cache on client browsers
