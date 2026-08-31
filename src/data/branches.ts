@@ -30,8 +30,8 @@ export const BRANCHES_DATA: Branch[] = [
     city: 'Perdagangan, Simalungun',
     province: 'Sumatera Utara',
     address: 'Jl. Rajamin Purba No. 02, Perdagangan, Kab. Simalungun, Sumatera Utara',
-    phone: '0822-7647-7628',
-    whatsapp: '6282276477628',
+    phone: '0822-7783-9628',
+    whatsapp: '6282277839628',
     email: 'pandumotorperdagangan@gmail.com',
     googleMapsUrl: 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw',
     socialMedia: {
@@ -51,8 +51,8 @@ export const BRANCHES_DATA: Branch[] = [
     city: 'Torgamba, Labuhanbatu Selatan',
     province: 'Sumatera Utara',
     address: 'Jl. Lintas Sumatera Riau, Desa Aek Batu, Torgamba, Labuhan Batu Selatan, Sumatera Utara',
-    phone: '0822-7647-7628',
-    whatsapp: '6282276477628',
+    phone: '0812-6060-525',
+    whatsapp: '628126060525',
     email: 'ikabinacikampak@yahoo.com',
     googleMapsUrl: 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw',
     socialMedia: {
@@ -72,8 +72,8 @@ export const BRANCHES_DATA: Branch[] = [
     city: 'Bukit Kapur, Dumai',
     province: 'Riau',
     address: 'Jl. Soekarno Hatta Pasar Sukaramai, Bukit Kayu Kapur, Bukit Kapur, Dumai - Riau',
-    phone: '0822-7647-7628',
-    whatsapp: '6282276477628',
+    phone: '0812-7567-7474',
+    whatsapp: '6281275677474',
     email: 'motoriandaya@gmail.com',
     googleMapsUrl: 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw',
     socialMedia: {

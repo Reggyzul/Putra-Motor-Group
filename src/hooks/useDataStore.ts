@@ -112,7 +112,16 @@ export function useDataStore() {
   const [branches, setBranches] = useState<Branch[]>(() => {
     try {
       const cached = localStorage.getItem(LS_BRANCHES_KEY);
-      return cached ? JSON.parse(cached) : BRANCHES_DATA;
+      if (cached) {
+        const parsed: Branch[] = JSON.parse(cached);
+        // If cached has outdated duplicate phone for other branches, update with fresh BRANCHES_DATA
+        if (parsed.some((b) => b.id === 'perdagangan' && b.phone === '0822-7647-7628')) {
+          localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(BRANCHES_DATA));
+          return BRANCHES_DATA;
+        }
+        return parsed;
+      }
+      return BRANCHES_DATA;
     } catch {
       return BRANCHES_DATA;
     }
