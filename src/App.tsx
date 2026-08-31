@@ -8,6 +8,7 @@ import { VehicleCatalog } from './components/VehicleCatalog';
 import { VehicleDetail } from './components/VehicleDetail';
 import { DanaTunaiSection } from './components/DanaTunaiSection';
 import { TradeInSimulator } from './components/TradeInSimulator';
+import { SellMotorSection } from './components/SellMotorSection';
 import { BranchShowcase } from './components/BranchShowcase';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
@@ -15,9 +16,9 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { useDataStore } from './hooks/useDataStore';
 import { supabase } from './lib/supabase';
-import { ArrowLeft, Home, ChevronRight, BadgeDollarSign, ArrowLeftRight, Building2, Bike } from 'lucide-react';
+import { ArrowLeft, Home, ChevronRight, BadgeDollarSign, ArrowLeftRight, Building2, Bike, Sparkles } from 'lucide-react';
 
-export type PageView = 'home' | 'dana-tunai' | 'tukar-tambah' | 'cabang' | 'katalog' | 'detail' | 'admin';
+export type PageView = 'home' | 'dana-tunai' | 'tukar-tambah' | 'jual-motor' | 'cabang' | 'katalog' | 'detail' | 'admin';
 
 export default function App() {
   // Unified Data Store with dynamic Supabase fetching and anti-flashing loading state
@@ -126,6 +127,11 @@ export default function App() {
 
     if (target === 'tukar-tambah') {
       setCurrentPage('tukar-tambah');
+      return;
+    }
+
+    if (target === 'jual-motor') {
+      setCurrentPage('jual-motor');
       return;
     }
 
@@ -421,6 +427,44 @@ export default function App() {
               siteSettings={siteSettings}
               vehicles={vehicles}
               branches={branches}
+            />
+          </div>
+        )}
+
+        {/* VIEW 7: HALAMAN JUAL MOTOR */}
+        {currentPage === 'jual-motor' && (
+          <div className="animate-in fade-in duration-200">
+            {/* Breadcrumb */}
+            <div className="bg-white border-b border-gray-200 py-3 shadow-2xs">
+              <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('home')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 font-bold text-xs sm:text-sm transition cursor-pointer active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Kembali ke Beranda</span>
+                </button>
+
+                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <span onClick={() => handleNavigate('home')} className="hover:text-blue-600 cursor-pointer flex items-center gap-1">
+                    <Home className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Beranda</span>
+                  </span>
+                  <ChevronRight className="w-3 h-3 text-slate-400" />
+                  <span className="font-bold text-emerald-700 flex items-center gap-1">
+                    <Bike className="w-3.5 h-3.5" />
+                    <span>Jual Motor Anda</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <SellMotorSection 
+              selectedBranch={selectedBranch} 
+              branches={branches}
+              siteSettings={siteSettings} 
+              onNavigate={handleNavigate}
             />
           </div>
         )}

@@ -9,7 +9,9 @@ import {
   BadgeDollarSign, 
   Calculator, 
   ArrowRight,
-  Lock
+  Lock,
+  Bike,
+  Sparkles
 } from 'lucide-react';
 import { COMPANY_INFO, BRANCHES_DATA } from '../data/branches';
 import { Branch, SiteSettings } from '../types';
@@ -35,7 +37,39 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <footer className="bg-slate-900 text-slate-300 text-xs">
       
-      {/* Top Banner Call to Action */}
+      {/* 1. TOP MENU BANNER: Mau Menjual Motor Anda? Putra Motor Group Solusinya! */}
+      <div className="bg-gradient-to-r from-slate-950 via-[#0a2346] to-[#063a2a] text-white py-6 border-b border-slate-700/80 relative overflow-hidden shadow-inner">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(16,185,129,0.15),transparent_60%)]" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left relative z-10">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1.5">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Taksiran Harga Tinggi &amp; Cair Langsung</span>
+            </div>
+            <div className="text-base sm:text-xl md:text-2xl font-black text-white tracking-tight">
+              Mau menjual motor anda? <span className="text-amber-400">Putra Motor Group Solusinya!</span>
+            </div>
+            <div className="text-xs text-slate-300 mt-0.5 max-w-xl">
+              Dapatkan penawaran harga terbaik, proses cepat tanpa ribet, dan transaksi aman resmi di 4 cabang showroom kami.
+            </div>
+          </div>
+
+          <div className="shrink-0">
+            <button
+              type="button"
+              onClick={() => onNavigate('jual-motor')}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:shadow-emerald-500/30 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 whitespace-nowrap group"
+            >
+              <Bike className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
+              <span>Jual Motor</span>
+              <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Secondary Banner Call to Action */}
       <div className="bg-gradient-to-r from-[#0B63E5] to-blue-800 text-white py-8 border-b border-blue-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <div>
@@ -161,6 +195,16 @@ export const Footer: React.FC<FooterProps> = ({
                   className="hover:text-white transition cursor-pointer"
                 >
                   Dana Tunai Gadai BPKB
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('jual-motor')}
+                  className="hover:text-white text-emerald-400 font-bold transition cursor-pointer flex items-center gap-1"
+                >
+                  <span>Jual Motor Anda (Harga Terbaik)</span>
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300">Baru</span>
                 </button>
               </li>
               <li>

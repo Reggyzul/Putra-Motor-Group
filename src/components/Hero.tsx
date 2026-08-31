@@ -8,7 +8,9 @@ import {
   ShieldCheck, 
   ArrowRight,
   MapPin,
-  Building2
+  Building2,
+  Banknote,
+  Sparkles
 } from 'lucide-react';
 import { Branch } from '../types';
 import { buildWhatsAppLink } from '../utils/formatters';
@@ -282,24 +284,24 @@ export const Hero: React.FC<HeroProps> = ({
             Cari motor impian
           </h2>
 
-          {/* 3 Main Action Cards (Beli Motor, Dana Tunai, Tukar Tambah) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+          {/* 4 Main Action Cards (Beli Motor, Dana Tunai, Tukar Tambah, Jual Motor) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             
             {/* 1. Beli Motor */}
             <button
               type="button"
               onClick={() => onNavigate('katalog')}
-              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3.5 sm:p-4 bg-white border border-gray-200 rounded-xl sm:rounded-2xl hover:border-blue-500 hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
+              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-white border border-gray-200 rounded-xl sm:rounded-2xl hover:border-blue-500 hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
             >
               <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                 <Bike className="w-4.5 h-4.5 text-blue-600" />
               </div>
-              <div className="text-left">
-                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+              <div className="text-left min-w-0">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
                   Beli Motor
                 </span>
-                <span className="block text-[10px] text-slate-400">
-                  Pilihan Motor Baru & Bekas
+                <span className="block text-[10px] text-slate-400 truncate">
+                  Unit Baru &amp; Bekas
                 </span>
               </div>
             </button>
@@ -308,17 +310,17 @@ export const Hero: React.FC<HeroProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('dana-tunai')}
-              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3.5 sm:p-4 bg-white border border-gray-200 rounded-xl sm:rounded-2xl hover:border-emerald-500 hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
+              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-white border border-gray-200 rounded-xl sm:rounded-2xl hover:border-emerald-500 hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
             >
               <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                 <BadgeDollarSign className="w-4.5 h-4.5 text-emerald-600" />
               </div>
-              <div className="text-left">
-                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+              <div className="text-left min-w-0">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">
                   Dana Tunai
                 </span>
-                <span className="block text-[10px] text-slate-400">
-                  Gadai BPKB Motor / Mobil
+                <span className="block text-[10px] text-slate-400 truncate">
+                  Gadai BPKB Resmi
                 </span>
               </div>
             </button>
@@ -327,17 +329,41 @@ export const Hero: React.FC<HeroProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('tukar-tambah')}
-              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3.5 sm:p-4 bg-white border border-gray-200 rounded-xl sm:rounded-2xl hover:border-sky-500 hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
+              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-white border border-gray-200 rounded-xl sm:rounded-2xl hover:border-sky-500 hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
             >
               <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                 <ArrowLeftRight className="w-4.5 h-4.5 text-sky-600" />
               </div>
-              <div className="text-left">
-                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
+              <div className="text-left min-w-0">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors truncate">
                   Tukar Tambah
                 </span>
-                <span className="block text-[10px] text-slate-400">
-                  Ganti Motor Lama Anda
+                <span className="block text-[10px] text-slate-400 truncate">
+                  Ganti Motor Lama
+                </span>
+              </div>
+            </button>
+
+            {/* 4. Jual Motor */}
+            <button
+              type="button"
+              onClick={() => onNavigate('jual-motor')}
+              className="flex items-center justify-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-white border border-emerald-200 hover:border-emerald-500 rounded-xl sm:rounded-2xl hover:shadow-xs transition-all duration-200 cursor-pointer text-center group active:scale-98"
+            >
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                <Banknote className="w-4.5 h-4.5 text-emerald-600" />
+              </div>
+              <div className="text-left min-w-0">
+                <div className="flex items-center gap-1">
+                  <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">
+                    Jual Motor
+                  </span>
+                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-400 text-slate-950">
+                    Hot
+                  </span>
+                </div>
+                <span className="block text-[10px] text-slate-400 truncate">
+                  Harga Tinggi &amp; Lunas
                 </span>
               </div>
             </button>

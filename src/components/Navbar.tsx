@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   Search, 
   MapPin, 
-  X 
+  X,
+  Bike
 } from 'lucide-react';
 import { VEHICLES_DATA } from '../data/vehicles';
 import { Branch, Vehicle } from '../types';
@@ -176,15 +177,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* 3. Action Button (Cabang Kami - Sedikit Lebih Kecil & Presisi di HP) */}
-          <div className="flex items-center shrink-0">
+          {/* 3. Action Buttons (Jual Motor & Cabang Kami) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => onNavigate('jual-motor')}
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs md:text-sm font-black text-emerald-950 bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 border border-emerald-500/40 rounded-xl transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
+            >
+              <Bike className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-950 shrink-0" />
+              <span>Jual Motor</span>
+            </button>
+
             <button
               type="button"
               onClick={() => onNavigate('cabang')}
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold text-slate-800 hover:text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs md:text-sm font-bold text-slate-800 hover:text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
             >
-              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
-              <span>Cabang Kami</span>
+              <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600 shrink-0" />
+              <span>Cabang</span>
             </button>
           </div>
 
