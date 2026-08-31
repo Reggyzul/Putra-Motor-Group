@@ -381,6 +381,7 @@ export default function App() {
 
             <DanaTunaiSection 
               selectedBranch={selectedBranch} 
+              branches={branches}
               siteSettings={siteSettings} 
             />
           </div>
