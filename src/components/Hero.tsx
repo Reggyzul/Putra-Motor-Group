@@ -138,103 +138,54 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* ========================================================================= */}
-        {/* 1. HERO PROMO BANNER (100% momotor.id Style)                               */}
+        {/* 1. HERO PROMO BANNER (100% Full Visible Image with Bottom Overlay)         */}
         {/* ========================================================================= */}
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200/80 shadow-sm group">
           
-          {/* Slide Background Image */}
-          <div className="relative min-h-[360px] sm:min-h-[390px] md:min-h-[420px] flex items-center">
+          {/* Slide Background Image (100% Unobstructed Full View) */}
+          <div className="relative min-h-[300px] sm:min-h-[360px] md:min-h-[420px] flex flex-col justify-between">
             
+            {/* 100% Visible Image */}
             <div className="absolute inset-0 z-0">
               <img
                 src={currentSlide.image}
                 alt={currentSlide.title}
-                className="w-full h-full object-cover object-right transition-all duration-700"
+                className="w-full h-full object-cover object-center transition-all duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/40 sm:to-transparent sm:w-3/4 md:w-3/5" />
+              {/* Soft subtle bottom gradient for text readability without obscuring the vehicle */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
             </div>
 
-            {/* Banner Left Content */}
-            <div className="relative z-10 w-full sm:max-w-xl md:max-w-2xl p-4 sm:p-8 md:p-10 flex flex-col justify-between">
-              
-              <div>
-                <div className="inline-block mb-2 sm:mb-3">
-                  <div className="bg-slate-900 text-amber-400 font-bold text-[10px] sm:text-xs px-3 py-1 rounded-full border border-amber-500/30 shadow-2xs tracking-wider uppercase inline-flex items-center gap-1.5">
-                    <span>{currentSlide.taglineRibbon}</span>
-                  </div>
-                </div>
+            {/* Top Tagline Ribbon */}
+            <div className="relative z-10 p-3.5 sm:p-6 md:p-8">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-amber-500/30 text-amber-400 font-bold text-[10px] sm:text-xs tracking-wider uppercase shadow-md">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>{currentSlide.taglineRibbon}</span>
+              </div>
+            </div>
 
-                <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug mb-3 sm:mb-4">
+            {/* Bottom Content: Title, Period & CTA Button */}
+            <div className="relative z-10 p-3.5 sm:p-6 md:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-3.5 sm:gap-6">
+              <div className="max-w-2xl text-white">
+                <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-1.5 drop-shadow-sm">
                   <span>{currentSlide.title} </span>
-                  <span className="text-blue-600 font-black">{currentSlide.titleHighlight}</span>
+                  <span className="text-amber-400 font-black">{currentSlide.titleHighlight}</span>
                 </h1>
-
-                {/* Two Promo Deal Boxes (Harmonized Luxury Style) */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-5 max-w-md">
-                  
-                  {/* Box 1 */}
-                  <div className="bg-slate-900 text-white rounded-xl p-2.5 sm:p-3 border border-slate-800 shadow-sm flex flex-col justify-center">
-                    <span className="text-[9px] sm:text-[11px] font-medium text-slate-300 mb-0.5">
-                      {currentSlide.offer1.label}
-                    </span>
-                    <div className="flex items-baseline gap-0.5 sm:gap-1 flex-wrap">
-                      <span className="text-[10px] sm:text-xs text-amber-400 font-bold">{currentSlide.offer1.currency}</span>
-                      <span className="text-base sm:text-2xl font-black text-white tracking-tight">
-                        {currentSlide.offer1.value}
-                      </span>
-                      <span className="bg-amber-400 text-slate-950 font-black text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded">
-                        {currentSlide.offer1.unit}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Box 2 */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 sm:p-3 shadow-2xs flex flex-col justify-center">
-                    <span className="text-[9px] sm:text-[11px] font-bold text-slate-600 mb-0.5 truncate">
-                      {currentSlide.offer2.label}
-                    </span>
-                    <div className="flex items-baseline gap-0.5 sm:gap-1 flex-wrap">
-                      <span className="text-[10px] sm:text-xs text-blue-700 font-bold">{currentSlide.offer2.currency}</span>
-                      <span className="text-base sm:text-2xl font-black text-slate-900 tracking-tight">
-                        {currentSlide.offer2.value}
-                      </span>
-                      <span className="bg-slate-800 text-white font-bold text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded">
-                        {currentSlide.offer2.unit}
-                      </span>
-                    </div>
-                  </div>
-
-                </div>
+                <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 font-medium">
+                  {currentSlide.period} • Pandu Motor Group Resmi &amp; Bergaransi
+                </p>
               </div>
 
-              {/* Bottom Info: Period & CTA */}
-              <div className="pt-1">
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-700 mb-0.5">
-                  {currentSlide.period}
-                </div>
-                <div className="text-[9px] sm:text-[10px] text-slate-400 mb-3">
-                  Pandu Motor Group • Showroom Resmi Terpercaya &amp; Bergaransi
-                </div>
-
-                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={handleApplyPromo}
-                    className="w-full sm:w-auto justify-center px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-2"
-                  >
-                    <span>{currentSlide.ctaText}</span>
-                    <ArrowRight className="w-4 h-4 text-amber-400" />
-                  </button>
-
-                  <div className="hidden sm:flex items-center gap-1.5 bg-white/90 px-3 py-1.5 rounded-full border border-slate-200 shadow-2xs">
-                    <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                    <span className="text-[10px] font-semibold text-slate-700">
-                      Garansi 100% Mesin &amp; Dokumen
-                    </span>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2.5 shrink-0 pb-1 sm:pb-0">
+                <button
+                  type="button"
+                  onClick={handleApplyPromo}
+                  className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <span>{currentSlide.ctaText}</span>
+                  <ArrowRight className="w-4 h-4 text-slate-950" />
+                </button>
               </div>
-
             </div>
 
           </div>
@@ -244,7 +195,7 @@ export const Hero: React.FC<HeroProps> = ({
             type="button"
             onClick={prevSlide}
             aria-label="Slide Sebelumnya"
-            className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-md border border-gray-200 items-center justify-center transition-all z-20 cursor-pointer hover:scale-105 active:scale-95"
+            className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/70 hover:bg-slate-950 text-white shadow-md border border-white/20 items-center justify-center transition-all z-20 cursor-pointer hover:scale-105 active:scale-95"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -253,13 +204,13 @@ export const Hero: React.FC<HeroProps> = ({
             type="button"
             onClick={nextSlide}
             aria-label="Slide Selanjutnya"
-            className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-md border border-gray-200 items-center justify-center transition-all z-20 cursor-pointer hover:scale-105 active:scale-95"
+            className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/70 hover:bg-slate-950 text-white shadow-md border border-white/20 items-center justify-center transition-all z-20 cursor-pointer hover:scale-105 active:scale-95"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Pagination Dots */}
-          <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
             {BANNER_SLIDES.map((slide, idx) => (
               <button
                 key={slide.id}
@@ -267,8 +218,8 @@ export const Hero: React.FC<HeroProps> = ({
                 aria-label={`Ke slide ${idx + 1}`}
                 className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
                   currentSlideIndex === idx
-                    ? 'w-5 sm:w-6 bg-slate-900'
-                    : 'w-1.5 sm:w-2 bg-slate-300 hover:bg-slate-400'
+                    ? 'w-5 sm:w-6 bg-amber-400'
+                    : 'w-1.5 sm:w-2 bg-white/40 hover:bg-white/70'
                 }`}
               />
             ))}
