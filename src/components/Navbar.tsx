@@ -91,11 +91,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
 
             <div className="flex flex-col min-w-0">
-              {/* Nama Logo Sejajar dalam 1 Baris */}
-              <div className="flex items-center text-sm sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap text-slate-900">
-                <span className="font-['Outfit',sans-serif]">Pandu</span>
-                <span className="font-['Outfit',sans-serif] ml-1">Motor</span>
-                <span className="font-['Outfit',sans-serif] ml-1 text-amber-600">Group</span>
+              {/* Nama Logo Sejajar dalam 1 Baris (Warna Merah Resmi) */}
+              <div className="flex items-center text-sm sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap">
+                <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
               </div>
               {/* Tagline: Melayani Sepenuh Hati */}
               <div className="text-[9px] sm:text-[11px] md:text-xs font-semibold text-slate-500 tracking-tight mt-0.5 leading-none">

@@ -45,23 +45,19 @@ export const Footer: React.FC<FooterProps> = ({
       {showCtaBanners && (
         <>
           {/* ========================================================================= */}
-          {/* 1. BAR 1 (TERPISAH): JUAL MOTOR (Minimalis, Mewah, & Profesional)         */}
+          {/* 1. BAR 1 (TERPISAH): JUAL MOTOR (Minimalis, Ramping & Profesional)        */}
           {/* ========================================================================= */}
-          <div className="bg-[#0B1528] text-white border-t border-b border-slate-800/90 py-4 sm:py-4.5 relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 text-center sm:text-left">
+          <div className="bg-[#0B1528] text-white border-t border-b border-slate-800/90 py-2.5 sm:py-3 relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-center sm:text-left">
               <div className="min-w-0">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-[10px] sm:text-[11px] font-bold text-amber-400 mb-1.5 uppercase tracking-wider">
-                  <Bike className="w-3 h-3 text-amber-400" />
-                  <span>Taksiran Harga Terbaik &amp; Cair Langsung</span>
-                </div>
-                <h3 className="text-sm sm:text-base md:text-lg font-extrabold text-white tracking-tight">
+                <h3 className="text-xs sm:text-sm md:text-base font-extrabold text-white tracking-tight">
                   {siteSettings?.jualmotor_banner_title || (
                     <>
                       Mau menjual motor anda? <span className="text-amber-400">Putra Motor Group Solusinya!</span>
                     </>
                   )}
                 </h3>
-                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 max-w-2xl">
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 max-w-2xl">
                   {siteSettings?.jualmotor_banner_subtitle || 'Dapatkan penawaran harga terbaik, proses cepat tanpa ribet, dan transaksi aman resmi di 4 cabang showroom kami.'}
                 </p>
               </div>
@@ -70,11 +66,9 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigate('jual-motor')}
-                  className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap group"
+                  className="px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-xs hover:shadow transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap"
                 >
-                  <Bike className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
                   <span>{siteSettings?.jualmotor_banner_cta || 'Jual Motor'}</span>
-                  <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
             </div>
@@ -83,13 +77,13 @@ export const Footer: React.FC<FooterProps> = ({
           {/* ========================================================================= */}
           {/* 2. BAR 2 (TERPISAH): TUKAR TAMBAH & DANA TUNAI (Elegan & Selaras)        */}
           {/* ========================================================================= */}
-          <div className="bg-[#0F1E36] text-white border-b border-slate-800/80 py-4.5 sm:py-5">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3.5 sm:gap-6 text-center md:text-left">
+          <div className="bg-[#0F1E36] text-white border-b border-slate-800/80 py-3.5 sm:py-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-5 text-center md:text-left">
               <div className="min-w-0">
-                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                <h3 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight">
                   Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
                 </h3>
-                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">
                   Pandu Motor Group selalu berkomitmen <strong className="text-slate-200">“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
                 </p>
               </div>
@@ -98,14 +92,14 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigate('tukar-tambah')}
-                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
+                  className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
                 >
                   Tukar Tambah Motor
                 </button>
                 <button
                   type="button"
                   onClick={() => onNavigate('dana-tunai')}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
+                  className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
                 >
                   Dana Tunai BPKB
                 </button>
@@ -127,10 +121,10 @@ export const Footer: React.FC<FooterProps> = ({
                 alt="Pandu Motor Group Logo" 
                 className="w-10 h-10 rounded-full object-cover shadow-sm border border-slate-700 bg-white"
               />
-              <div className="flex items-center text-xl font-black text-white">
-                <span className="font-['Outfit',sans-serif]">Pandu</span>
-                <span className="font-['Outfit',sans-serif] ml-1">Motor</span>
-                <span className="font-['Outfit',sans-serif] ml-1 text-amber-400">Group</span>
+              <div className="flex items-center text-xl font-black">
+                <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
               </div>
             </div>
             
