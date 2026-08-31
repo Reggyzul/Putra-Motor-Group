@@ -476,6 +476,7 @@ export default function App() {
         selectedBranch={selectedBranch}
         onSelectBranch={setSelectedBranch}
         siteSettings={siteSettings}
+        currentPage={currentPage}
       />
 
       {/* Floating Fast Contact WhatsApp Widget */}

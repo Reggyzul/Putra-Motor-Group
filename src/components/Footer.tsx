@@ -21,6 +21,7 @@ interface FooterProps {
   selectedBranch: Branch;
   onSelectBranch: (branch: Branch) => void;
   siteSettings?: SiteSettings;
+  currentPage?: string;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -28,77 +29,79 @@ export const Footer: React.FC<FooterProps> = ({
   selectedBranch,
   onSelectBranch,
   siteSettings,
+  currentPage,
 }) => {
   const headOffice = siteSettings?.head_office_address || 'Jl. Kartini No. 204 A-B, Kisaran barat, Asahan Sumatera Utara';
   const email = siteSettings?.official_email || 'putramotorgroup.id@gmail.com';
   const phone = siteSettings?.official_phone || '0822-7647-7628';
   const tagline = siteSettings?.tagline || COMPANY_INFO.tagline;
 
+  // Hapus section bar kecil panjang jual motor, tukar tambah, dana tunai di next page jual motor
+  const showCtaBanners = currentPage !== 'jual-motor';
+
   return (
     <footer className="bg-slate-900 text-slate-300 text-xs">
       
-      {/* 1. TOP MENU BANNER: Mau Menjual Motor Anda? Putra Motor Group Solusinya! */}
-      <div className="bg-gradient-to-r from-slate-950 via-[#0a2346] to-[#063a2a] text-white py-6 border-b border-slate-700/80 relative overflow-hidden shadow-inner">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(16,185,129,0.15),transparent_60%)]" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left relative z-10">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1.5">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span>Taksiran Harga Tinggi &amp; Cair Langsung</span>
-            </div>
-            <div className="text-base sm:text-xl md:text-2xl font-black text-white tracking-tight">
-              Mau menjual motor anda? <span className="text-amber-400">Putra Motor Group Solusinya!</span>
-            </div>
-            <div className="text-xs text-slate-300 mt-0.5 max-w-xl">
-              Dapatkan penawaran harga terbaik, proses cepat tanpa ribet, dan transaksi aman resmi di 4 cabang showroom kami.
+      {showCtaBanners && (
+        <>
+          {/* 1. TOP SLIM BANNER: Mau Menjual Motor Anda? Putra Motor Group Solusinya! */}
+          <div className="bg-gradient-to-r from-slate-950 via-[#072418] to-slate-900 text-white py-3.5 sm:py-4 border-b border-emerald-500/20 relative overflow-hidden shadow-inner">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left relative z-10">
+              <div className="min-w-0">
+                <div className="text-sm sm:text-base md:text-lg font-black text-white tracking-tight">
+                  Mau menjual motor anda? <span className="text-amber-400">Putra Motor Group Solusinya!</span>
+                </div>
+                <div className="text-[11px] sm:text-xs text-slate-300 mt-0.5">
+                  Taksiran harga terbaik &amp; pembayaran langsung lunas di 4 cabang showroom resmi kami.
+                </div>
+              </div>
+
+              <div className="shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('jual-motor')}
+                  className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap group"
+                >
+                  <Bike className="w-3.5 h-3.5 text-slate-950 group-hover:scale-110 transition-transform" />
+                  <span>Jual Motor</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-950 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="shrink-0">
-            <button
-              type="button"
-              onClick={() => onNavigate('jual-motor')}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:shadow-emerald-500/30 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 whitespace-nowrap group"
-            >
-              <Bike className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
-              <span>Jual Motor</span>
-              <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        </div>
-      </div>
+          {/* 2. Secondary Banner Call to Action */}
+          <div className="bg-gradient-to-r from-[#0B63E5] to-blue-800 text-white py-5 sm:py-6 border-b border-blue-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+              <div>
+                <div className="text-base sm:text-lg font-bold">
+                  Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
+                </div>
+                <div className="text-[11px] sm:text-xs text-blue-100 mt-0.5">
+                  Pandu Motor Group selalu berkomitmen <strong>“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
+                </div>
+              </div>
 
-      {/* 2. Secondary Banner Call to Action */}
-      <div className="bg-gradient-to-r from-[#0B63E5] to-blue-800 text-white py-8 border-b border-blue-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-          <div>
-            <div className="text-lg sm:text-xl font-bold">
-              Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
-            </div>
-            <div className="text-xs text-blue-100 mt-0.5">
-              Pandu Motor Group selalu berkomitmen <strong>“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara & Riau.
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('tukar-tambah')}
+                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs shadow-md transition cursor-pointer active:scale-95"
+                >
+                  Tukar Tambah Motor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('dana-tunai')}
+                  className="px-4 sm:px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition cursor-pointer active:scale-95"
+                >
+                  Dana Tunai BPKB
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => onNavigate('tukar-tambah')}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs shadow-md transition cursor-pointer"
-            >
-              Tukar Tambah Motor
-            </button>
-            <button
-              type="button"
-              onClick={() => onNavigate('dana-tunai')}
-              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition cursor-pointer"
-            >
-              Dana Tunai BPKB
-            </button>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -112,45 +112,41 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
   return (
     <div className="w-full bg-[#F8FAFC] pb-16">
       
-      {/* Top Hero Banner */}
-      <div className="bg-gradient-to-r from-[#0d346c] via-[#0B63E5] to-[#047857] text-white py-12 md:py-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_70%)]" />
+      {/* Slim & Compact Top Hero Banner */}
+      <div className="bg-gradient-to-r from-[#0d346c] via-[#0B63E5] to-[#047857] text-white py-5 sm:py-6 relative overflow-hidden shadow-xs">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.12),transparent_60%)]" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl">
-            
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-black tracking-wide uppercase text-amber-300 mb-4 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Mau Menjual Motor Anda? Putra Motor Group Solusinya!</span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[10px] sm:text-xs font-bold text-amber-300 mb-1.5">
+                <Sparkles className="w-3 h-3" />
+                <span>Mau Menjual Motor Anda? Putra Motor Group Solusinya!</span>
+              </div>
+
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight leading-tight">
+                Jual Motor Cepat &amp; Aman, <span className="text-amber-300">Taksiran Harga Terbaik</span>
+              </h1>
+
+              <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-2xl">
+                Isi rincian motor di bawah dan pilih cabang showroom terdekat untuk konfirmasi langsung via WhatsApp.
+              </p>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight mb-4">
-              Jual Motor Cepat & Aman, <br />
-              <span className="text-amber-300">Taksiran Harga Terbaik & Cair Instan</span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-blue-100 leading-relaxed max-w-2xl">
-              Dapatkan penawaran harga tertinggi dan proses transparan untuk semua merk & tipe motor. Isi formulir detail kendaraan di bawah ini dan pilih cabang showroom terdekat untuk konfirmasi langsung via WhatsApp!
-            </p>
-
-            {/* Quick Badges */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/15">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-100">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            {/* Compact Badges Row */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] font-semibold text-slate-100 border border-white/15">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Harga Transparan</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-100">
-                <Banknote className="w-4 h-4 text-amber-400 shrink-0" />
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] font-semibold text-slate-100 border border-white/15">
+                <Banknote className="w-3.5 h-3.5 text-amber-400" />
                 <span>Langsung Lunas</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-100">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Surat Aman Resmi</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-100">
-                <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Proses Kilat</span>
-              </div>
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] font-semibold text-slate-100 border border-white/15">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Resmi &amp; Aman</span>
+              </span>
             </div>
 
           </div>
@@ -158,8 +154,8 @@ Mohon informasi taksiran harga terbaik dan jadwal inspeksi unit di showroom. Ter
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           
           {/* Left Column: Form (8 Cols) */}
           <div className="lg:col-span-8 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-lg border border-gray-100">
