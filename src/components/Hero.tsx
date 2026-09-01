@@ -223,40 +223,40 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Top Tagline Ribbon (Shown if showText is active) */}
-            <div className="relative z-10 p-3.5 sm:p-6 md:p-8">
+            <div className="relative z-10 p-2 sm:p-5 md:p-6">
               {showText && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-amber-500/30 text-amber-400 font-bold text-[10px] sm:text-xs tracking-wider uppercase shadow-md">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-amber-500/30 text-amber-400 font-bold text-[8px] sm:text-xs tracking-wider uppercase shadow-xs">
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-400" />
                   <span>{currentSlide.taglineRibbon}</span>
                 </div>
               )}
             </div>
 
             {/* Bottom Content Area: Title, Period & CTA Button */}
-            <div className="relative z-10 p-3.5 sm:p-6 md:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-3.5 sm:gap-6">
+            <div className="relative z-10 p-2 sm:p-5 md:p-6 flex items-end justify-between gap-2 sm:gap-4">
               {showText ? (
-                <div className="max-w-2xl text-white">
-                  <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-1.5 drop-shadow-sm">
+                <div className="max-w-[72%] text-white min-w-0">
+                  <h1 className="text-[11px] sm:text-lg md:text-2xl font-black tracking-tight leading-tight mb-0.5 drop-shadow-sm truncate">
                     <span>{currentSlide.title} </span>
-                    <span className="text-amber-400 font-black">{currentSlide.titleHighlight}</span>
+                    <span className="text-amber-400">{currentSlide.titleHighlight}</span>
                   </h1>
-                  <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 font-medium">
-                    {currentSlide.period} • Pandu Motor Group Resmi &amp; Bergaransi
+                  <p className="text-[8px] sm:text-xs text-slate-300 font-medium truncate">
+                    {currentSlide.period}
+                    <span className="hidden sm:inline"> • Pandu Motor Group Resmi &amp; Bergaransi</span>
                   </p>
                 </div>
               ) : (
                 <div />
               )}
 
-              {/* Action Button */}
-              <div className="flex items-center gap-2.5 shrink-0 pb-1 sm:pb-0">
+              {/* Action Button: Sangat kecil dan simpel tanpa tanda panah */}
+              <div className="flex items-center shrink-0">
                 <button
                   type="button"
                   onClick={handleApplyPromo}
-                  className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg font-bold text-[9px] sm:text-xs shadow-xs hover:shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap"
                 >
-                  <span>{currentSlide.ctaText || 'Yuk Ajukan Sekarang'}</span>
-                  <ArrowRight className="w-4 h-4 text-slate-950" />
+                  {currentSlide.ctaText || 'Yuk Ajukan Sekarang'}
                 </button>
               </div>
             </div>

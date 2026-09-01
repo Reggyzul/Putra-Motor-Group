@@ -532,14 +532,14 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                       )}
 
                       {/* Bottom Banner Content */}
-                      <div className="flex items-end justify-between gap-3">
+                      <div className="flex items-end justify-between gap-2 sm:gap-3">
                         {formData.showTextOverlay ? (
-                          <div className="max-w-[70%]">
-                            <h4 className="text-sm sm:text-lg md:text-xl font-black leading-tight drop-shadow-md">
+                          <div className="max-w-[72%] min-w-0">
+                            <h4 className="text-[11px] sm:text-base font-black leading-tight drop-shadow-md truncate">
                               <span>{formData.title} </span>
                               <span className="text-amber-400 font-black">{formData.titleHighlight}</span>
                             </h4>
-                            <p className="text-[9px] sm:text-xs text-slate-300 font-medium line-clamp-1 mt-0.5 drop-shadow">
+                            <p className="text-[8px] sm:text-xs text-slate-300 font-medium line-clamp-1 mt-0.5 drop-shadow truncate">
                               {formData.period}
                             </p>
                           </div>
@@ -550,10 +550,9 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                         <div className="shrink-0">
                           <button
                             type="button"
-                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-400 text-slate-950 rounded-lg sm:rounded-xl font-extrabold text-[10px] sm:text-xs shadow-md flex items-center gap-1.5 pointer-events-none"
+                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-amber-400 text-slate-950 rounded-lg font-bold text-[9px] sm:text-xs shadow-xs pointer-events-none whitespace-nowrap"
                           >
-                            <span>{formData.ctaText || 'Yuk Ajukan'}</span>
-                            <ArrowRight className="w-3 h-3 text-slate-950" />
+                            <span>{formData.ctaText || 'Yuk Ajukan Sekarang'}</span>
                           </button>
                         </div>
                       </div>
