@@ -29,6 +29,16 @@ export const DEFAULT_BANNERS: HeroBanner[] = [
     themeColor: '#0B63E5',
     isActive: true,
     orderIndex: 1,
+    imageFit: 'cover',
+    imagePosition: '50% 50%',
+    imagePosX: 50,
+    imagePosY: 50,
+    imageScale: 100,
+    aspectRatio: '16:9',
+    bannerHeight: 380,
+    showTextOverlay: true,
+    overlayOpacity: 70,
+    ctaLinkType: 'whatsapp',
   },
   {
     id: 'honda-merdeka-promo',
@@ -54,6 +64,16 @@ export const DEFAULT_BANNERS: HeroBanner[] = [
     themeColor: '#DC2626',
     isActive: true,
     orderIndex: 2,
+    imageFit: 'cover',
+    imagePosition: '50% 50%',
+    imagePosX: 50,
+    imagePosY: 50,
+    imageScale: 100,
+    aspectRatio: '16:9',
+    bannerHeight: 380,
+    showTextOverlay: true,
+    overlayOpacity: 70,
+    ctaLinkType: 'whatsapp',
   },
 ];
 
@@ -279,6 +299,17 @@ export function useDataStore() {
           themeColor: bn.theme_color || '#0B63E5',
           isActive: bn.is_active ?? true,
           orderIndex: bn.order_index ?? 1,
+          imageFit: bn.image_fit || 'cover',
+          imagePosition: bn.image_position || '50% 50%',
+          imagePosX: bn.image_pos_x !== undefined && bn.image_pos_x !== null ? bn.image_pos_x : 50,
+          imagePosY: bn.image_pos_y !== undefined && bn.image_pos_y !== null ? bn.image_pos_y : 50,
+          imageScale: bn.image_scale || 100,
+          aspectRatio: bn.aspect_ratio || '16:9',
+          bannerHeight: bn.banner_height || 380,
+          showTextOverlay: bn.show_text_overlay !== false,
+          overlayOpacity: bn.overlay_opacity !== undefined && bn.overlay_opacity !== null ? bn.overlay_opacity : 70,
+          ctaLinkType: bn.cta_link_type || 'whatsapp',
+          ctaCustomUrl: bn.cta_custom_url || '',
         }));
         setBanners(formatted);
         localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
@@ -468,7 +499,7 @@ export function useDataStore() {
   // MUTATION: Save Banner
   const saveBanner = async (banner: HeroBanner): Promise<{ success: boolean; error?: string }> => {
     try {
-      const dbPayload = {
+      const fullDbPayload: any = {
         id: banner.id,
         tagline_ribbon: banner.taglineRibbon,
         title: banner.title,
@@ -481,11 +512,45 @@ export function useDataStore() {
         theme_color: banner.themeColor,
         is_active: banner.isActive ?? true,
         order_index: banner.orderIndex ?? 1,
+        image_fit: banner.imageFit || 'cover',
+        image_position: banner.imagePosition || `${banner.imagePosX ?? 50}% ${banner.imagePosY ?? 50}%`,
+        image_pos_x: banner.imagePosX ?? 50,
+        image_pos_y: banner.imagePosY ?? 50,
+        image_scale: banner.imageScale ?? 100,
+        aspect_ratio: banner.aspectRatio || '16:9',
+        banner_height: banner.bannerHeight || 380,
+        show_text_overlay: banner.showTextOverlay !== false,
+        overlay_opacity: banner.overlayOpacity ?? 70,
+        cta_link_type: banner.ctaLinkType || 'whatsapp',
+        cta_custom_url: banner.ctaCustomUrl || '',
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('hero_banners').upsert(dbPayload);
-      if (error) throw error;
+      const { error } = await supabase.from('hero_banners').upsert(fullDbPayload);
+      
+      // If error occurred (e.g. columns do not exist yet in Supabase table), fallback to base columns
+      if (error) {
+        console.warn('Supabase upsert with new columns returned error, attempting fallback to base columns:', error.message);
+        const basePayload = {
+          id: banner.id,
+          tagline_ribbon: banner.taglineRibbon,
+          title: banner.title,
+          title_highlight: banner.titleHighlight,
+          offer1: banner.offer1,
+          offer2: banner.offer2,
+          period: banner.period,
+          image: banner.image,
+          cta_text: banner.ctaText,
+          theme_color: banner.themeColor,
+          is_active: banner.isActive ?? true,
+          order_index: banner.orderIndex ?? 1,
+          updated_at: new Date().toISOString(),
+        };
+        const fallbackRes = await supabase.from('hero_banners').upsert(basePayload);
+        if (fallbackRes.error) {
+          console.error('Fallback base save also failed:', fallbackRes.error);
+        }
+      }
 
       const updated = banners.some((b) => b.id === banner.id)
         ? banners.map((b) => (b.id === banner.id ? banner : b))

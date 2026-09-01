@@ -110,6 +110,17 @@ export interface HeroBanner {
   themeColor: string;
   isActive?: boolean;
   orderIndex?: number;
+  imageFit?: 'cover' | 'contain' | 'auto' | 'fill';
+  imagePosition?: string;
+  imagePosX?: number;
+  imagePosY?: number;
+  imageScale?: number;
+  aspectRatio?: 'auto' | '21:9' | '16:9' | '16:7' | '3:1' | 'custom';
+  bannerHeight?: number;
+  showTextOverlay?: boolean;
+  overlayOpacity?: number;
+  ctaLinkType?: 'whatsapp' | 'katalog' | 'dana-tunai' | 'tukar-tambah' | 'jual-motor' | 'custom';
+  ctaCustomUrl?: string;
 }
 
 export interface SiteSettings {

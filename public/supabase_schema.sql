@@ -68,9 +68,33 @@ CREATE TABLE IF NOT EXISTS public.hero_banners (
     theme_color TEXT DEFAULT '#0B63E5',
     is_active BOOLEAN DEFAULT TRUE,
     order_index INTEGER DEFAULT 0,
+    image_fit TEXT DEFAULT 'cover',
+    image_position TEXT DEFAULT '50% 50%',
+    image_pos_x INTEGER DEFAULT 50,
+    image_pos_y INTEGER DEFAULT 50,
+    image_scale INTEGER DEFAULT 100,
+    aspect_ratio TEXT DEFAULT '16:9',
+    banner_height INTEGER DEFAULT 380,
+    show_text_overlay BOOLEAN DEFAULT TRUE,
+    overlay_opacity INTEGER DEFAULT 70,
+    cta_link_type TEXT DEFAULT 'whatsapp',
+    cta_custom_url TEXT DEFAULT '',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Migrasi Kolom Visual Banner Jika Tabel Sudah Ada Sebelumnya
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_fit TEXT DEFAULT 'cover';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_position TEXT DEFAULT '50% 50%';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_pos_x INTEGER DEFAULT 50;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_pos_y INTEGER DEFAULT 50;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_scale INTEGER DEFAULT 100;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS aspect_ratio TEXT DEFAULT '16:9';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS banner_height INTEGER DEFAULT 380;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS show_text_overlay BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS overlay_opacity INTEGER DEFAULT 70;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS cta_link_type TEXT DEFAULT 'whatsapp';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS cta_custom_url TEXT DEFAULT '';
 
 -- 4. TABEL PENGATURAN SITUS (SITE_SETTINGS)
 CREATE TABLE IF NOT EXISTS public.site_settings (
