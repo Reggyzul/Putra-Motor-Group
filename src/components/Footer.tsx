@@ -75,16 +75,16 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           {/* ========================================================================= */}
-          {/* 2. BAR 2 (TERPISAH): TUKAR TAMBAH & DANA TUNAI (Elegan & Selaras)        */}
+          {/* 2. BAR 2 (TERPISAH): TUKAR TAMBAH & DANA TUNAI (Background Putih, Teks Hitam) */}
           {/* ========================================================================= */}
-          <div className="bg-[#0F1E36] text-white border-b border-slate-800/80 py-3.5 sm:py-4">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-5 text-center md:text-left">
+          <div className="bg-white text-slate-900 border-b border-slate-200 py-3 sm:py-3.5 shadow-2xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-4 text-center md:text-left">
               <div className="min-w-0">
-                <h3 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight">
+                <h3 className="text-xs sm:text-sm md:text-base font-extrabold text-slate-950 tracking-tight">
                   Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
                 </h3>
-                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">
-                  Pandu Motor Group selalu berkomitmen <strong className="text-slate-200">“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
+                <p className="text-[10px] sm:text-[11px] text-slate-600 mt-0.5">
+                  Pandu Motor Group selalu berkomitmen <strong className="text-slate-900 font-bold">“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
                 </p>
               </div>
 
@@ -92,14 +92,14 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigate('tukar-tambah')}
-                  className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
+                  className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
                 >
                   Tukar Tambah Motor
                 </button>
                 <button
                   type="button"
                   onClick={() => onNavigate('dana-tunai')}
-                  className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
+                  className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95"
                 >
                   Dana Tunai BPKB
                 </button>
@@ -110,18 +110,18 @@ export const Footer: React.FC<FooterProps> = ({
       )}
 
       {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 sm:gap-6">
           
           {/* Brand Info & Kantor Pusat */}
-          <div className="lg:col-span-2 space-y-3.5">
+          <div className="lg:col-span-2 space-y-3">
             <div className="flex items-center gap-2.5">
               <img 
                 src="/images/pandu_logo.avif" 
                 alt="Pandu Motor Group Logo" 
-                className="w-10 h-10 rounded-full object-cover shadow-sm border border-slate-700 bg-white"
+                className="w-9 h-9 rounded-full object-cover shadow-sm border border-slate-700 bg-white"
               />
-              <div className="flex items-center text-xl font-black">
+              <div className="flex items-center text-lg font-black">
                 <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
                 <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
                 <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
@@ -133,9 +133,9 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
 
             {/* Kantor Pusat & Email Resmi */}
-            <div className="pt-2 pb-1 space-y-2 text-xs border-y border-slate-800">
+            <div className="pt-2 pb-1 space-y-1.5 text-xs border-y border-slate-800">
               <div className="flex items-start gap-2.5">
-                <Building2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-white">Kantor Pusat:</span>
                   <div className="text-slate-300 text-[11px] leading-relaxed mt-0.5">
@@ -145,7 +145,7 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
 
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <div className="text-[11px]">
                   <span className="font-bold text-white">Email:</span>{' '}
                   <a 
@@ -159,17 +159,17 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <div className="flex items-center gap-2 text-slate-400">
-              <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span className="text-[11px]">Surat Lengkap &amp; Garansi Mesin Resmi Dealer</span>
             </div>
           </div>
 
           {/* Produk & Layanan */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">
               Layanan Unggulan
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-1.5 text-xs">
               <li>
                 <button
                   type="button"
@@ -230,10 +230,10 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Merk Populer */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">
               Merk Terpopuler
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-1.5 text-xs">
               <li><button type="button" onClick={() => onNavigate('katalog')} className="hover:text-white transition cursor-pointer">Honda Indonesia</button></li>
               <li><button type="button" onClick={() => onNavigate('katalog')} className="hover:text-white transition cursor-pointer">Yamaha Motor</button></li>
               <li><button type="button" onClick={() => onNavigate('katalog')} className="hover:text-white transition cursor-pointer">Kawasaki Racing</button></li>
@@ -245,10 +245,10 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* 4 Cabang Showroom */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5">
               4 Showroom Cabang
             </h4>
-            <ul className="space-y-2.5 text-slate-400 text-xs">
+            <ul className="space-y-2 text-slate-400 text-xs">
               <li className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <span>Kisaran, Perdagangan, Cikampak & Dumai</span>
@@ -262,7 +262,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <span>Buka Setiap Hari: 08.00 - 17.00 WIB</span>
               </li>
               {/* Admin Login Dipindahkan Tepat di Bawah Buka Setiap Hari */}
-              <li className="pt-2 border-t border-slate-800/80">
+              <li className="pt-1.5 border-t border-slate-800/80">
                 <button
                   type="button"
                   onClick={() => onNavigate('admin')}
@@ -277,8 +277,8 @@ export const Footer: React.FC<FooterProps> = ({
 
         </div>
 
-        {/* Bottom Legal & Copyright */}
-        <div className="mt-10 pt-6 border-t border-slate-800 text-center text-[11px] text-slate-500">
+        {/* Bottom Legal & Copyright (Dipadatkan) */}
+        <div className="mt-5 pt-3.5 border-t border-slate-800 text-center text-[10px] sm:text-[11px] text-slate-500">
           © 2026 Pandu Motor Group. Hak Cipta Dilindungi Undang-Undang.
         </div>
 
