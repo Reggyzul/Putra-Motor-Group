@@ -316,6 +316,12 @@ export function useDataStore() {
           overlayOpacity: bn.overlay_opacity !== undefined && bn.overlay_opacity !== null ? bn.overlay_opacity : 70,
           ctaLinkType: bn.cta_link_type || 'whatsapp',
           ctaCustomUrl: bn.cta_custom_url || '',
+          mediaType: bn.media_type || (bn.video_url || bn.image?.endsWith('.mp4') || bn.image?.endsWith('.webm') ? 'video' : 'image'),
+          videoUrl: bn.video_url || '',
+          videoPoster: bn.video_poster || '',
+          videoAutoplay: bn.video_autoplay !== false,
+          videoLoop: bn.video_loop !== false,
+          videoMuted: bn.video_muted !== false,
         }));
         setBanners(formatted);
         localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
@@ -559,6 +565,12 @@ export function useDataStore() {
         overlay_opacity: banner.overlayOpacity ?? 70,
         cta_link_type: banner.ctaLinkType || 'whatsapp',
         cta_custom_url: banner.ctaCustomUrl || '',
+        media_type: banner.mediaType || 'image',
+        video_url: banner.videoUrl || '',
+        video_poster: banner.videoPoster || '',
+        video_autoplay: banner.videoAutoplay !== false,
+        video_loop: banner.videoLoop !== false,
+        video_muted: banner.videoMuted !== false,
         updated_at: new Date().toISOString(),
       };
 

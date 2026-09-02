@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Branch, HeroBanner } from '../types';
 import { buildWhatsAppLink } from '../utils/formatters';
+import { isVideoMedia, isYouTubeUrl, getYouTubeEmbedUrl } from '../utils/media';
 
 const DEFAULT_SLIDES: HeroBanner[] = [
   {
@@ -166,12 +167,16 @@ export const Hero: React.FC<HeroProps> = ({
   const overlayOpacity = (currentSlide.overlayOpacity ?? 70) / 100;
   const aspectRatio = currentSlide.aspectRatio || '16:9';
 
+  const isVideo = isVideoMedia(currentSlide.mediaType, currentSlide.videoUrl || currentSlide.image);
+  const videoSrc = currentSlide.videoUrl || currentSlide.image;
+  const isYT = isYouTubeUrl(videoSrc);
+
   return (
     <div className="w-full bg-[#F8FAFC] pt-3 pb-6">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* ========================================================================= */}
-        {/* 1. HERO PROMO BANNER CAROUSEL (Dinamis Sesuai Ukuran & Posisi Gambar)     */}
+        {/* 1. HERO PROMO BANNER CAROUSEL (Dinamis Foto & Video)                      */}
         {/* ========================================================================= */}
         <div 
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200/80 shadow-sm group transition-all"
@@ -196,22 +201,53 @@ export const Hero: React.FC<HeroProps> = ({
             {fitMode === 'contain' && (
               <div 
                 className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-40 scale-115 transition-all duration-700 pointer-events-none"
-                style={{ backgroundImage: `url(${currentSlide.image})` }}
+                style={{ backgroundImage: `url(${currentSlide.videoPoster || currentSlide.image})` }}
               />
             )}
 
-            {/* Foreground Main Banner Image */}
+            {/* Foreground Main Banner Media (Image or Video) */}
             <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-              <img
-                src={currentSlide.image}
-                alt={currentSlide.title}
-                className="w-full h-full transition-all duration-700 pointer-events-none"
-                style={{
-                  objectFit: fitMode === 'auto' ? 'contain' : (fitMode as any),
-                  objectPosition: `${posX}% ${posY}%`,
-                  transform: `scale(${scale})`,
-                }}
-              />
+              {isVideo ? (
+                isYT ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(videoSrc)}
+                    title={currentSlide.title}
+                    className="w-full h-full pointer-events-none scale-105"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    style={{
+                      border: 'none',
+                      transform: `scale(${scale})`,
+                    }}
+                  />
+                ) : (
+                  <video
+                    key={videoSrc}
+                    src={videoSrc}
+                    poster={currentSlide.videoPoster || currentSlide.image}
+                    autoPlay={currentSlide.videoAutoplay !== false}
+                    loop={currentSlide.videoLoop !== false}
+                    muted={currentSlide.videoMuted !== false}
+                    playsInline
+                    className="w-full h-full pointer-events-none transition-all duration-700"
+                    style={{
+                      objectFit: fitMode === 'auto' ? 'contain' : (fitMode as any),
+                      objectPosition: `${posX}% ${posY}%`,
+                      transform: `scale(${scale})`,
+                    }}
+                  />
+                )
+              ) : (
+                <img
+                  src={currentSlide.image}
+                  alt={currentSlide.title}
+                  className="w-full h-full transition-all duration-700 pointer-events-none"
+                  style={{
+                    objectFit: fitMode === 'auto' ? 'contain' : (fitMode as any),
+                    objectPosition: `${posX}% ${posY}%`,
+                    transform: `scale(${scale})`,
+                  }}
+                />
+              )}
 
               {/* Dynamic Dark Gradient for Text Legibility (Only if showText is active) */}
               {showText && (

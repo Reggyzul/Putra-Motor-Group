@@ -93,11 +93,17 @@ CREATE TABLE IF NOT EXISTS public.hero_banners (
     overlay_opacity INTEGER DEFAULT 70,
     cta_link_type TEXT DEFAULT 'whatsapp',
     cta_custom_url TEXT DEFAULT '',
+    media_type TEXT DEFAULT 'image',
+    video_url TEXT DEFAULT '',
+    video_poster TEXT DEFAULT '',
+    video_autoplay BOOLEAN DEFAULT TRUE,
+    video_loop BOOLEAN DEFAULT TRUE,
+    video_muted BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Migrasi Kolom Visual Banner Jika Tabel Sudah Ada Sebelumnya
+-- Migrasi Kolom Visual & Video Banner Jika Tabel Sudah Ada Sebelumnya
 ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_fit TEXT DEFAULT 'cover';
 ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_position TEXT DEFAULT '50% 50%';
 ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_pos_x INTEGER DEFAULT 50;
@@ -109,6 +115,12 @@ ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS show_text_overlay BOOLE
 ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS overlay_opacity INTEGER DEFAULT 70;
 ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS cta_link_type TEXT DEFAULT 'whatsapp';
 ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS cta_custom_url TEXT DEFAULT '';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'image';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_url TEXT DEFAULT '';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_poster TEXT DEFAULT '';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_autoplay BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_loop BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_muted BOOLEAN DEFAULT TRUE;
 
 -- 4. TABEL PENGATURAN SITUS (SITE_SETTINGS)
 CREATE TABLE IF NOT EXISTS public.site_settings (

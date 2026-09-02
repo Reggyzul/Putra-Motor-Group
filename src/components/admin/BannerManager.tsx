@@ -20,10 +20,17 @@ import {
   ArrowRight,
   Maximize2,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Video,
+  Film,
+  Play,
+  Volume2,
+  VolumeX,
+  Repeat
 } from 'lucide-react';
 import { HeroBanner } from '../../types';
-import { uploadImageFile } from '../../lib/supabase';
+import { uploadMediaFile } from '../../lib/supabase';
+import { isVideoMedia, isYouTubeUrl, getYouTubeEmbedUrl } from '../../utils/media';
 
 interface BannerManagerProps {
   banners: HeroBanner[];
@@ -39,7 +46,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<HeroBanner | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [activeTab, setActiveTab] = useState<'visual' | 'content' | 'cta'>('visual');
 
@@ -79,6 +86,12 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
     overlayOpacity: 70,
     ctaLinkType: 'whatsapp',
     ctaCustomUrl: '',
+    mediaType: 'image',
+    videoUrl: '',
+    videoPoster: '',
+    videoAutoplay: true,
+    videoLoop: true,
+    videoMuted: true,
   });
 
   const handleOpenAdd = () => {
@@ -117,6 +130,12 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
       overlayOpacity: 70,
       ctaLinkType: 'whatsapp',
       ctaCustomUrl: '',
+      mediaType: 'image',
+      videoUrl: '',
+      videoPoster: '',
+      videoAutoplay: true,
+      videoLoop: true,
+      videoMuted: true,
     });
     setActiveTab('visual');
     setIsModalOpen(true);
@@ -137,24 +156,43 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
       overlayOpacity: banner.overlayOpacity !== undefined ? banner.overlayOpacity : 70,
       ctaLinkType: banner.ctaLinkType || 'whatsapp',
       ctaCustomUrl: banner.ctaCustomUrl || '',
+      mediaType: banner.mediaType || (banner.videoUrl || banner.image?.endsWith('.mp4') || banner.image?.endsWith('.webm') ? 'video' : 'image'),
+      videoUrl: banner.videoUrl || (banner.image?.endsWith('.mp4') || banner.image?.endsWith('.webm') ? banner.image : ''),
+      videoPoster: banner.videoPoster || '',
+      videoAutoplay: banner.videoAutoplay !== false,
+      videoLoop: banner.videoLoop !== false,
+      videoMuted: banner.videoMuted !== false,
     });
     setActiveTab('visual');
     setIsModalOpen(true);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isVideo = false) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setUploadingImage(true);
+    setUploadingMedia(true);
     try {
       const file = files[0];
-      const uploadedUrl = await uploadImageFile(file, 'pandu-motor-images', 'banners');
-      setFormData((prev) => ({ ...prev, image: uploadedUrl }));
+      const uploadedUrl = await uploadMediaFile(file, 'pandu-motor-images', isVideo ? 'videos' : 'banners');
+      if (isVideo) {
+        setFormData((prev) => ({ 
+          ...prev, 
+          mediaType: 'video',
+          videoUrl: uploadedUrl,
+          image: prev.image || uploadedUrl,
+        }));
+      } else {
+        setFormData((prev) => ({ 
+          ...prev, 
+          image: uploadedUrl,
+          videoPoster: prev.mediaType === 'video' ? uploadedUrl : prev.videoPoster,
+        }));
+      }
     } catch (err: any) {
-      alert('Gagal mengupload banner: ' + err.message);
+      alert(`Gagal mengupload ${isVideo ? 'video' : 'banner'}: ` + err.message);
     } finally {
-      setUploadingImage(false);
+      setUploadingMedia(false);
     }
   };
 
@@ -247,6 +285,9 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
           const posY = banner.imagePosY ?? 50;
           const fitMode = banner.imageFit || 'cover';
           const isPoster = banner.showTextOverlay === false;
+          const isVideo = isVideoMedia(banner.mediaType, banner.videoUrl || banner.image);
+          const videoSrc = banner.videoUrl || banner.image;
+          const isYT = isYouTubeUrl(videoSrc);
 
           return (
             <div 
@@ -262,20 +303,47 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                   {fitMode === 'contain' && (
                     <div 
                       className="absolute inset-0 bg-cover bg-center filter blur-lg opacity-40 scale-110"
-                      style={{ backgroundImage: `url(${banner.image})` }}
+                      style={{ backgroundImage: `url(${banner.videoPoster || banner.image})` }}
                     />
                   )}
 
-                  <img
-                    src={banner.image}
-                    alt={banner.title}
-                    className="w-full h-full relative z-10 transition-all duration-300"
-                    style={{
-                      objectFit: fitMode === 'auto' ? 'contain' : (fitMode as any),
-                      objectPosition: `${posX}% ${posY}%`,
-                      transform: `scale(${(banner.imageScale || 100) / 100})`,
-                    }}
-                  />
+                  {isVideo ? (
+                    isYT ? (
+                      <iframe
+                        src={getYouTubeEmbedUrl(videoSrc)}
+                        title={banner.title}
+                        className="w-full h-full pointer-events-none scale-105"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        style={{ border: 'none' }}
+                      />
+                    ) : (
+                      <video
+                        src={videoSrc}
+                        poster={banner.videoPoster || banner.image}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full relative z-10 transition-all duration-300"
+                        style={{
+                          objectFit: fitMode === 'auto' ? 'contain' : (fitMode as any),
+                          objectPosition: `${posX}% ${posY}%`,
+                          transform: `scale(${(banner.imageScale || 100) / 100})`,
+                        }}
+                      />
+                    )
+                  ) : (
+                    <img
+                      src={banner.image}
+                      alt={banner.title}
+                      className="w-full h-full relative z-10 transition-all duration-300"
+                      style={{
+                        objectFit: fitMode === 'auto' ? 'contain' : (fitMode as any),
+                        objectPosition: `${posX}% ${posY}%`,
+                        transform: `scale(${(banner.imageScale || 100) / 100})`,
+                      }}
+                    />
+                  )}
 
                   {/* Dark gradient simulation */}
                   {banner.showTextOverlay !== false && (
@@ -286,10 +354,16 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                   )}
 
                   {/* Top Badges */}
-                  <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5">
+                  <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 flex-wrap">
                     <span className="bg-slate-900/90 backdrop-blur-xs text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-white/10 shadow-xs">
                       Slide #{banner.orderIndex || index + 1}
                     </span>
+                    {isVideo && (
+                      <span className="bg-purple-600 text-white text-[10px] font-black px-2 py-1 rounded-lg uppercase shadow-xs flex items-center gap-1">
+                        <Video className="w-3 h-3" />
+                        <span>VIDEO</span>
+                      </span>
+                    )}
                     <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg uppercase shadow-xs">
                       {fitMode.toUpperCase()}
                     </span>
@@ -452,113 +526,149 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
 
                 {/* Preview Box Frame */}
                 <div className="flex justify-center bg-slate-900/90 rounded-2xl p-2 sm:p-4 border border-slate-800">
-                  <div 
-                    className={`relative rounded-xl overflow-hidden shadow-xl border border-white/10 transition-all duration-300 select-none ${
-                      previewDevice === 'mobile' ? 'w-[320px] max-w-full' : 'w-full'
-                    }`}
-                    style={{
-                      aspectRatio: formData.aspectRatio === '21:9' ? '21/9' : 
-                                   formData.aspectRatio === '16:7' ? '16/7' : 
-                                   formData.aspectRatio === '3:1' ? '3/1' : 
-                                   formData.aspectRatio === 'custom' ? undefined : '16/9',
-                      minHeight: formData.aspectRatio === 'custom' ? `${formData.bannerHeight || 380}px` : (previewDevice === 'mobile' ? '220px' : '280px'),
-                      maxHeight: previewDevice === 'mobile' ? '360px' : '420px',
-                      backgroundColor: formData.themeColor || '#0f172a',
-                    }}
-                  >
-                    {/* Ambient backdrop when contain mode */}
-                    {formData.imageFit === 'contain' && (
-                      <div 
-                        className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-50 scale-110"
-                        style={{ backgroundImage: `url(${formData.image})` }}
-                      />
-                    )}
+                  {(() => {
+                    const isVideo = isVideoMedia(formData.mediaType, formData.videoUrl || formData.image);
+                    const videoSrc = formData.videoUrl || formData.image;
+                    const isYT = isYouTubeUrl(videoSrc);
 
-                    {/* Interactive Image Frame */}
-                    <div 
-                      ref={previewBoxRef}
-                      onClick={handlePreviewClick}
-                      className="absolute inset-0 cursor-crosshair group flex items-center justify-center overflow-hidden"
-                      title="Klik di mana saja untuk menggeser posisi fokus foto"
-                    >
-                      <img
-                        src={formData.image}
-                        alt="Banner Preview"
-                        className="w-full h-full pointer-events-none transition-all duration-200"
-                        style={{
-                          objectFit: formData.imageFit === 'auto' ? 'contain' : (formData.imageFit as any),
-                          objectPosition: `${formData.imagePosX ?? 50}% ${formData.imagePosY ?? 50}%`,
-                          transform: `scale(${(formData.imageScale || 100) / 100})`,
-                        }}
-                      />
-
-                      {/* Visual Focal Point Crosshair Pin */}
+                    return (
                       <div 
-                        className="absolute w-7 h-7 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 transition-all duration-150 flex items-center justify-center"
+                        className={`relative rounded-xl overflow-hidden shadow-xl border border-white/10 transition-all duration-300 select-none ${
+                          previewDevice === 'mobile' ? 'w-[320px] max-w-full' : 'w-full'
+                        }`}
                         style={{
-                          left: `${formData.imagePosX ?? 50}%`,
-                          top: `${formData.imagePosY ?? 50}%`,
+                          aspectRatio: formData.aspectRatio === '21:9' ? '21/9' : 
+                                       formData.aspectRatio === '16:7' ? '16/7' : 
+                                       formData.aspectRatio === '3:1' ? '3/1' : 
+                                       formData.aspectRatio === 'custom' ? undefined : '16/9',
+                          minHeight: formData.aspectRatio === 'custom' ? `${formData.bannerHeight || 380}px` : (previewDevice === 'mobile' ? '220px' : '280px'),
+                          maxHeight: previewDevice === 'mobile' ? '360px' : '420px',
+                          backgroundColor: formData.themeColor || '#0f172a',
                         }}
                       >
-                        <div className="w-6 h-6 rounded-full border-2 border-amber-400 bg-amber-400/30 flex items-center justify-center shadow-md animate-pulse">
-                          <Target className="w-3.5 h-3.5 text-amber-300" />
-                        </div>
-                      </div>
-
-                      {/* Dark Gradient Overlay */}
-                      {formData.showTextOverlay && (
-                        <div 
-                          className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent transition-opacity"
-                          style={{ opacity: (formData.overlayOpacity ?? 70) / 100 }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Overlay Content (Simulated Landing Page) */}
-                    <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-3 sm:p-5 text-white">
-                      
-                      {/* Top Ribbon */}
-                      {formData.showTextOverlay ? (
-                        <div>
-                          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-xs border border-amber-400/40 text-amber-300 font-bold text-[9px] sm:text-[11px] uppercase tracking-wider shadow-sm">
-                            <Sparkles className="w-3 h-3 text-amber-400" />
-                            <span>{formData.taglineRibbon || 'PROMO SPESIAL'}</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-950/70 backdrop-blur-xs text-[9px] text-amber-400 font-bold self-start">
-                          <span>Mode Poster Bersih</span>
-                        </div>
-                      )}
-
-                      {/* Bottom Banner Content */}
-                      <div className="flex items-end justify-between gap-2 sm:gap-3">
-                        {formData.showTextOverlay ? (
-                          <div className="max-w-[72%] min-w-0">
-                            <h4 className="text-[11px] sm:text-base font-black leading-tight drop-shadow-md truncate">
-                              <span>{formData.title} </span>
-                              <span className="text-amber-400 font-black">{formData.titleHighlight}</span>
-                            </h4>
-                            <p className="text-[8px] sm:text-xs text-slate-300 font-medium line-clamp-1 mt-0.5 drop-shadow truncate">
-                              {formData.period}
-                            </p>
-                          </div>
-                        ) : (
-                          <div />
+                        {/* Ambient backdrop when contain mode */}
+                        {formData.imageFit === 'contain' && (
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-50 scale-110"
+                            style={{ backgroundImage: `url(${formData.videoPoster || formData.image})` }}
+                          />
                         )}
 
-                        <div className="shrink-0">
-                          <button
-                            type="button"
-                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-amber-400 text-slate-950 rounded-lg font-bold text-[9px] sm:text-xs shadow-xs pointer-events-none whitespace-nowrap"
+                        {/* Interactive Media Frame */}
+                        <div 
+                          ref={previewBoxRef}
+                          onClick={handlePreviewClick}
+                          className="absolute inset-0 cursor-crosshair group flex items-center justify-center overflow-hidden"
+                          title="Klik di mana saja untuk menggeser posisi fokus media"
+                        >
+                          {isVideo ? (
+                            isYT ? (
+                              <iframe
+                                src={getYouTubeEmbedUrl(videoSrc)}
+                                title="YouTube Video Preview"
+                                className="w-full h-full pointer-events-none scale-105"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                style={{ border: 'none' }}
+                              />
+                            ) : (
+                              <video
+                                key={videoSrc}
+                                src={videoSrc}
+                                poster={formData.videoPoster || formData.image}
+                                autoPlay={formData.videoAutoplay !== false}
+                                loop={formData.videoLoop !== false}
+                                muted={formData.videoMuted !== false}
+                                playsInline
+                                className="w-full h-full pointer-events-none transition-all duration-200"
+                                style={{
+                                  objectFit: formData.imageFit === 'auto' ? 'contain' : (formData.imageFit as any),
+                                  objectPosition: `${formData.imagePosX ?? 50}% ${formData.imagePosY ?? 50}%`,
+                                  transform: `scale(${(formData.imageScale || 100) / 100})`,
+                                }}
+                              />
+                            )
+                          ) : (
+                            <img
+                              src={formData.image}
+                              alt="Banner Preview"
+                              className="w-full h-full pointer-events-none transition-all duration-200"
+                              style={{
+                                objectFit: formData.imageFit === 'auto' ? 'contain' : (formData.imageFit as any),
+                                objectPosition: `${formData.imagePosX ?? 50}% ${formData.imagePosY ?? 50}%`,
+                                transform: `scale(${(formData.imageScale || 100) / 100})`,
+                              }}
+                            />
+                          )}
+
+                          {/* Visual Focal Point Crosshair Pin */}
+                          <div 
+                            className="absolute w-7 h-7 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 transition-all duration-150 flex items-center justify-center"
+                            style={{
+                              left: `${formData.imagePosX ?? 50}%`,
+                              top: `${formData.imagePosY ?? 50}%`,
+                            }}
                           >
-                            <span>{formData.ctaText || 'Yuk Ajukan Sekarang'}</span>
-                          </button>
+                            <div className="w-6 h-6 rounded-full border-2 border-amber-400 bg-amber-400/30 flex items-center justify-center shadow-md animate-pulse">
+                              <Target className="w-3.5 h-3.5 text-amber-300" />
+                            </div>
+                          </div>
+
+                          {/* Dark Gradient Overlay */}
+                          {formData.showTextOverlay && (
+                            <div 
+                              className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent transition-opacity"
+                              style={{ opacity: (formData.overlayOpacity ?? 70) / 100 }}
+                            />
+                          )}
+                        </div>
+
+                        {/* Overlay Content (Simulated Landing Page) */}
+                        <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-3 sm:p-5 text-white">
+                          
+                          {/* Top Ribbon */}
+                          {formData.showTextOverlay ? (
+                            <div>
+                              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-xs border border-amber-400/40 text-amber-300 font-bold text-[9px] sm:text-[11px] uppercase tracking-wider shadow-sm">
+                                <Sparkles className="w-3 h-3 text-amber-400" />
+                                <span>{formData.taglineRibbon || 'PROMO SPESIAL'}</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-950/70 backdrop-blur-xs text-[9px] text-amber-400 font-bold self-start">
+                              <span>Mode Poster Bersih</span>
+                            </div>
+                          )}
+
+                          {/* Bottom Banner Content */}
+                          <div className="flex items-end justify-between gap-2 sm:gap-3">
+                            {formData.showTextOverlay ? (
+                              <div className="max-w-[72%] min-w-0">
+                                <h4 className="text-[11px] sm:text-base font-black leading-tight drop-shadow-md truncate">
+                                  <span>{formData.title} </span>
+                                  <span className="text-amber-400 font-black">{formData.titleHighlight}</span>
+                                </h4>
+                                <p className="text-[8px] sm:text-xs text-slate-300 font-medium line-clamp-1 mt-0.5 drop-shadow truncate">
+                                  {formData.period}
+                                </p>
+                              </div>
+                            ) : (
+                              <div />
+                            )}
+
+                            <div className="shrink-0">
+                              <button
+                                type="button"
+                                className="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-amber-400 text-slate-950 rounded-lg font-bold text-[9px] sm:text-xs shadow-xs pointer-events-none whitespace-nowrap"
+                              >
+                                <span>{formData.ctaText || 'Yuk Ajukan Sekarang'}</span>
+                              </button>
+                            </div>
+                          </div>
+
                         </div>
                       </div>
-
-                    </div>
-                  </div>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -579,7 +689,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                     }`}
                   >
                     <Move className="w-4 h-4" />
-                    <span>1. Ukuran, Posisi &amp; Foto</span>
+                    <span>1. Ukuran, Posisi, Foto &amp; Video</span>
                   </button>
 
                   <button
@@ -617,26 +727,178 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                   {activeTab === 'visual' && (
                     <div className="space-y-5">
                       
-                      {/* Image Source & Upload */}
+                      {/* Pilihan Tipe Media: Gambar vs Video */}
                       <div className="space-y-2">
-                        <label className="block text-xs font-bold text-slate-700">
-                          URL Gambar Banner atau Upload File
+                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                          Tipe Media Banner
                         </label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={formData.image}
-                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                            placeholder="https://... atau /images/..."
-                            className="flex-1 px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
-                          />
-                          <label className="px-3.5 py-2 bg-[#0B63E5] hover:bg-blue-700 text-white font-bold rounded-xl text-xs cursor-pointer shrink-0 transition flex items-center gap-1.5 shadow-2xs">
-                            <Upload className="w-3.5 h-3.5" />
-                            <span>{uploadingImage ? 'Mengunggah...' : 'Pilih File'}</span>
-                            <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-                          </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, mediaType: 'image' })}
+                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                              formData.mediaType !== 'video'
+                                ? 'border-[#0B63E5] bg-blue-50/80 text-[#0B63E5] font-bold ring-2 ring-blue-500/20'
+                                : 'border-gray-200 bg-white hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                              <ImageIcon className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold">🖼️ Foto / Gambar Banner</div>
+                              <div className="text-[10px] text-slate-500 font-normal">Format JPG, PNG, WEBP, AVIF</div>
+                            </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, mediaType: 'video' })}
+                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                              formData.mediaType === 'video'
+                                ? 'border-purple-600 bg-purple-50/80 text-purple-700 font-bold ring-2 ring-purple-500/20'
+                                : 'border-gray-200 bg-white hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+                              <Video className="w-4 h-4 text-purple-600" />
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold">🎥 Video Banner Animasi</div>
+                              <div className="text-[10px] text-slate-500 font-normal">MP4, WebM, Link URL / YouTube</div>
+                            </div>
+                          </button>
                         </div>
                       </div>
+
+                      {/* Video Media Inputs */}
+                      {formData.mediaType === 'video' ? (
+                        <div className="space-y-4 p-4 bg-purple-50/50 rounded-2xl border border-purple-200">
+                          
+                          {/* Video Source URL & Upload */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <Film className="w-3.5 h-3.5 text-purple-600" />
+                                <span>URL Berkas Video atau Upload Video (.MP4 / .WebM)</span>
+                              </label>
+                              <span className="text-[10px] text-purple-700 font-semibold bg-purple-100 px-2 py-0.5 rounded-full">
+                                Mendukung Video File &amp; YouTube
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={formData.videoUrl || formData.image}
+                                onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value, image: e.target.value || formData.image })}
+                                placeholder="https://...mp4 atau link YouTube https://youtu.be/..."
+                                className="flex-1 px-3 py-2 bg-white border border-purple-300 rounded-xl text-xs focus:outline-none focus:border-purple-500"
+                              />
+                              <label className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs cursor-pointer shrink-0 transition flex items-center gap-1.5 shadow-2xs">
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>{uploadingMedia ? 'Mengunggah...' : 'Upload Video'}</span>
+                                <input 
+                                  type="file" 
+                                  accept="video/*,.mp4,.webm,.mov,.ogg" 
+                                  onChange={(e) => handleFileUpload(e, true)} 
+                                  className="hidden" 
+                                />
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Video Poster Thumbnail (Optional) */}
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-bold text-slate-700">
+                              Foto Sampul / Poster Cadangan (Opsional)
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={formData.videoPoster || ''}
+                                onChange={(e) => setFormData({ ...formData, videoPoster: e.target.value })}
+                                placeholder="URL gambar poster saat video sedang memuat..."
+                                className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-purple-500"
+                              />
+                              <label className="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs cursor-pointer shrink-0 transition flex items-center gap-1.5">
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>Upload Poster</span>
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  onChange={(e) => handleFileUpload(e, false)} 
+                                  className="hidden" 
+                                />
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Video Playback Options */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-purple-200">
+                            <label className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-purple-200 cursor-pointer text-xs">
+                              <input
+                                type="checkbox"
+                                checked={formData.videoAutoplay !== false}
+                                onChange={(e) => setFormData({ ...formData, videoAutoplay: e.target.checked })}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <div className="min-w-0">
+                                <span className="font-bold text-slate-800 block">Autoplay</span>
+                                <span className="text-[10px] text-slate-500 block">Putar otomatis</span>
+                              </div>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-purple-200 cursor-pointer text-xs">
+                              <input
+                                type="checkbox"
+                                checked={formData.videoLoop !== false}
+                                onChange={(e) => setFormData({ ...formData, videoLoop: e.target.checked })}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <div className="min-w-0">
+                                <span className="font-bold text-slate-800 block">Looping</span>
+                                <span className="text-[10px] text-slate-500 block">Ulang terus menerus</span>
+                              </div>
+                            </label>
+
+                            <label className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-purple-200 cursor-pointer text-xs">
+                              <input
+                                type="checkbox"
+                                checked={formData.videoMuted !== false}
+                                onChange={(e) => setFormData({ ...formData, videoMuted: e.target.checked })}
+                                className="rounded text-purple-600 focus:ring-purple-500"
+                              />
+                              <div className="min-w-0">
+                                <span className="font-bold text-slate-800 block">Muted (Bisu)</span>
+                                <span className="text-[10px] text-emerald-600 font-semibold block">Wajib untuk HP</span>
+                              </div>
+                            </label>
+                          </div>
+
+                        </div>
+                      ) : (
+                        /* Image Source & Upload */
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold text-slate-700">
+                            URL Gambar Banner atau Upload File
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={formData.image}
+                              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                              placeholder="https://... atau /images/..."
+                              className="flex-1 px-3 py-2 bg-slate-50 border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+                            />
+                            <label className="px-3.5 py-2 bg-[#0B63E5] hover:bg-blue-700 text-white font-bold rounded-xl text-xs cursor-pointer shrink-0 transition flex items-center gap-1.5 shadow-2xs">
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{uploadingMedia ? 'Mengunggah...' : 'Pilih File'}</span>
+                              <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, false)} className="hidden" />
+                            </label>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Mode Tampilan Foto (Fit Mode) */}
                       <div className="space-y-2">

@@ -127,6 +127,12 @@ export interface HeroBanner {
   overlayOpacity?: number;
   ctaLinkType?: 'whatsapp' | 'katalog' | 'dana-tunai' | 'tukar-tambah' | 'jual-motor' | 'custom';
   ctaCustomUrl?: string;
+  mediaType?: 'image' | 'video';
+  videoUrl?: string;
+  videoPoster?: string;
+  videoAutoplay?: boolean;
+  videoLoop?: boolean;
+  videoMuted?: boolean;
 }
 
 export interface SiteSettings {

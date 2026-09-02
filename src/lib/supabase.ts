@@ -45,9 +45,9 @@ export async function pingSupabaseKeepAlive(): Promise<{ success: boolean; times
 }
 
 /**
- * Upload an image file to Supabase Storage or return compressed base64 data URL
+ * Upload an image or video media file to Supabase Storage or return base64 data URL
  */
-export async function uploadImageFile(
+export async function uploadMediaFile(
   file: File, 
   bucket = 'pandu-motor-images',
   folder = 'uploads'
@@ -62,6 +62,7 @@ export async function uploadImageFile(
       .upload(fileName, file, {
         cacheControl: '3600',
         upsert: true,
+        contentType: file.type || undefined,
       });
 
     if (!error && data) {
@@ -74,7 +75,7 @@ export async function uploadImageFile(
     console.warn('Supabase storage upload fallback to base64 reader:', e);
   }
 
-  // Fallback: Return Base64 data URL so image works 100% seamlessly offline & online
+  // Fallback: Return Base64 data URL so media works 100% seamlessly offline & online
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
@@ -82,3 +83,5 @@ export async function uploadImageFile(
     reader.readAsDataURL(file);
   });
 }
+
+export const uploadImageFile = uploadMediaFile;
