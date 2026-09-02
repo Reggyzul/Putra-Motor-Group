@@ -26,7 +26,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
   onSaveSiteSettings,
 }) => {
   const [formData, setFormData] = useState<SiteSettings>({ ...siteSettings });
-  const [activeTab, setActiveTab] = useState<'branding' | 'header' | 'footer' | 'trust'>('branding');
+  const [activeTab, setActiveTab] = useState<'branding' | 'header' | 'footer'>('branding');
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
@@ -100,19 +100,6 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
         >
           <Layers className="w-4 h-4" />
           <span>3. Footer &amp; Copyright</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('trust')}
-          className={`py-3 px-4 text-xs font-bold flex items-center gap-2 border-b-2 transition cursor-pointer shrink-0 ${
-            activeTab === 'trust'
-              ? 'border-[#0B63E5] text-[#0B63E5] bg-blue-50/50 rounded-t-xl'
-              : 'border-transparent text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Award className="w-4 h-4" />
-          <span>4. Keunggulan Showroom</span>
         </button>
       </div>
 
@@ -291,34 +278,6 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
           </div>
         )}
 
-        {/* TAB 4: KEUNGGULAN SHOWROOM */}
-        {activeTab === 'trust' && (
-          <div className="space-y-5 animate-in fade-in">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Judul Utama Section Keunggulan Showroom
-              </label>
-              <input
-                type="text"
-                value={formData.trust_heading || 'Mengapa Memilih Kami Sebagai Mitra Motor Impian Anda?'}
-                onChange={(e) => setFormData({ ...formData, trust_heading: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-gray-300 rounded-xl text-xs sm:text-sm font-bold focus:bg-white focus:outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Subtitle Section Keunggulan Showroom
-              </label>
-              <textarea
-                rows={2}
-                value={formData.trust_subtitle || 'Dengan komitmen “Melayani Sepenuh Hati” untuk kenyamanan dan keamanan transaksi motor Anda di Sumatera Utara & Riau.'}
-                onChange={(e) => setFormData({ ...formData, trust_subtitle: e.target.value })}
-                className="w-full p-3 bg-slate-50 border border-gray-300 rounded-xl text-xs sm:text-sm font-medium focus:bg-white focus:outline-none focus:border-blue-500"
-              />
-            </div>
-          </div>
-        )}
 
         {/* Submit Action */}
         <div className="pt-4 border-t border-gray-100 flex justify-end">
