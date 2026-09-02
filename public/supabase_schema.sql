@@ -279,3 +279,21 @@ ON CONFLICT (id) DO UPDATE SET
     installment_estimates = EXCLUDED.installment_estimates,
     description = EXCLUDED.description,
     images = EXCLUDED.images;
+
+-- ============================================================================
+-- 6. AKTIFKAN SUPABASE REALTIME REPLICATION UNTUK SEMUA TABEL
+-- Memastikan perubahan data langsung terdorong secara instan ke semua browser / device / IP manapun
+-- ============================================================================
+ALTER PUBLICATION supabase_realtime ADD TABLE public.vehicles;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.branches;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.hero_banners;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.site_settings;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
+
+-- Set Replica Identity Full agar payload update/delete terkirim lengkap ke realtime websocket
+ALTER TABLE public.vehicles REPLICA IDENTITY FULL;
+ALTER TABLE public.branches REPLICA IDENTITY FULL;
+ALTER TABLE public.hero_banners REPLICA IDENTITY FULL;
+ALTER TABLE public.site_settings REPLICA IDENTITY FULL;
+ALTER TABLE public.announcements REPLICA IDENTITY FULL;
+

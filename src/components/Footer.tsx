@@ -35,6 +35,11 @@ export const Footer: React.FC<FooterProps> = ({
   const email = siteSettings?.official_email || 'putramotorgroup.id@gmail.com';
   const phone = siteSettings?.official_phone || '0822-7647-7628';
   const tagline = siteSettings?.tagline || COMPANY_INFO.tagline;
+  const brandName = siteSettings?.brand_name || 'Pandu Motor Group';
+  const operationalHours = siteSettings?.operational_hours || 'Buka Setiap Hari: 08.00 - 17.00 WIB';
+  const footerAbout = siteSettings?.footer_about_text || 'Pandu Motor Group (CV. Pandu Motor, CV. Ikabina Motor & CV. Motorian Daya) adalah jaringan showroom terpercaya jual beli motor baru dan motor bekas berkualitas, fasilitas tukar tambah, dan layanan dana tunai gadai BPKB resmi.';
+  const footerCtaHeading = siteSettings?.footer_cta_heading || 'Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?';
+  const footerCopyright = siteSettings?.footer_copyright_text || '© 2026 Pandu Motor Group. Hak Cipta Dilindungi Undang-Undang.';
 
   // Hapus section bar kecil panjang jual motor, tukar tambah, dana tunai di next page jual motor
   const showCtaBanners = currentPage !== 'jual-motor';
@@ -53,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <h3 className="text-xs sm:text-sm md:text-base font-extrabold text-white tracking-tight">
                   {siteSettings?.jualmotor_banner_title || (
                     <>
-                      Mau menjual motor anda? <span className="text-amber-400">Putra Motor Group Solusinya!</span>
+                      Mau menjual motor anda? <span className="text-amber-400">{brandName} Solusinya!</span>
                     </>
                   )}
                 </h3>
@@ -81,10 +86,10 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-2.5 sm:gap-4 text-center md:text-left">
               <div className="min-w-0">
                 <h3 className="text-xs sm:text-sm md:text-base font-extrabold text-slate-950 tracking-tight">
-                  Siap Memiliki Motor Impian atau Butuh Dana Tunai Cepat?
+                  {footerCtaHeading}
                 </h3>
                 <p className="text-[10px] sm:text-[11px] text-slate-600 mt-0.5">
-                  Pandu Motor Group selalu berkomitmen <strong className="text-slate-900 font-bold">“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
+                  {brandName} selalu berkomitmen <strong className="text-slate-900 font-bold">“{tagline}”</strong> untuk seluruh pelanggan setia di Sumatera Utara &amp; Riau.
                 </p>
               </div>
 
@@ -118,18 +123,16 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="flex items-center gap-2.5">
               <img 
                 src="/images/pandu_logo.avif" 
-                alt="Pandu Motor Group Logo" 
+                alt={`${brandName} Logo`} 
                 className="w-9 h-9 rounded-full object-cover shadow-sm border border-slate-700 bg-white"
               />
               <div className="flex items-center text-lg font-black">
-                <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
-                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
-                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif]">{brandName}</span>
               </div>
             </div>
             
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              Pandu Motor Group (CV. Pandu Motor, CV. Ikabina Motor &amp; CV. Motorian Daya) adalah jaringan showroom terpercaya jual beli motor baru dan motor bekas berkualitas, fasilitas tukar tambah, dan layanan dana tunai gadai BPKB resmi.
+              {footerAbout}
             </p>
 
             {/* Kantor Pusat & Email Resmi */}
@@ -259,7 +262,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>Buka Setiap Hari: 08.00 - 17.00 WIB</span>
+                <span>{operationalHours}</span>
               </li>
               {/* Admin Login Dipindahkan Tepat di Bawah Buka Setiap Hari */}
               <li className="pt-1.5 border-t border-slate-800/80">
@@ -279,7 +282,7 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom Legal & Copyright (Dipadatkan) */}
         <div className="mt-5 pt-3.5 border-t border-slate-800 text-center text-[10px] sm:text-[11px] text-slate-500">
-          © 2026 Pandu Motor Group. Hak Cipta Dilindungi Undang-Undang.
+          {footerCopyright}
         </div>
 
       </div>

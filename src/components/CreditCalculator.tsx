@@ -20,37 +20,47 @@ import { formatRupiah, buildWhatsAppLink, generateCreditApplicationMessage } fro
 interface CreditCalculatorProps {
   preselectedVehicle: Vehicle | null;
   selectedBranch: Branch;
+  vehicles?: Vehicle[];
+  branches?: Branch[];
 }
 
 export const CreditCalculator: React.FC<CreditCalculatorProps> = ({
   preselectedVehicle,
   selectedBranch,
+  vehicles = VEHICLES_DATA,
+  branches = BRANCHES_DATA,
 }) => {
+  const activeVehicles = vehicles && vehicles.length > 0 ? vehicles : VEHICLES_DATA;
+  const activeBranches = branches && branches.length > 0 ? branches : BRANCHES_DATA;
+
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(
-    preselectedVehicle?.id || VEHICLES_DATA[0].id
+    preselectedVehicle?.id || activeVehicles[0]?.id || ''
   );
   const [customPrice, setCustomPrice] = useState<number>(
-    preselectedVehicle?.price || VEHICLES_DATA[0].price
+    preselectedVehicle?.price || activeVehicles[0]?.price || 15000000
   );
   const [dpPercent, setDpPercent] = useState<number>(20); // 20%
   const [tenorMonths, setTenorMonths] = useState<number>(35);
   const [applicantName, setApplicantName] = useState<string>('');
-  const [targetBranchId, setTargetBranchId] = useState<string>(selectedBranch.id);
+  const [targetBranchId, setTargetBranchId] = useState<string>(selectedBranch?.id || activeBranches[0]?.id || 'kisaran');
 
-  // Sync if preselected changes from external modal
+  // Sync if preselected changes from external modal or vehicles update
   useEffect(() => {
     if (preselectedVehicle) {
       setSelectedVehicleId(preselectedVehicle.id);
       setCustomPrice(preselectedVehicle.price);
       setTargetBranchId(preselectedVehicle.branchId);
+    } else if (activeVehicles.length > 0 && !activeVehicles.some(v => v.id === selectedVehicleId)) {
+      setSelectedVehicleId(activeVehicles[0].id);
+      setCustomPrice(activeVehicles[0].price);
     }
-  }, [preselectedVehicle]);
+  }, [preselectedVehicle, activeVehicles]);
 
-  const currentVehicle = VEHICLES_DATA.find((v) => v.id === selectedVehicleId) || VEHICLES_DATA[0];
+  const currentVehicle = activeVehicles.find((v) => v.id === selectedVehicleId) || activeVehicles[0];
 
   const handleVehicleChange = (id: string) => {
     setSelectedVehicleId(id);
-    const v = VEHICLES_DATA.find((item) => item.id === id);
+    const v = activeVehicles.find((item) => item.id === id);
     if (v) {
       setCustomPrice(v.price);
       setTargetBranchId(v.branchId);
@@ -146,7 +156,7 @@ export const CreditCalculator: React.FC<CreditCalculatorProps> = ({
                 onChange={(e) => handleVehicleChange(e.target.value)}
                 className="w-full bg-slate-50 text-slate-800 border border-gray-300 rounded-xl p-3 text-xs sm:text-sm font-semibold outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
               >
-                {VEHICLES_DATA.map((v) => (
+                {activeVehicles.map((v) => (
                   <option key={v.id} value={v.id}>
                     {v.name} ({v.year}) - {formatRupiah(v.price)} [{v.condition === 'baru' ? 'BARU' : 'BEKAS'}]
                   </option>

@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { Send, MapPin, X } from 'lucide-react';
-import { Branch } from '../types';
+import { Branch, SiteSettings } from '../types';
 import { BRANCHES_DATA } from '../data/branches';
 import { buildWhatsAppLink } from '../utils/formatters';
 
 interface FloatingWhatsAppProps {
   selectedBranch: Branch;
   onSelectBranch: (branch: Branch) => void;
+  branches?: Branch[];
+  siteSettings?: SiteSettings;
 }
 
 export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
   selectedBranch,
   onSelectBranch,
+  branches = BRANCHES_DATA,
+  siteSettings,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const activeBranches = branches && branches.length > 0 ? branches : BRANCHES_DATA;
+  const brandName = siteSettings?.brand_name || 'Pandu Motor Group';
+  const waTemplate = siteSettings?.wa_default_template || 'Halo Pandu Motor Group, saya ingin konsultasi seputar unit motor / tukar tambah / dana tunai BPKB. Terima kasih!';
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
@@ -25,7 +32,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-[#25D366] animate-pulse" />
               <span className="text-xs font-bold text-slate-800">
-                Chat CS Pandu Motor Group
+                Chat CS {brandName}
               </span>
             </div>
             <button
@@ -41,10 +48,10 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
           </p>
 
           <div className="space-y-2">
-            {BRANCHES_DATA.map((branch) => {
+            {activeBranches.map((branch) => {
               const waUrl = buildWhatsAppLink(
                 branch.whatsapp,
-                `Halo ${branch.name} (Pandu Motor Group), saya ingin konsultasi seputar unit motor / tukar tambah / dana tunai BPKB. Terima kasih!`
+                `Halo ${branch.name} (${brandName}), ${waTemplate}`
               );
 
               return (

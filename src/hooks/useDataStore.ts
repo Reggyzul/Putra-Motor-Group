@@ -120,6 +120,19 @@ const LS_SETTINGS_KEY = 'pmg_cache_settings';
 const LS_ANNOUNCEMENTS_KEY = 'pmg_cache_announcements';
 const CACHE_VERSION = 'pmg_v6_admin_jual_and_socials';
 
+// Instant local broadcast helper across all tabs on current device
+function triggerLocalBroadcast() {
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const bc = new BroadcastChannel('pmg_realtime_broadcast');
+      bc.postMessage({ type: 'SYNC' });
+      bc.close();
+    }
+  } catch {
+    // ignore
+  }
+}
+
 export function useDataStore() {
   // Auto-bust stale cache on client browsers
   try {
@@ -376,19 +389,58 @@ export function useDataStore() {
     }
   }, []);
 
-  // Multi-Device Realtime Listener & Window Focus Synchronization
+  // Multi-Device Realtime Listener & Window Focus Synchronization (Guaranteed Instant Sync on All IPs & Devices)
   useEffect(() => {
+    // Initial fetch
     syncWithSupabase();
 
-    // 1. Supabase Realtime Broadcast Subscription
+    // 1. Supabase Realtime Postgres Changes Subscription
     const channel = supabase
       .channel('schema-db-realtime-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, () => {
+        syncWithSupabase();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'branches' }, () => {
+        syncWithSupabase();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hero_banners' }, () => {
+        syncWithSupabase();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, () => {
+        syncWithSupabase();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
+        syncWithSupabase();
+      })
       .on('postgres_changes', { event: '*', schema: 'public' }, () => {
         syncWithSupabase();
       })
       .subscribe();
 
-    // 2. Window Focus & Visibility Listener (Auto-fetch when switching back to app)
+    // 2. BroadcastChannel for instant zero-latency cross-tab sync on same machine
+    let broadcastChannel: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        broadcastChannel = new BroadcastChannel('pmg_realtime_broadcast');
+        broadcastChannel.onmessage = (event) => {
+          if (event.data?.type === 'SYNC') {
+            syncWithSupabase();
+          }
+        };
+      }
+    } catch {
+      // ignore
+    }
+
+    // 3. Storage event listener across browser tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith('pmg_cache_')) {
+        syncWithSupabase();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // 4. Window Focus & Visibility Listener (Auto-fetch when user switches back to browser tab)
     const handleFocus = () => syncWithSupabase();
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') syncWithSupabase();
@@ -397,11 +449,13 @@ export function useDataStore() {
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibility);
 
-    // 3. Periodic 15s poll
-    const interval = setInterval(syncWithSupabase, 15000);
+    // 5. Periodic 12s smart background polling fallback
+    const interval = setInterval(syncWithSupabase, 12000);
 
     return () => {
       supabase.removeChannel(channel);
+      if (broadcastChannel) broadcastChannel.close();
+      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(interval);
@@ -473,6 +527,7 @@ export function useDataStore() {
       setVehicles(updated);
       localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
       setDbTablesReady(true);
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase vehicle save error:', err);
@@ -496,6 +551,7 @@ export function useDataStore() {
       const updated = vehicles.filter((v) => v.id !== id);
       setVehicles(updated);
       localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase vehicle delete error:', err);
@@ -531,6 +587,7 @@ export function useDataStore() {
       const updated = branches.map((b) => (b.id === branch.id ? branch : b));
       setBranches(updated);
       localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase branch save error:', err);
@@ -606,6 +663,7 @@ export function useDataStore() {
 
       setBanners(updated);
       localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase banner save error:', err);
@@ -622,6 +680,7 @@ export function useDataStore() {
       const updated = banners.filter((b) => b.id !== id);
       setBanners(updated);
       localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase banner delete error:', err);
@@ -646,6 +705,7 @@ export function useDataStore() {
       const updated = { ...siteSettings, ...settings };
       setSiteSettings(updated);
       localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase site settings save error:', err);
@@ -677,6 +737,7 @@ export function useDataStore() {
 
       setAnnouncements(updated);
       localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase announcement save error:', err);
@@ -693,6 +754,7 @@ export function useDataStore() {
       const updated = announcements.filter((a) => a.id !== id);
       setAnnouncements(updated);
       localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
+      triggerLocalBroadcast();
       return { success: true };
     } catch (err: any) {
       console.error('Supabase announcement delete error:', err);

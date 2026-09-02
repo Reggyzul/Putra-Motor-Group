@@ -230,6 +230,19 @@ VALUES
 ('pm-aerox-155-cybercity', 'AEROX 155 CYBERCITY VVA', 'Yamaha', 'maxi', 'bekas', 2023, 27500000, 2800000, 5400, 'Automatic', '155 cc VVA', 'Edisi spesial livery Cybercity bunglon gradasi ungu-biru, tarikan spontan kencang, bodi mulus 99%.', '["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'kisaran', '{"tenor11": 2640000, "tenor23": 1490000, "tenor35": 1179000}'::jsonb, true),
 ('pm-pcx-160-abs', 'HONDA ALL NEW PCX 160 ABS', 'Honda', 'maxi', 'baru', 2024, 36500000, 3500000, 0, 'Automatic', '160 cc eSP+ 4-Valve', 'Unit baru 100% dari dealer resmi Honda Pandu Motor Group. Sistem pengereman ABS + HSTC aman di jalan basah.', '["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"]'::jsonb, 'kisaran', '{"tenor11": 3500000, "tenor23": 1980000, "tenor35": 1565000}'::jsonb, true)
 ON CONFLICT (id) DO NOTHING;
+
+-- 6. AKTIFKAN REALTIME SUPABASE UNTUK SEMUA PERANGKAT & IP
+ALTER PUBLICATION supabase_realtime ADD TABLE public.vehicles;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.branches;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.hero_banners;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.site_settings;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
+
+ALTER TABLE public.vehicles REPLICA IDENTITY FULL;
+ALTER TABLE public.branches REPLICA IDENTITY FULL;
+ALTER TABLE public.hero_banners REPLICA IDENTITY FULL;
+ALTER TABLE public.site_settings REPLICA IDENTITY FULL;
+ALTER TABLE public.announcements REPLICA IDENTITY FULL;
 `;
 
 export const DatabaseSetupGuide: React.FC = () => {

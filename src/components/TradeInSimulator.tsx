@@ -74,8 +74,11 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
     return Math.max(base, 4000000);
   })();
 
-  const targetVehicle = VEHICLES_DATA.find((v) => v.id === targetVehicleId) || VEHICLES_DATA[0];
-  const targetBranch = BRANCHES_DATA.find((b) => b.id === targetBranchId) || selectedBranch;
+  const activeVehicles = vehicles && vehicles.length > 0 ? vehicles : VEHICLES_DATA;
+  const activeBranches = branches && branches.length > 0 ? branches : BRANCHES_DATA;
+
+  const targetVehicle = activeVehicles.find((v) => v.id === targetVehicleId) || activeVehicles[0];
+  const targetBranch = activeBranches.find((b) => b.id === targetBranchId) || selectedBranch || activeBranches[0];
 
   // Hitungan Selisih Bayar Sisa
   const priceDifference = Math.max(0, targetVehicle.price - baseEstimatedOldPrice);
@@ -271,7 +274,7 @@ export const TradeInSimulator: React.FC<TradeInSimulatorProps> = ({
                   onChange={(e) => setTargetVehicleId(e.target.value)}
                   className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:bg-white font-medium cursor-pointer"
                 >
-                  {VEHICLES_DATA.map((v) => (
+                  {activeVehicles.map((v) => (
                     <option key={v.id} value={v.id}>
                       {v.name} ({v.year}) - {formatRupiah(v.price)} [{v.condition === 'baru' ? 'Baru' : 'Bekas'}]
                     </option>

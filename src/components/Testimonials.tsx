@@ -1,8 +1,15 @@
 import React from 'react';
 import { Star, Quote, Sparkles, CheckCircle2 } from 'lucide-react';
 import { TESTIMONIALS_DATA } from '../data/testimonials';
+import { SiteSettings } from '../types';
 
-export const Testimonials: React.FC = () => {
+interface TestimonialsProps {
+  siteSettings?: SiteSettings;
+}
+
+export const Testimonials: React.FC<TestimonialsProps> = ({ siteSettings }) => {
+  const brandName = siteSettings?.brand_name || 'Pandu Motor Group';
+
   return (
     <section className="py-14 bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,10 +21,10 @@ export const Testimonials: React.FC = () => {
             Ulasan Konsumen
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            Cerita & Pengalaman Nyata Pelanggan
+            Cerita &amp; Pengalaman Nyata Pelanggan
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm">
-            Ribuan pelanggan di Sumatera Utara & Riau telah mempercayakan pembelian motor impian bersama Pandu Motor Group.
+            Ribuan pelanggan di Sumatera Utara &amp; Riau telah mempercayakan pembelian motor impian bersama {brandName}.
           </p>
         </div>
 

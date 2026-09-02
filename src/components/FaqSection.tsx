@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, Sparkles, Send } from 'lucide-react';
 import { FAQ_DATA } from '../data/testimonials';
-import { Branch } from '../types';
+import { Branch, SiteSettings } from '../types';
 import { buildWhatsAppLink } from '../utils/formatters';
 
 interface FaqSectionProps {
   selectedBranch: Branch;
+  siteSettings?: SiteSettings;
 }
 
-export const FaqSection: React.FC<FaqSectionProps> = ({ selectedBranch }) => {
+export const FaqSection: React.FC<FaqSectionProps> = ({ selectedBranch, siteSettings }) => {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const brandName = siteSettings?.brand_name || 'Pandu Motor Group';
 
   const toggleFaq = (idx: number) => {
     setOpenIdx(openIdx === idx ? null : idx);
@@ -17,7 +19,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ selectedBranch }) => {
 
   const waHelpUrl = buildWhatsAppLink(
     selectedBranch.whatsapp,
-    `Halo Pandu Motor Group (${selectedBranch.name}), saya ingin konsultasi dan menanyakan beberapa hal terkait pembelian motor / kredit / dana tunai BPKB. Terima kasih!`
+    `Halo ${brandName} (${selectedBranch.name}), saya ingin konsultasi dan menanyakan beberapa hal terkait pembelian motor / kredit / dana tunai BPKB. Terima kasih!`
   );
 
   return (

@@ -12,8 +12,16 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { COMPANY_INFO } from '../data/branches';
+import { SiteSettings } from '../types';
 
-export const TrustFeatures: React.FC = () => {
+interface TrustFeaturesProps {
+  siteSettings?: SiteSettings;
+}
+
+export const TrustFeatures: React.FC<TrustFeaturesProps> = ({ siteSettings }) => {
+  const heading = siteSettings?.trust_heading || 'Mengapa Memilih Kami Sebagai Mitra Motor Impian Anda?';
+  const subtitle = siteSettings?.trust_subtitle || 'Dengan komitmen “Melayani Sepenuh Hati” untuk kenyamanan dan keamanan transaksi Anda.';
+
   const features = [
     {
       icon: Award,
@@ -59,10 +67,10 @@ export const TrustFeatures: React.FC = () => {
             <span>Keunggulan Showroom Kami</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-            Mengapa Memilih Kami Sebagai Mitra Motor Impian Anda?
+            {heading}
           </h2>
           <p className="text-slate-500 text-sm sm:text-base">
-            Dengan komitmen <span className="text-slate-900 font-bold">“Melayani Sepenuh Hati”</span> untuk kenyamanan dan keamanan transaksi Anda.
+            {subtitle}
           </p>
         </div>
 

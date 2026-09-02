@@ -14,7 +14,7 @@ import {
   Phone, 
   ChevronLeft
 } from 'lucide-react';
-import { Vehicle, Branch } from '../types';
+import { Vehicle, Branch, SiteSettings } from '../types';
 import { BRANCHES_DATA } from '../data/branches';
 import { formatRupiah, buildWhatsAppLink } from '../utils/formatters';
 
@@ -23,6 +23,8 @@ interface VehicleDetailProps {
   selectedBranch: Branch;
   onNavigate: (sectionId: string) => void;
   onSelectVehicleForTradeIn?: (vehicle: Vehicle) => void;
+  branches?: Branch[];
+  siteSettings?: SiteSettings;
 }
 
 export const VehicleDetail: React.FC<VehicleDetailProps> = ({
@@ -30,16 +32,20 @@ export const VehicleDetail: React.FC<VehicleDetailProps> = ({
   selectedBranch,
   onNavigate,
   onSelectVehicleForTradeIn,
+  branches = BRANCHES_DATA,
+  siteSettings,
 }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showPhoneNumber, setShowPhoneNumber] = useState(false);
 
-  const matchedBranch = BRANCHES_DATA.find((b) => b.id === vehicle.branchId) || selectedBranch;
+  const activeBranches = branches && branches.length > 0 ? branches : BRANCHES_DATA;
+  const matchedBranch = activeBranches.find((b) => b.id === vehicle.branchId) || selectedBranch || activeBranches[0];
+  const brandName = siteSettings?.brand_name || 'Pandu Motor Group';
 
   const conditionText = vehicle.condition === 'baru' ? 'Baru 100%' : `Bekas Berkualitas (${vehicle.year})`;
   const waUrl = buildWhatsAppLink(
     matchedBranch.whatsapp,
-    `Halo ${matchedBranch.name} (Pandu Motor Group), saya tertarik dengan unit "${vehicle.name}" [Kondisi: ${conditionText}] seharga ${formatRupiah(vehicle.price)}. Mohon info ketersediaan unit dan cara pembelian. Terima kasih!`
+    `Halo ${matchedBranch.name} (${brandName}), saya tertarik dengan unit *${vehicle.name} (${vehicle.year})* seharga ${formatRupiah(vehicle.price)}. Apakah unit masih tersedia di showroom?`
   );
 
   const handleTradeInThisUnit = () => {

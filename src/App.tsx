@@ -12,6 +12,9 @@ import { SellMotorSection } from './components/SellMotorSection';
 import { BranchShowcase } from './components/BranchShowcase';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
+import { TrustFeatures } from './components/TrustFeatures';
+import { Testimonials } from './components/Testimonials';
+import { FaqSection } from './components/FaqSection';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { useDataStore } from './hooks/useDataStore';
@@ -261,6 +264,15 @@ export default function App() {
               vehicles={vehicles}
               branches={branches}
             />
+
+            {/* 3. Keunggulan Showroom (Dynamic) */}
+            <TrustFeatures siteSettings={siteSettings} />
+
+            {/* 4. Testimoni Konsumen (Dynamic) */}
+            <Testimonials siteSettings={siteSettings} />
+
+            {/* 5. Tanya Jawab FAQ (Dynamic) */}
+            <FaqSection selectedBranch={selectedBranch} siteSettings={siteSettings} />
           </div>
         )}
 
@@ -270,6 +282,8 @@ export default function App() {
             vehicle={selectedVehicle}
             selectedBranch={selectedBranch}
             onNavigate={handleNavigate}
+            branches={branches}
+            siteSettings={siteSettings}
           />
         )}
 
@@ -483,6 +497,8 @@ export default function App() {
       <FloatingWhatsApp
         selectedBranch={selectedBranch}
         onSelectBranch={setSelectedBranch}
+        branches={branches}
+        siteSettings={siteSettings}
       />
     </div>
   );

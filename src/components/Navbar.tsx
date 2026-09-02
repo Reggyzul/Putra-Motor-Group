@@ -74,6 +74,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+      {/* Top Announcement Promo Ribbon */}
+      {siteSettings?.header_promo_text && (
+        <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-slate-950 text-white text-[10px] sm:text-xs py-1.5 px-3 text-center font-bold flex items-center justify-center gap-2 border-b border-amber-400/20 shadow-xs">
+          <span className="text-amber-400">⚡</span>
+          <span>{siteSettings.header_promo_text}</span>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         
         {/* Main Row: Logo Sejajar, Desktop Search, & Cabang Kami */}
@@ -93,13 +101,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex flex-col min-w-0">
               {/* Nama Logo Sejajar dalam 1 Baris (Warna Merah Resmi) */}
               <div className="flex items-center text-sm sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap">
-                <span className="text-[#DC2626] font-['Outfit',sans-serif]">Pandu</span>
-                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Motor</span>
-                <span className="text-[#DC2626] font-['Outfit',sans-serif] ml-1">Group</span>
+                <span className="text-[#DC2626] font-['Outfit',sans-serif]">
+                  {siteSettings?.brand_name || 'Pandu Motor Group'}
+                </span>
               </div>
-              {/* Tagline: Melayani Sepenuh Hati */}
+              {/* Tagline */}
               <div className="text-[9px] sm:text-[11px] md:text-xs font-semibold text-slate-500 tracking-tight mt-0.5 leading-none">
-                Melayani Sepenuh Hati
+                {siteSettings?.tagline || 'Melayani Sepenuh Hati'}
               </div>
             </div>
           </div>
