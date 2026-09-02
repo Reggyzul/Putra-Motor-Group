@@ -120,46 +120,73 @@ async function compressImageFile(file: File, maxWidth = 1600, maxHeight = 1200, 
 }
 
 /**
- * Upload an image or video media file to Supabase Storage or return compressed base64 data URL
+ * Upload an image or video media file to Supabase Storage.
+ * 
+ * CRITICAL: This function NEVER falls back to Base64 encoding.
+ * Storing Base64 images directly in the database causes massive row sizes
+ * that lead to PostgreSQL statement timeouts (504) on all other devices.
+ * 
+ * If bucket does not exist, it auto-creates it with public access.
+ * If upload fails for any reason, throws an error so the UI can show a message.
  */
 export async function uploadMediaFile(
-  file: File, 
+  file: File,
   bucket = 'pandu-motor-images',
   folder = 'uploads'
 ): Promise<string> {
+  const isImage = file.type.startsWith('image/');
+
+  // Compress image before upload (max 1200x900, 80% quality → ~100-200KB)
+  const fileToUpload = isImage ? await compressImageFile(file, 1200, 900, 0.80) : file;
+  const fileExt = isImage ? 'jpg' : (file.name.split('.').pop() || 'mp4');
+  const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+
+  // Attempt 1: Try uploading to existing bucket
+  let uploadError: any = null;
+  let uploadData: any = null;
+
   try {
-    const isImage = file.type.startsWith('image/');
-    const fileToUpload = isImage ? await compressImageFile(file) : file;
-    const fileExt = file.name.split('.').pop() || (isImage ? 'jpg' : 'mp4');
-    const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-    
-    // Try uploading to Supabase Storage bucket
-    const { data, error } = await supabase.storage
+    const res = await supabase.storage
       .from(bucket)
       .upload(fileName, fileToUpload, {
-        cacheControl: '3600',
+        cacheControl: '86400',
         upsert: true,
-        contentType: isImage ? 'image/jpeg' : (file.type || undefined),
+        contentType: isImage ? 'image/jpeg' : (file.type || 'application/octet-stream'),
       });
-
-    if (!error && data) {
-      const { data: publicUrlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(data.path);
-      return publicUrlData.publicUrl;
-    }
+    uploadData = res.data;
+    uploadError = res.error;
   } catch (e) {
-    console.warn('Supabase storage upload fallback to base64 reader:', e);
+    uploadError = e;
   }
 
-  // Fallback: Return compressed Base64 data URL so media works 100% seamlessly offline & online
-  const processedBlob = file.type.startsWith('image/') ? await compressImageFile(file, 1280, 960, 0.8) : file;
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(processedBlob);
-  });
+  // Attempt 2: If bucket not found, create it and retry
+  if (uploadError && (String(uploadError?.message || '').includes('Bucket not found') || String(uploadError?.error || '').includes('Bucket not found') || uploadError?.statusCode === 400)) {
+    try {
+      // Create public bucket
+      await supabase.storage.createBucket(bucket, { public: true, fileSizeLimit: 10485760 });
+      const res = await supabase.storage
+        .from(bucket)
+        .upload(fileName, fileToUpload, {
+          cacheControl: '86400',
+          upsert: true,
+          contentType: isImage ? 'image/jpeg' : (file.type || 'application/octet-stream'),
+        });
+      uploadData = res.data;
+      uploadError = res.error;
+    } catch (e) {
+      uploadError = e;
+    }
+  }
+
+  if (uploadData && !uploadError) {
+    const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(uploadData.path);
+    return publicUrlData.publicUrl;
+  }
+
+  // IMPORTANT: Do NOT fall back to Base64. Base64 stored in DB causes 504 timeouts on all devices.
+  // Instead, throw so the UI shows a clear error message to the admin.
+  const errMsg = uploadError?.message || uploadError?.error || String(uploadError) || 'Upload gagal';
+  throw new Error(`Gagal upload ke Supabase Storage: ${errMsg}. Pastikan bucket "${bucket}" sudah dibuat di Supabase Dashboard → Storage.`);
 }
 
 export const uploadImageFile = uploadMediaFile;
