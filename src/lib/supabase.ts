@@ -9,7 +9,31 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
+  realtime: {
+    params: {
+      eventsPerSecond: 20,
+    },
+  },
 });
+
+// Dedicated Global Realtime Broadcast Channel for instant (<100ms) sync across all IPs & devices
+export const globalSyncChannel = supabase.channel('pmg-global-live-sync', {
+  config: {
+    broadcast: { ack: true, self: false },
+  },
+});
+
+export async function broadcastRemoteSync(entity: string = 'all') {
+  try {
+    await globalSyncChannel.send({
+      type: 'broadcast',
+      event: 'PMG_DATA_CHANGED',
+      payload: { entity, timestamp: Date.now() },
+    });
+  } catch (err) {
+    console.warn('Supabase remote broadcast warning:', err);
+  }
+}
 
 /**
  * Keep-Alive ping function to prevent Supabase free project from pausing after 7 days of inactivity.

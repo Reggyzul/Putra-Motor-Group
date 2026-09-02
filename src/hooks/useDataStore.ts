@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, pingSupabaseKeepAlive } from '../lib/supabase';
+import { supabase, pingSupabaseKeepAlive, globalSyncChannel, broadcastRemoteSync } from '../lib/supabase';
 import { Vehicle, Branch, HeroBanner, SiteSettings, Announcement } from '../types';
 import { VEHICLES_DATA } from '../data/vehicles';
 import { BRANCHES_DATA, BRANCH_MAPS_URLS } from '../data/branches';
@@ -162,22 +162,7 @@ export function useDataStore() {
       const cached = localStorage.getItem(LS_BRANCHES_KEY);
       if (cached) {
         const parsed: Branch[] = JSON.parse(cached);
-        // If cached has outdated duplicate phone or old maps URL search query, update with fresh BRANCHES_DATA
-        if (
-          parsed.some(
-            (b) =>
-              (b.id === 'perdagangan' && b.phone === '0822-7647-7628') ||
-              !b.googleMapsUrl ||
-              b.googleMapsUrl.includes('maps.google.com/?q=')
-          )
-        ) {
-          localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(BRANCHES_DATA));
-          return BRANCHES_DATA;
-        }
-        return parsed.map((b) => ({
-          ...b,
-          googleMapsUrl: BRANCH_MAPS_URLS[b.id] || b.googleMapsUrl,
-        }));
+        return parsed;
       }
       return BRANCHES_DATA;
     } catch {
@@ -288,7 +273,7 @@ export function useDataStore() {
           phone: b.phone,
           whatsapp: b.whatsapp,
           email: b.email,
-          googleMapsUrl: BRANCH_MAPS_URLS[b.id] || (b.google_maps_url && !b.google_maps_url.includes('maps.google.com/?q=') ? b.google_maps_url : (BRANCH_MAPS_URLS[b.id] || '')),
+          googleMapsUrl: b.google_maps_url || BRANCH_MAPS_URLS[b.id] || '',
           operationalHours: b.operational_hours,
           image: b.image,
           logo: b.logo,
@@ -394,9 +379,11 @@ export function useDataStore() {
     // Initial fetch
     syncWithSupabase();
 
-    // 1. Supabase Realtime Postgres Changes Subscription
-    const channel = supabase
-      .channel('schema-db-realtime-changes')
+    // 1. Supabase Global Realtime Broadcast & Postgres Changes Subscription
+    const channel = globalSyncChannel
+      .on('broadcast', { event: 'PMG_DATA_CHANGED' }, (payload) => {
+        syncWithSupabase();
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, () => {
         syncWithSupabase();
       })
@@ -415,14 +402,18 @@ export function useDataStore() {
       .on('postgres_changes', { event: '*', schema: 'public' }, () => {
         syncWithSupabase();
       })
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          // Channel connected
+        }
+      });
 
     // 2. BroadcastChannel for instant zero-latency cross-tab sync on same machine
-    let broadcastChannel: BroadcastChannel | null = null;
+    let localBroadcastChannel: BroadcastChannel | null = null;
     try {
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-        broadcastChannel = new BroadcastChannel('pmg_realtime_broadcast');
-        broadcastChannel.onmessage = (event) => {
+        localBroadcastChannel = new BroadcastChannel('pmg_realtime_broadcast');
+        localBroadcastChannel.onmessage = (event) => {
           if (event.data?.type === 'SYNC') {
             syncWithSupabase();
           }
@@ -449,12 +440,11 @@ export function useDataStore() {
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibility);
 
-    // 5. Periodic 12s smart background polling fallback
-    const interval = setInterval(syncWithSupabase, 12000);
+    // 5. Fast 3.5s smart background polling fallback (Unbeatable reliability across all networks/IPs)
+    const interval = setInterval(syncWithSupabase, 3500);
 
     return () => {
-      supabase.removeChannel(channel);
-      if (broadcastChannel) broadcastChannel.close();
+      if (localBroadcastChannel) localBroadcastChannel.close();
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
@@ -528,6 +518,7 @@ export function useDataStore() {
       localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
       setDbTablesReady(true);
       triggerLocalBroadcast();
+      broadcastRemoteSync('vehicles');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase vehicle save error:', err);
@@ -552,6 +543,7 @@ export function useDataStore() {
       setVehicles(updated);
       localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('vehicles');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase vehicle delete error:', err);
@@ -581,13 +573,14 @@ export function useDataStore() {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('branches').upsert(dbPayload);
+      const { error } = await supabase.from('branches').upsert(dbPayload, { onConflict: 'id' });
       if (error) throw error;
 
       const updated = branches.map((b) => (b.id === branch.id ? branch : b));
       setBranches(updated);
       localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('branches');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase branch save error:', err);
@@ -631,7 +624,7 @@ export function useDataStore() {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('hero_banners').upsert(fullDbPayload);
+      const { error } = await supabase.from('hero_banners').upsert(fullDbPayload, { onConflict: 'id' });
       
       // If error occurred (e.g. columns do not exist yet in Supabase table), fallback to base columns
       if (error) {
@@ -651,7 +644,7 @@ export function useDataStore() {
           order_index: banner.orderIndex ?? 1,
           updated_at: new Date().toISOString(),
         };
-        const fallbackRes = await supabase.from('hero_banners').upsert(basePayload);
+        const fallbackRes = await supabase.from('hero_banners').upsert(basePayload, { onConflict: 'id' });
         if (fallbackRes.error) {
           console.error('Fallback base save also failed:', fallbackRes.error);
         }
@@ -664,6 +657,7 @@ export function useDataStore() {
       setBanners(updated);
       localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('hero_banners');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase banner save error:', err);
@@ -681,6 +675,7 @@ export function useDataStore() {
       setBanners(updated);
       localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('hero_banners');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase banner delete error:', err);
@@ -694,9 +689,9 @@ export function useDataStore() {
       const upsertPromises = Object.entries(settings).map(([key, value]) =>
         supabase.from('site_settings').upsert({
           key,
-          value,
+          value: String(value ?? ''),
           updated_at: new Date().toISOString(),
-        })
+        }, { onConflict: 'key' })
       );
       const results = await Promise.all(upsertPromises);
       const firstError = results.find((r) => r.error)?.error;
@@ -706,6 +701,7 @@ export function useDataStore() {
       setSiteSettings(updated);
       localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('site_settings');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase site settings save error:', err);
@@ -728,7 +724,7 @@ export function useDataStore() {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('announcements').upsert(dbPayload);
+      const { error } = await supabase.from('announcements').upsert(dbPayload, { onConflict: 'id' });
       if (error) throw error;
 
       const updated = announcements.some((a) => a.id === announcement.id)
@@ -738,6 +734,7 @@ export function useDataStore() {
       setAnnouncements(updated);
       localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('announcements');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase announcement save error:', err);
@@ -755,6 +752,7 @@ export function useDataStore() {
       setAnnouncements(updated);
       localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(updated));
       triggerLocalBroadcast();
+      broadcastRemoteSync('announcements');
       return { success: true };
     } catch (err: any) {
       console.error('Supabase announcement delete error:', err);

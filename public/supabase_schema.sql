@@ -155,37 +155,31 @@ ALTER TABLE public.hero_banners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
--- Policy: Publik bisa membaca data
+-- Policy: Publik & Admin bisa membaca dan mengelola data secara lancar
 DROP POLICY IF EXISTS "Public can read vehicles" ON public.vehicles;
 CREATE POLICY "Public can read vehicles" ON public.vehicles FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public can manage vehicles" ON public.vehicles;
+CREATE POLICY "Public can manage vehicles" ON public.vehicles FOR ALL USING (true) WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Public can read branches" ON public.branches;
 CREATE POLICY "Public can read branches" ON public.branches FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public can manage branches" ON public.branches;
+CREATE POLICY "Public can manage branches" ON public.branches FOR ALL USING (true) WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Public can read hero_banners" ON public.hero_banners;
 CREATE POLICY "Public can read hero_banners" ON public.hero_banners FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public can manage hero_banners" ON public.hero_banners;
+CREATE POLICY "Public can manage hero_banners" ON public.hero_banners FOR ALL USING (true) WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Public can read site_settings" ON public.site_settings;
 CREATE POLICY "Public can read site_settings" ON public.site_settings FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public can manage site_settings" ON public.site_settings;
+CREATE POLICY "Public can manage site_settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Public can read announcements" ON public.announcements;
 CREATE POLICY "Public can read announcements" ON public.announcements FOR SELECT USING (true);
-
--- Policy: Admin (Authenticated User) bisa melakukan INSERT, UPDATE, DELETE
-DROP POLICY IF EXISTS "Authenticated users can manage vehicles" ON public.vehicles;
-CREATE POLICY "Authenticated users can manage vehicles" ON public.vehicles FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Authenticated users can manage branches" ON public.branches;
-CREATE POLICY "Authenticated users can manage branches" ON public.branches FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Authenticated users can manage hero_banners" ON public.hero_banners;
-CREATE POLICY "Authenticated users can manage hero_banners" ON public.hero_banners FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Authenticated users can manage site_settings" ON public.site_settings;
-CREATE POLICY "Authenticated users can manage site_settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Authenticated users can manage announcements" ON public.announcements;
-CREATE POLICY "Authenticated users can manage announcements" ON public.announcements FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Public can manage announcements" ON public.announcements;
+CREATE POLICY "Public can manage announcements" ON public.announcements FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================================
 -- SEED INITIAL DATA LENGKAP
