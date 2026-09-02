@@ -258,9 +258,9 @@ export const Hero: React.FC<HeroProps> = ({
               )}
             </div>
 
-            {/* Top Tagline Ribbon (Shown if showText is active) */}
+            {/* Top Tagline Ribbon (Shown if showText is active and non-empty) */}
             <div className="relative z-10 p-2 sm:p-5 md:p-6">
-              {showText && (
+              {showText && currentSlide.taglineRibbon && (
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-amber-500/30 text-amber-400 font-bold text-[8px] sm:text-xs tracking-wider uppercase shadow-xs">
                   <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-400" />
                   <span>{currentSlide.taglineRibbon}</span>
@@ -270,16 +270,20 @@ export const Hero: React.FC<HeroProps> = ({
 
             {/* Bottom Content Area: Title, Period & CTA Button */}
             <div className="relative z-10 p-2 sm:p-5 md:p-6 flex items-end justify-between gap-2 sm:gap-4">
-              {showText ? (
+              {showText && (currentSlide.title || currentSlide.titleHighlight || currentSlide.period) ? (
                 <div className="max-w-[72%] text-white min-w-0">
-                  <h1 className="text-[11px] sm:text-lg md:text-2xl font-black tracking-tight leading-tight mb-0.5 drop-shadow-sm truncate">
-                    <span>{currentSlide.title} </span>
-                    <span className="text-amber-400">{currentSlide.titleHighlight}</span>
-                  </h1>
-                  <p className="text-[8px] sm:text-xs text-slate-300 font-medium truncate">
-                    {currentSlide.period}
-                    <span className="hidden sm:inline"> • Pandu Motor Group Resmi &amp; Bergaransi</span>
-                  </p>
+                  {(currentSlide.title || currentSlide.titleHighlight) && (
+                    <h1 className="text-[11px] sm:text-lg md:text-2xl font-black tracking-tight leading-tight mb-0.5 drop-shadow-sm truncate">
+                      <span>{currentSlide.title} </span>
+                      <span className="text-amber-400">{currentSlide.titleHighlight}</span>
+                    </h1>
+                  )}
+                  {currentSlide.period && (
+                    <p className="text-[8px] sm:text-xs text-slate-300 font-medium truncate">
+                      {currentSlide.period}
+                      <span className="hidden sm:inline"> • Pandu Motor Group Resmi &amp; Bergaransi</span>
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div />

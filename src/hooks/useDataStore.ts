@@ -203,170 +203,172 @@ export function useDataStore() {
   const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);
   const [dbTablesReady, setDbTablesReady] = useState<boolean>(true);
 
-  // Fetch and Sync directly from Supabase
+  // Fetch and Sync directly from Supabase with resilient parallel queries
   const syncWithSupabase = useCallback(async () => {
     setIsSyncing(true);
     try {
-      // Ping keepalive
-      await pingSupabaseKeepAlive();
+      // Parallel fetch with independent error isolation so one slow table never blocks others
+      const [vRes, bRes, bnRes, sRes, aRes] = await Promise.allSettled([
+        supabase.from('vehicles').select('*').order('created_at', { ascending: false }),
+        supabase.from('branches').select('*'),
+        supabase.from('hero_banners').select('*').order('order_index', { ascending: true }),
+        supabase.from('site_settings').select('*'),
+        supabase.from('announcements').select('*').order('is_pinned', { ascending: false }).order('created_at', { ascending: false }),
+      ]);
 
-      // A. Fetch Vehicles from Supabase
-      const { data: dbVehicles, error: vErr } = await supabase
-        .from('vehicles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (vErr && vErr.code === 'PGRST205') {
-        setDbTablesReady(false);
-      } else if (!vErr && dbVehicles && dbVehicles.length > 0) {
-        setDbTablesReady(true);
-        const formatted: Vehicle[] = dbVehicles.map((v: any) => ({
-          id: v.id,
-          name: v.name,
-          brand: v.brand,
-          category: v.category,
-          condition: v.condition,
-          year: Number(v.year),
-          price: Number(v.price),
-          dpMin: Number(v.dp_min || 0),
-          mileage: v.mileage ? Number(v.mileage) : undefined,
-          transmission: v.transmission || 'Automatic',
-          engineCapacity: v.engine_capacity || '125 cc',
-          description: v.description || '',
-          fuelType: v.fuel_type || 'Bensin',
-          color: v.color || 'Hitam Glossy',
-          plateNumberLocation: v.plate_number_location || 'BK (Asahan / Medan)',
-          taxStatus: v.tax_status || 'Pajak Hidup Panjang',
-          documentCompleteness: v.document_completeness || 'Lengkap (BPKB + STNK + Faktur)',
-          warranty: v.warranty || 'Garansi Mesin Showroom 1 Tahun',
-          features: Array.isArray(v.features) ? v.features : [],
-          images: Array.isArray(v.images) ? v.images : [],
-          branchId: v.branch_id || 'kisaran',
-          installmentEstimates: v.installment_estimates || { tenor11: 0, tenor23: 0, tenor35: 0 },
-          isFeatured: Boolean(v.is_featured),
-          isHotPromo: Boolean(v.is_hot_promo),
-          imageFit: v.image_fit || v.installment_estimates?._meta?.fit || 'cover',
-          imagePosition: v.image_position || `${(v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : (v.installment_estimates?._meta?.x ?? 50))}% ${(v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : (v.installment_estimates?._meta?.y ?? 50))}%`,
-          imagePosX: v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : (v.installment_estimates?._meta?.x ?? 50),
-          imagePosY: v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : (v.installment_estimates?._meta?.y ?? 50),
-          imageScale: v.image_scale || v.installment_estimates?._meta?.scale || 100,
-          aspectRatio: v.aspect_ratio || v.installment_estimates?._meta?.ar || '4:3',
-        }));
-        setVehicles(formatted);
-        localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(formatted));
+      // A. Process Vehicles
+      if (vRes.status === 'fulfilled') {
+        const { data: dbVehicles, error: vErr } = vRes.value;
+        if (vErr && vErr.code === 'PGRST205') {
+          setDbTablesReady(false);
+        } else if (!vErr && dbVehicles && dbVehicles.length > 0) {
+          setDbTablesReady(true);
+          const formatted: Vehicle[] = dbVehicles.map((v: any) => ({
+            id: v.id,
+            name: v.name,
+            brand: v.brand,
+            category: v.category,
+            condition: v.condition,
+            year: Number(v.year),
+            price: Number(v.price),
+            dpMin: Number(v.dp_min || 0),
+            mileage: v.mileage ? Number(v.mileage) : undefined,
+            transmission: v.transmission || 'Automatic',
+            engineCapacity: v.engine_capacity || '125 cc',
+            description: v.description || '',
+            fuelType: v.fuel_type || 'Bensin',
+            color: v.color || 'Hitam Glossy',
+            plateNumberLocation: v.plate_number_location || 'BK (Asahan / Medan)',
+            taxStatus: v.tax_status || 'Pajak Hidup Panjang',
+            documentCompleteness: v.document_completeness || 'Lengkap (BPKB + STNK + Faktur)',
+            warranty: v.warranty || 'Garansi Mesin Showroom 1 Tahun',
+            features: Array.isArray(v.features) ? v.features : [],
+            images: Array.isArray(v.images) && v.images.length > 0 ? v.images : ['/images/momotor_banner_nmax_aerox.avif'],
+            branchId: v.branch_id || 'kisaran',
+            installmentEstimates: v.installment_estimates || { tenor11: 0, tenor23: 0, tenor35: 0 },
+            isFeatured: Boolean(v.is_featured),
+            isHotPromo: Boolean(v.is_hot_promo),
+            imageFit: v.image_fit || v.installment_estimates?._meta?.fit || 'cover',
+            imagePosition: v.image_position || `${(v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : (v.installment_estimates?._meta?.x ?? 50))}% ${(v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : (v.installment_estimates?._meta?.y ?? 50))}%`,
+            imagePosX: v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : (v.installment_estimates?._meta?.x ?? 50),
+            imagePosY: v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : (v.installment_estimates?._meta?.y ?? 50),
+            imageScale: v.image_scale || v.installment_estimates?._meta?.scale || 100,
+            aspectRatio: v.aspect_ratio || v.installment_estimates?._meta?.ar || '4:3',
+          }));
+          setVehicles(formatted);
+          localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(formatted));
+        }
       }
 
-      // B. Fetch Branches from Supabase
-      const { data: dbBranches, error: bErr } = await supabase
-        .from('branches')
-        .select('*');
-
-      if (!bErr && dbBranches && dbBranches.length > 0) {
-        const formatted: Branch[] = dbBranches.map((b: any) => ({
-          id: b.id,
-          name: b.name,
-          companyName: b.company_name,
-          code: b.code,
-          city: b.city,
-          province: b.province,
-          address: b.address,
-          phone: b.phone,
-          whatsapp: b.whatsapp,
-          email: b.email,
-          googleMapsUrl: b.google_maps_url || BRANCH_MAPS_URLS[b.id] || '',
-          operationalHours: b.operational_hours,
-          image: b.image,
-          logo: b.logo,
-          socialMedia: b.social_media || {},
-        }));
-        setBranches(formatted);
-        localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(formatted));
+      // B. Process Branches
+      if (bRes.status === 'fulfilled') {
+        const { data: dbBranches, error: bErr } = bRes.value;
+        if (!bErr && dbBranches && dbBranches.length > 0) {
+          const formatted: Branch[] = dbBranches.map((b: any) => ({
+            id: b.id,
+            name: b.name,
+            companyName: b.company_name,
+            code: b.code,
+            city: b.city,
+            province: b.province,
+            address: b.address,
+            phone: b.phone,
+            whatsapp: b.whatsapp,
+            email: b.email,
+            googleMapsUrl: b.google_maps_url || BRANCH_MAPS_URLS[b.id] || '',
+            operationalHours: b.operational_hours,
+            image: b.image,
+            logo: b.logo,
+            socialMedia: b.social_media || {},
+          }));
+          setBranches(formatted);
+          localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(formatted));
+        }
       }
 
-      // C. Fetch Banners from Supabase
-      const { data: dbBanners, error: bnErr } = await supabase
-        .from('hero_banners')
-        .select('*')
-        .order('order_index', { ascending: true });
+      // C. Process Banners
+      if (bnRes.status === 'fulfilled') {
+        const { data: dbBanners, error: bnErr } = bnRes.value;
+        if (!bnErr && dbBanners && dbBanners.length > 0) {
+          const formatted: HeroBanner[] = dbBanners
+            .filter((bn: any) => bn.image || bn.video_url || bn.title || bn.id)
+            .map((bn: any, idx: number) => {
+              const bMeta = bn.offer1?._meta || {};
+              const posX = bn.image_pos_x !== undefined && bn.image_pos_x !== null ? bn.image_pos_x : (bMeta.x ?? 50);
+              const posY = bn.image_pos_y !== undefined && bn.image_pos_y !== null ? bn.image_pos_y : (bMeta.y ?? 50);
 
-      if (!bnErr && dbBanners && dbBanners.length > 0) {
-        const formatted: HeroBanner[] = dbBanners.map((bn: any) => {
-          const bMeta = bn.offer1?._meta || {};
-          const posX = bn.image_pos_x !== undefined && bn.image_pos_x !== null ? bn.image_pos_x : (bMeta.x ?? 50);
-          const posY = bn.image_pos_y !== undefined && bn.image_pos_y !== null ? bn.image_pos_y : (bMeta.y ?? 50);
+              return {
+                id: bn.id || `banner-${idx}`,
+                taglineRibbon: bn.tagline_ribbon || (DEFAULT_BANNERS[idx]?.taglineRibbon || ''),
+                title: bn.title || (DEFAULT_BANNERS[idx]?.title || 'Promo Pandu Motor'),
+                titleHighlight: bn.title_highlight || (DEFAULT_BANNERS[idx]?.titleHighlight || 'Terbaik'),
+                offer1: bn.offer1 || { label: 'DP Mulai', currency: 'Rp', value: '500 Ribu', unit: '' },
+                offer2: bn.offer2 || { label: 'Cashback', currency: 'Rp', value: '300 Ribu', unit: '' },
+                period: bn.period || 'Berlaku Seluruh Showroom Pandu Motor Group',
+                image: bn.image || (DEFAULT_BANNERS[idx]?.image || '/images/momotor_banner_nmax_aerox.avif'),
+                ctaText: bn.cta_text || 'Yuk Ajukan Sekarang',
+                themeColor: bn.theme_color || '#0B63E5',
+                isActive: bn.is_active ?? true,
+                orderIndex: bn.order_index ?? (idx + 1),
+                imageFit: bn.image_fit || bMeta.fit || 'cover',
+                imagePosition: bn.image_position || `${posX}% ${posY}%`,
+                imagePosX: posX,
+                imagePosY: posY,
+                imageScale: bn.image_scale || bMeta.scale || 100,
+                aspectRatio: bn.aspect_ratio || bMeta.ar || '16:9',
+                bannerHeight: bn.banner_height || bMeta.height || 380,
+                showTextOverlay: bn.show_text_overlay !== undefined ? bn.show_text_overlay : (bMeta.textOverlay !== undefined ? bMeta.textOverlay : true),
+                overlayOpacity: bn.overlay_opacity !== undefined && bn.overlay_opacity !== null ? bn.overlay_opacity : (bMeta.opacity ?? 70),
+                ctaLinkType: bn.cta_link_type || bMeta.ctaType || 'whatsapp',
+                ctaCustomUrl: bn.cta_custom_url || bMeta.ctaUrl || '',
+                mediaType: bn.media_type || bMeta.mediaType || (bn.video_url || bMeta.videoUrl || bn.image?.endsWith('.mp4') || bn.image?.endsWith('.webm') ? 'video' : 'image'),
+                videoUrl: bn.video_url || bMeta.videoUrl || '',
+                videoPoster: bn.video_poster || bMeta.videoPoster || '',
+                videoAutoplay: bn.video_autoplay !== undefined ? bn.video_autoplay : (bMeta.videoAutoplay !== undefined ? bMeta.videoAutoplay : true),
+                videoLoop: bn.video_loop !== undefined ? bn.video_loop : (bMeta.videoLoop !== undefined ? bMeta.videoLoop : true),
+                videoMuted: bn.video_muted !== undefined ? bn.video_muted : (bMeta.videoMuted !== undefined ? bMeta.videoMuted : true),
+              };
+            });
 
-          return {
-            id: bn.id,
-            taglineRibbon: bn.tagline_ribbon || '',
-            title: bn.title,
-            titleHighlight: bn.title_highlight,
-            offer1: bn.offer1 || { label: '', currency: '', value: '', unit: '' },
-            offer2: bn.offer2 || { label: '', currency: '', value: '', unit: '' },
-            period: bn.period || '',
-            image: bn.image,
-            ctaText: bn.cta_text || 'Yuk Ajukan Sekarang',
-            themeColor: bn.theme_color || '#0B63E5',
-            isActive: bn.is_active ?? true,
-            orderIndex: bn.order_index ?? 1,
-            imageFit: bn.image_fit || bMeta.fit || 'cover',
-            imagePosition: bn.image_position || `${posX}% ${posY}%`,
-            imagePosX: posX,
-            imagePosY: posY,
-            imageScale: bn.image_scale || bMeta.scale || 100,
-            aspectRatio: bn.aspect_ratio || bMeta.ar || '16:9',
-            bannerHeight: bn.banner_height || bMeta.height || 380,
-            showTextOverlay: bn.show_text_overlay !== undefined ? bn.show_text_overlay : (bMeta.textOverlay !== undefined ? bMeta.textOverlay : true),
-            overlayOpacity: bn.overlay_opacity !== undefined && bn.overlay_opacity !== null ? bn.overlay_opacity : (bMeta.opacity ?? 70),
-            ctaLinkType: bn.cta_link_type || bMeta.ctaType || 'whatsapp',
-            ctaCustomUrl: bn.cta_custom_url || bMeta.ctaUrl || '',
-            mediaType: bn.media_type || bMeta.mediaType || (bn.video_url || bMeta.videoUrl || bn.image?.endsWith('.mp4') || bn.image?.endsWith('.webm') ? 'video' : 'image'),
-            videoUrl: bn.video_url || bMeta.videoUrl || '',
-            videoPoster: bn.video_poster || bMeta.videoPoster || '',
-            videoAutoplay: bn.video_autoplay !== undefined ? bn.video_autoplay : (bMeta.videoAutoplay !== undefined ? bMeta.videoAutoplay : true),
-            videoLoop: bn.video_loop !== undefined ? bn.video_loop : (bMeta.videoLoop !== undefined ? bMeta.videoLoop : true),
-            videoMuted: bn.video_muted !== undefined ? bn.video_muted : (bMeta.videoMuted !== undefined ? bMeta.videoMuted : true),
-          };
-        });
-        setBanners(formatted);
-        localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
+          if (formatted.length > 0) {
+            setBanners(formatted);
+            localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
+          }
+        }
       }
 
-      // D. Fetch Site Settings from Supabase
-      const { data: dbSettings, error: sErr } = await supabase
-        .from('site_settings')
-        .select('*');
-
-      if (!sErr && dbSettings && dbSettings.length > 0) {
-        const settingsMap: SiteSettings = { ...DEFAULT_SITE_SETTINGS };
-        dbSettings.forEach((row: any) => {
-          if (row.key) settingsMap[row.key] = row.value;
-        });
-        setSiteSettings(settingsMap);
-        localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(settingsMap));
+      // D. Process Site Settings
+      if (sRes.status === 'fulfilled') {
+        const { data: dbSettings, error: sErr } = sRes.value;
+        if (!sErr && dbSettings && dbSettings.length > 0) {
+          const settingsMap: SiteSettings = { ...DEFAULT_SITE_SETTINGS };
+          dbSettings.forEach((row: any) => {
+            if (row.key) settingsMap[row.key] = row.value;
+          });
+          setSiteSettings(settingsMap);
+          localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(settingsMap));
+        }
       }
 
-      // E. Fetch Announcements from Supabase
-      const { data: dbAnnouncements, error: aErr } = await supabase
-        .from('announcements')
-        .select('*')
-        .order('is_pinned', { ascending: false })
-        .order('created_at', { ascending: false });
-
-      if (!aErr && dbAnnouncements && dbAnnouncements.length > 0) {
-        const formatted: Announcement[] = dbAnnouncements.map((a: any) => ({
-          id: a.id,
-          title: a.title,
-          category: a.category || 'Umum',
-          content: a.content,
-          author: a.author || 'Kantor Pusat',
-          isPinned: Boolean(a.is_pinned),
-          image: a.image,
-          attachments: Array.isArray(a.attachments) ? a.attachments : [],
-          createdAt: a.created_at || new Date().toISOString(),
-          updatedAt: a.updated_at,
-        }));
-        setAnnouncements(formatted);
-        localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(formatted));
+      // E. Process Announcements
+      if (aRes.status === 'fulfilled') {
+        const { data: dbAnnouncements, error: aErr } = aRes.value;
+        if (!aErr && dbAnnouncements && dbAnnouncements.length > 0) {
+          const formatted: Announcement[] = dbAnnouncements.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            category: a.category || 'Umum',
+            content: a.content,
+            author: a.author || 'Kantor Pusat',
+            isPinned: Boolean(a.is_pinned),
+            image: a.image,
+            attachments: Array.isArray(a.attachments) ? a.attachments : [],
+            createdAt: a.created_at || new Date().toISOString(),
+            updatedAt: a.updated_at,
+          }));
+          setAnnouncements(formatted);
+          localStorage.setItem(LS_ANNOUNCEMENTS_KEY, JSON.stringify(formatted));
+        }
       }
 
       setSupabaseConnected(true);
@@ -446,8 +448,8 @@ export function useDataStore() {
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibility);
 
-    // 5. Fast 3.5s smart background polling fallback (Unbeatable reliability across all networks/IPs)
-    const interval = setInterval(syncWithSupabase, 3500);
+    // 5. Gentle 20s background polling fallback (Prevents server connection exhaustion while ensuring reliability)
+    const interval = setInterval(syncWithSupabase, 20000);
 
     return () => {
       if (localBroadcastChannel) localBroadcastChannel.close();
