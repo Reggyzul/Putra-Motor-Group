@@ -69,7 +69,58 @@ export async function pingSupabaseKeepAlive(): Promise<{ success: boolean; times
 }
 
 /**
- * Upload an image or video media file to Supabase Storage or return base64 data URL
+ * Helper to compress images on client side to prevent huge payload rejection (>2MB)
+ */
+async function compressImageFile(file: File, maxWidth = 1600, maxHeight = 1200, quality = 0.85): Promise<Blob | File> {
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif') {
+    return file;
+  }
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          if (width / maxWidth > height / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            resolve(blob || file);
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(file);
+      };
+      img.src = objectUrl;
+    } catch {
+      resolve(file);
+    }
+  });
+}
+
+/**
+ * Upload an image or video media file to Supabase Storage or return compressed base64 data URL
  */
 export async function uploadMediaFile(
   file: File, 
@@ -77,16 +128,18 @@ export async function uploadMediaFile(
   folder = 'uploads'
 ): Promise<string> {
   try {
-    const fileExt = file.name.split('.').pop();
+    const isImage = file.type.startsWith('image/');
+    const fileToUpload = isImage ? await compressImageFile(file) : file;
+    const fileExt = file.name.split('.').pop() || (isImage ? 'jpg' : 'mp4');
     const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
     
     // Try uploading to Supabase Storage bucket
     const { data, error } = await supabase.storage
       .from(bucket)
-      .upload(fileName, file, {
+      .upload(fileName, fileToUpload, {
         cacheControl: '3600',
         upsert: true,
-        contentType: file.type || undefined,
+        contentType: isImage ? 'image/jpeg' : (file.type || undefined),
       });
 
     if (!error && data) {
@@ -99,12 +152,13 @@ export async function uploadMediaFile(
     console.warn('Supabase storage upload fallback to base64 reader:', e);
   }
 
-  // Fallback: Return Base64 data URL so media works 100% seamlessly offline & online
+  // Fallback: Return compressed Base64 data URL so media works 100% seamlessly offline & online
+  const processedBlob = file.type.startsWith('image/') ? await compressImageFile(file, 1280, 960, 0.8) : file;
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(processedBlob);
   });
 }
 

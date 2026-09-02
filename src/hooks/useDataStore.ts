@@ -245,12 +245,12 @@ export function useDataStore() {
           installmentEstimates: v.installment_estimates || { tenor11: 0, tenor23: 0, tenor35: 0 },
           isFeatured: Boolean(v.is_featured),
           isHotPromo: Boolean(v.is_hot_promo),
-          imageFit: v.image_fit || 'cover',
-          imagePosition: v.image_position || '50% 50%',
-          imagePosX: v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : 50,
-          imagePosY: v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : 50,
-          imageScale: v.image_scale || 100,
-          aspectRatio: v.aspect_ratio || '4:3',
+          imageFit: v.image_fit || v.installment_estimates?._meta?.fit || 'cover',
+          imagePosition: v.image_position || `${(v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : (v.installment_estimates?._meta?.x ?? 50))}% ${(v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : (v.installment_estimates?._meta?.y ?? 50))}%`,
+          imagePosX: v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : (v.installment_estimates?._meta?.x ?? 50),
+          imagePosY: v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : (v.installment_estimates?._meta?.y ?? 50),
+          imageScale: v.image_scale || v.installment_estimates?._meta?.scale || 100,
+          aspectRatio: v.aspect_ratio || v.installment_estimates?._meta?.ar || '4:3',
         }));
         setVehicles(formatted);
         localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(formatted));
@@ -290,37 +290,43 @@ export function useDataStore() {
         .order('order_index', { ascending: true });
 
       if (!bnErr && dbBanners && dbBanners.length > 0) {
-        const formatted: HeroBanner[] = dbBanners.map((bn: any) => ({
-          id: bn.id,
-          taglineRibbon: bn.tagline_ribbon || '',
-          title: bn.title,
-          titleHighlight: bn.title_highlight,
-          offer1: bn.offer1 || { label: '', currency: '', value: '', unit: '' },
-          offer2: bn.offer2 || { label: '', currency: '', value: '', unit: '' },
-          period: bn.period || '',
-          image: bn.image,
-          ctaText: bn.cta_text || 'Yuk Ajukan Sekarang',
-          themeColor: bn.theme_color || '#0B63E5',
-          isActive: bn.is_active ?? true,
-          orderIndex: bn.order_index ?? 1,
-          imageFit: bn.image_fit || 'cover',
-          imagePosition: bn.image_position || '50% 50%',
-          imagePosX: bn.image_pos_x !== undefined && bn.image_pos_x !== null ? bn.image_pos_x : 50,
-          imagePosY: bn.image_pos_y !== undefined && bn.image_pos_y !== null ? bn.image_pos_y : 50,
-          imageScale: bn.image_scale || 100,
-          aspectRatio: bn.aspect_ratio || '16:9',
-          bannerHeight: bn.banner_height || 380,
-          showTextOverlay: bn.show_text_overlay !== false,
-          overlayOpacity: bn.overlay_opacity !== undefined && bn.overlay_opacity !== null ? bn.overlay_opacity : 70,
-          ctaLinkType: bn.cta_link_type || 'whatsapp',
-          ctaCustomUrl: bn.cta_custom_url || '',
-          mediaType: bn.media_type || (bn.video_url || bn.image?.endsWith('.mp4') || bn.image?.endsWith('.webm') ? 'video' : 'image'),
-          videoUrl: bn.video_url || '',
-          videoPoster: bn.video_poster || '',
-          videoAutoplay: bn.video_autoplay !== false,
-          videoLoop: bn.video_loop !== false,
-          videoMuted: bn.video_muted !== false,
-        }));
+        const formatted: HeroBanner[] = dbBanners.map((bn: any) => {
+          const bMeta = bn.offer1?._meta || {};
+          const posX = bn.image_pos_x !== undefined && bn.image_pos_x !== null ? bn.image_pos_x : (bMeta.x ?? 50);
+          const posY = bn.image_pos_y !== undefined && bn.image_pos_y !== null ? bn.image_pos_y : (bMeta.y ?? 50);
+
+          return {
+            id: bn.id,
+            taglineRibbon: bn.tagline_ribbon || '',
+            title: bn.title,
+            titleHighlight: bn.title_highlight,
+            offer1: bn.offer1 || { label: '', currency: '', value: '', unit: '' },
+            offer2: bn.offer2 || { label: '', currency: '', value: '', unit: '' },
+            period: bn.period || '',
+            image: bn.image,
+            ctaText: bn.cta_text || 'Yuk Ajukan Sekarang',
+            themeColor: bn.theme_color || '#0B63E5',
+            isActive: bn.is_active ?? true,
+            orderIndex: bn.order_index ?? 1,
+            imageFit: bn.image_fit || bMeta.fit || 'cover',
+            imagePosition: bn.image_position || `${posX}% ${posY}%`,
+            imagePosX: posX,
+            imagePosY: posY,
+            imageScale: bn.image_scale || bMeta.scale || 100,
+            aspectRatio: bn.aspect_ratio || bMeta.ar || '16:9',
+            bannerHeight: bn.banner_height || bMeta.height || 380,
+            showTextOverlay: bn.show_text_overlay !== undefined ? bn.show_text_overlay : (bMeta.textOverlay !== undefined ? bMeta.textOverlay : true),
+            overlayOpacity: bn.overlay_opacity !== undefined && bn.overlay_opacity !== null ? bn.overlay_opacity : (bMeta.opacity ?? 70),
+            ctaLinkType: bn.cta_link_type || bMeta.ctaType || 'whatsapp',
+            ctaCustomUrl: bn.cta_custom_url || bMeta.ctaUrl || '',
+            mediaType: bn.media_type || bMeta.mediaType || (bn.video_url || bMeta.videoUrl || bn.image?.endsWith('.mp4') || bn.image?.endsWith('.webm') ? 'video' : 'image'),
+            videoUrl: bn.video_url || bMeta.videoUrl || '',
+            videoPoster: bn.video_poster || bMeta.videoPoster || '',
+            videoAutoplay: bn.video_autoplay !== undefined ? bn.video_autoplay : (bMeta.videoAutoplay !== undefined ? bMeta.videoAutoplay : true),
+            videoLoop: bn.video_loop !== undefined ? bn.video_loop : (bMeta.videoLoop !== undefined ? bMeta.videoLoop : true),
+            videoMuted: bn.video_muted !== undefined ? bn.video_muted : (bMeta.videoMuted !== undefined ? bMeta.videoMuted : true),
+          };
+        });
         setBanners(formatted);
         localStorage.setItem(LS_BANNERS_KEY, JSON.stringify(formatted));
       }
@@ -455,6 +461,19 @@ export function useDataStore() {
   // MUTATION: Save Vehicle (Insert / Update to Cloud & Local)
   const saveVehicle = async (vehicle: Vehicle): Promise<{ success: boolean; error?: string }> => {
     try {
+      const photoMeta = {
+        fit: vehicle.imageFit || 'cover',
+        x: vehicle.imagePosX ?? 50,
+        y: vehicle.imagePosY ?? 50,
+        scale: vehicle.imageScale ?? 100,
+        ar: vehicle.aspectRatio || '4:3',
+      };
+
+      const installmentEstimatesWithMeta = {
+        ...(vehicle.installmentEstimates || { tenor11: 0, tenor23: 0, tenor35: 0 }),
+        _meta: photoMeta,
+      };
+
       const fullDbPayload: any = {
         id: vehicle.id,
         name: vehicle.name,
@@ -470,7 +489,7 @@ export function useDataStore() {
         description: vehicle.description,
         images: vehicle.images,
         branch_id: vehicle.branchId,
-        installment_estimates: vehicle.installmentEstimates,
+        installment_estimates: installmentEstimatesWithMeta,
         image_fit: vehicle.imageFit || 'cover',
         image_position: vehicle.imagePosition || `${vehicle.imagePosX ?? 50}% ${vehicle.imagePosY ?? 50}%`,
         image_pos_x: vehicle.imagePosX ?? 50,
@@ -480,7 +499,7 @@ export function useDataStore() {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('vehicles').upsert(fullDbPayload);
+      const { error } = await supabase.from('vehicles').upsert(fullDbPayload, { onConflict: 'id' });
       
       // If error occurred (e.g. columns do not exist yet in remote table), fallback to base columns
       if (error) {
@@ -500,10 +519,10 @@ export function useDataStore() {
           description: vehicle.description,
           images: vehicle.images,
           branch_id: vehicle.branchId,
-          installment_estimates: vehicle.installmentEstimates,
+          installment_estimates: installmentEstimatesWithMeta,
           updated_at: new Date().toISOString(),
         };
-        const fallbackRes = await supabase.from('vehicles').upsert(basePayload);
+        const fallbackRes = await supabase.from('vehicles').upsert(basePayload, { onConflict: 'id' });
         if (fallbackRes.error) {
           throw fallbackRes.error;
         }
@@ -591,12 +610,36 @@ export function useDataStore() {
   // MUTATION: Save Banner
   const saveBanner = async (banner: HeroBanner): Promise<{ success: boolean; error?: string }> => {
     try {
+      const bannerMeta = {
+        fit: banner.imageFit || 'cover',
+        x: banner.imagePosX ?? 50,
+        y: banner.imagePosY ?? 50,
+        scale: banner.imageScale ?? 100,
+        ar: banner.aspectRatio || '16:9',
+        height: banner.bannerHeight || 380,
+        textOverlay: banner.showTextOverlay !== false,
+        opacity: banner.overlayOpacity ?? 70,
+        ctaType: banner.ctaLinkType || 'whatsapp',
+        ctaUrl: banner.ctaCustomUrl || '',
+        mediaType: banner.mediaType || 'image',
+        videoUrl: banner.videoUrl || '',
+        videoPoster: banner.videoPoster || '',
+        videoAutoplay: banner.videoAutoplay !== false,
+        videoLoop: banner.videoLoop !== false,
+        videoMuted: banner.videoMuted !== false,
+      };
+
+      const offer1WithMeta = {
+        ...(banner.offer1 || { label: '', currency: '', value: '', unit: '' }),
+        _meta: bannerMeta,
+      };
+
       const fullDbPayload: any = {
         id: banner.id,
         tagline_ribbon: banner.taglineRibbon,
         title: banner.title,
         title_highlight: banner.titleHighlight,
-        offer1: banner.offer1,
+        offer1: offer1WithMeta,
         offer2: banner.offer2,
         period: banner.period,
         image: banner.image,
@@ -620,7 +663,7 @@ export function useDataStore() {
         video_poster: banner.videoPoster || '',
         video_autoplay: banner.videoAutoplay !== false,
         video_loop: banner.videoLoop !== false,
-        video_muted: banner.videoMuted !== false,
+        videoMuted: banner.videoMuted !== false,
         updated_at: new Date().toISOString(),
       };
 
@@ -634,7 +677,7 @@ export function useDataStore() {
           tagline_ribbon: banner.taglineRibbon,
           title: banner.title,
           title_highlight: banner.titleHighlight,
-          offer1: banner.offer1,
+          offer1: offer1WithMeta,
           offer2: banner.offer2,
           period: banner.period,
           image: banner.image,
