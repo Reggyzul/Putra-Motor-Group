@@ -247,6 +247,12 @@ export function useDataStore() {
           installmentEstimates: v.installment_estimates || { tenor11: 0, tenor23: 0, tenor35: 0 },
           isFeatured: Boolean(v.is_featured),
           isHotPromo: Boolean(v.is_hot_promo),
+          imageFit: v.image_fit || 'cover',
+          imagePosition: v.image_position || '50% 50%',
+          imagePosX: v.image_pos_x !== undefined && v.image_pos_x !== null ? v.image_pos_x : 50,
+          imagePosY: v.image_pos_y !== undefined && v.image_pos_y !== null ? v.image_pos_y : 50,
+          imageScale: v.image_scale || 100,
+          aspectRatio: v.aspect_ratio || '4:3',
         }));
         setVehicles(formatted);
         localStorage.setItem(LS_VEHICLES_KEY, JSON.stringify(formatted));
@@ -399,7 +405,7 @@ export function useDataStore() {
   // MUTATION: Save Vehicle (Insert / Update to Cloud & Local)
   const saveVehicle = async (vehicle: Vehicle): Promise<{ success: boolean; error?: string }> => {
     try {
-      const dbPayload = {
+      const fullDbPayload: any = {
         id: vehicle.id,
         name: vehicle.name,
         brand: vehicle.brand,
@@ -415,12 +421,42 @@ export function useDataStore() {
         images: vehicle.images,
         branch_id: vehicle.branchId,
         installment_estimates: vehicle.installmentEstimates,
+        image_fit: vehicle.imageFit || 'cover',
+        image_position: vehicle.imagePosition || `${vehicle.imagePosX ?? 50}% ${vehicle.imagePosY ?? 50}%`,
+        image_pos_x: vehicle.imagePosX ?? 50,
+        image_pos_y: vehicle.imagePosY ?? 50,
+        image_scale: vehicle.imageScale ?? 100,
+        aspect_ratio: vehicle.aspectRatio || '4:3',
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('vehicles').upsert(dbPayload);
+      const { error } = await supabase.from('vehicles').upsert(fullDbPayload);
+      
+      // If error occurred (e.g. columns do not exist yet in remote table), fallback to base columns
       if (error) {
-        throw error;
+        console.warn('Supabase vehicle upsert with new columns failed, attempting fallback to base columns:', error.message);
+        const basePayload = {
+          id: vehicle.id,
+          name: vehicle.name,
+          brand: vehicle.brand,
+          category: vehicle.category,
+          condition: vehicle.condition,
+          year: vehicle.year,
+          price: vehicle.price,
+          dp_min: vehicle.dpMin,
+          mileage: vehicle.mileage || 0,
+          transmission: vehicle.transmission,
+          engine_capacity: vehicle.engineCapacity,
+          description: vehicle.description,
+          images: vehicle.images,
+          branch_id: vehicle.branchId,
+          installment_estimates: vehicle.installmentEstimates,
+          updated_at: new Date().toISOString(),
+        };
+        const fallbackRes = await supabase.from('vehicles').upsert(basePayload);
+        if (fallbackRes.error) {
+          throw fallbackRes.error;
+        }
       }
 
       // Optimistic local update after cloud save succeeds

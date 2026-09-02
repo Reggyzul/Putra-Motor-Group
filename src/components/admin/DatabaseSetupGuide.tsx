@@ -23,12 +23,26 @@ CREATE TABLE IF NOT EXISTS public.vehicles (
     description TEXT,
     images JSONB NOT NULL DEFAULT '[]'::jsonb,
     branch_id TEXT NOT NULL DEFAULT 'kisaran',
-    installment_estimates JSONB DEFAULT '{"tenor11": 0, "tenor23": 0, "tenor35": 0}'::jsonb,
+    installment_estimates JSONB DEFAULT '{"tenor11": 0, "tenor23": 0, "tenor35": 0, "tenor47": 0}'::jsonb,
     is_featured BOOLEAN DEFAULT FALSE,
     is_hot_promo BOOLEAN DEFAULT FALSE,
+    image_fit TEXT DEFAULT 'cover',
+    image_position TEXT DEFAULT '50% 50%',
+    image_pos_x INTEGER DEFAULT 50,
+    image_pos_y INTEGER DEFAULT 50,
+    image_scale INTEGER DEFAULT 100,
+    aspect_ratio TEXT DEFAULT '4:3',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Migrasi Kolom Visual Foto Motor Jika Tabel Sudah Ada Sebelumnya
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_fit TEXT DEFAULT 'cover';
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_position TEXT DEFAULT '50% 50%';
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_pos_x INTEGER DEFAULT 50;
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_pos_y INTEGER DEFAULT 50;
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_scale INTEGER DEFAULT 100;
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS aspect_ratio TEXT DEFAULT '4:3';
 
 -- 2. TABEL CABANG SHOWROOM (BRANCHES)
 CREATE TABLE IF NOT EXISTS public.branches (

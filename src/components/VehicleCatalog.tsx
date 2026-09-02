@@ -227,6 +227,11 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
             const matchedBranch = BRANCHES_DATA.find((b) => b.id === vehicle.branchId) || selectedBranch;
             const currentImgIndex = activeImageIndexes[vehicle.id] || 0;
             const isFav = favorites[vehicle.id];
+            const currentImg = vehicle.images[currentImgIndex] || vehicle.images[0];
+            const vFit = vehicle.imageFit || 'cover';
+            const vPosX = vehicle.imagePosX ?? 50;
+            const vPosY = vehicle.imagePosY ?? 50;
+            const vScale = (vehicle.imageScale || 100) / 100;
 
             return (
               <div
@@ -235,11 +240,22 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                 className="bg-white border border-slate-200/90 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer group hover:border-slate-400"
               >
                 {/* Image Section */}
-                <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                <div className="relative aspect-[4/3] bg-slate-950 overflow-hidden">
+                  {vFit === 'contain' && (
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center filter blur-lg opacity-40 scale-110 pointer-events-none"
+                      style={{ backgroundImage: `url(${currentImg})` }}
+                    />
+                  )}
                   <img
-                    src={vehicle.images[currentImgIndex] || vehicle.images[0]}
+                    src={currentImg}
                     alt={vehicle.name}
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                    className="w-full h-full relative z-10 transition-transform duration-300 group-hover:scale-103"
+                    style={{
+                      objectFit: vFit === 'auto' ? 'contain' : (vFit as any),
+                      objectPosition: `${vPosX}% ${vPosY}%`,
+                      transform: `scale(${vScale})`,
+                    }}
                     loading="lazy"
                   />
 

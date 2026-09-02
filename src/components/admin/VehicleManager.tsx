@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Plus, 
   Search, 
@@ -11,7 +11,12 @@ import {
   Eye, 
   Filter, 
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Target,
+  Move,
+  Sliders,
+  ZoomIn,
+  Star
 } from 'lucide-react';
 import { Vehicle, VehicleBrand, VehicleCategory, VehicleCondition, Branch } from '../../types';
 import { formatRupiah } from '../../utils/formatters';
@@ -40,31 +45,12 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [activePhotoIdx, setActivePhotoIdx] = useState<number>(0);
+
+  const previewBoxRef = useRef<HTMLDivElement>(null);
 
   // Form fields
-  const [formData, setFormData] = useState<{
-    id: string;
-    name: string;
-    brand: VehicleBrand;
-    category: VehicleCategory;
-    condition: VehicleCondition;
-    year: number;
-    price: number;
-    dpMin: number;
-    mileage: number;
-    transmission: 'Automatic' | 'Manual' | 'Kopling Manual';
-    engineCapacity: string;
-    fuelType: string;
-    color: string;
-    plateNumberLocation: string;
-    taxStatus: any;
-    documentCompleteness: any;
-    warranty: string;
-    description: string;
-    features: string[];
-    images: string[];
-    branchId: string;
-  }>({
+  const [formData, setFormData] = useState<Vehicle>({
     id: '',
     name: '',
     brand: 'Honda',
@@ -86,6 +72,13 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
     features: ['Mesin Sehat', 'Body Mulus', 'Surat Lengkap', 'Pajak Aman'],
     images: ['/images/momotor_banner_nmax_aerox.avif'],
     branchId: 'kisaran',
+    installmentEstimates: { tenor11: 0, tenor23: 0, tenor35: 0 },
+    imageFit: 'cover',
+    imagePosition: '50% 50%',
+    imagePosX: 50,
+    imagePosY: 50,
+    imageScale: 100,
+    aspectRatio: '4:3',
   });
 
   const [newImageUrl, setNewImageUrl] = useState('');
@@ -103,6 +96,7 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
   const handleOpenAddModal = () => {
     const newId = `pm-${Date.now().toString(36)}`;
     setEditingVehicle(null);
+    setActivePhotoIdx(0);
     setFormData({
       id: newId,
       name: '',
@@ -125,6 +119,13 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
       features: ['Mesin Sehat', 'Body Mulus', 'Surat Lengkap', 'Pajak Aman'],
       images: ['/images/momotor_banner_nmax_aerox.avif'],
       branchId: branches[0]?.id || 'kisaran',
+      installmentEstimates: { tenor11: 0, tenor23: 0, tenor35: 0 },
+      imageFit: 'cover',
+      imagePosition: '50% 50%',
+      imagePosX: 50,
+      imagePosY: 50,
+      imageScale: 100,
+      aspectRatio: '4:3',
     });
     setSaveError(null);
     setIsModalOpen(true);
@@ -132,6 +133,7 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
 
   const handleOpenEditModal = (vehicle: Vehicle) => {
     setEditingVehicle(vehicle);
+    setActivePhotoIdx(0);
     setFormData({
       id: vehicle.id,
       name: vehicle.name,
@@ -154,9 +156,44 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
       features: vehicle.features,
       images: [...vehicle.images],
       branchId: vehicle.branchId,
+      installmentEstimates: vehicle.installmentEstimates || { tenor11: 0, tenor23: 0, tenor35: 0 },
+      imageFit: vehicle.imageFit || 'cover',
+      imagePosition: vehicle.imagePosition || `${vehicle.imagePosX ?? 50}% ${vehicle.imagePosY ?? 50}%`,
+      imagePosX: vehicle.imagePosX !== undefined ? vehicle.imagePosX : 50,
+      imagePosY: vehicle.imagePosY !== undefined ? vehicle.imagePosY : 50,
+      imageScale: vehicle.imageScale || 100,
+      aspectRatio: vehicle.aspectRatio || '4:3',
     });
     setSaveError(null);
     setIsModalOpen(true);
+  };
+
+  const handlePositionPreset = (x: number, y: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      imagePosX: x,
+      imagePosY: y,
+      imagePosition: `${x}% ${y}%`,
+    }));
+  };
+
+  const handlePreviewClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!previewBoxRef.current) return;
+    const rect = previewBoxRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
+    const y = Math.max(0, Math.min(100, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
+    handlePositionPreset(x, y);
+  };
+
+  const handleSetCoverPhoto = (idx: number) => {
+    if (idx === 0) return;
+    const chosen = formData.images[idx];
+    const rest = formData.images.filter((_, i) => i !== idx);
+    setFormData((prev) => ({
+      ...prev,
+      images: [chosen, ...rest],
+    }));
+    setActivePhotoIdx(0);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,11 +262,17 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
       plateNumberLocation: formData.plateNumberLocation,
       taxStatus: formData.taxStatus,
       documentCompleteness: formData.documentCompleteness,
-      warranty: formData.warranty,
+    warranty: formData.warranty,
       description: formData.description.trim(),
       features: formData.features,
       images: formData.images,
       branchId: formData.branchId,
+      imageFit: formData.imageFit || 'cover',
+      imagePosition: formData.imagePosition || `${formData.imagePosX ?? 50}% ${formData.imagePosY ?? 50}%`,
+      imagePosX: formData.imagePosX ?? 50,
+      imagePosY: formData.imagePosY ?? 50,
+      imageScale: formData.imageScale ?? 100,
+      aspectRatio: formData.aspectRatio || '4:3',
       installmentEstimates: editingVehicle?.installmentEstimates || {
         tenor11: Math.round((formData.price * 0.9) / 11),
         tenor23: Math.round((formData.price * 0.9) / 23),
@@ -253,24 +296,39 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
     }
   };
 
+  // Helper 9-point grid
+  const positionPresets = [
+    { label: 'Kiri Atas', x: 0, y: 0 },
+    { label: 'Tengah Atas', x: 50, y: 0 },
+    { label: 'Kanan Atas', x: 100, y: 0 },
+    { label: 'Kiri Tengah', x: 0, y: 50 },
+    { label: 'Pas Tengah', x: 50, y: 50 },
+    { label: 'Kanan Tengah', x: 100, y: 50 },
+    { label: 'Kiri Bawah', x: 0, y: 100 },
+    { label: 'Tengah Bawah', x: 50, y: 100 },
+    { label: 'Kanan Bawah', x: 100, y: 100 },
+  ];
+
+  const activePhoto = formData.images[activePhotoIdx] || formData.images[0] || '/images/momotor_banner_nmax_aerox.avif';
+
   return (
     <div className="space-y-6">
       
-      {/* Header & Action Row */}
+      {/* Top Header Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-blue-100 shadow-2xs">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900">
-            Kelola Stok Motor
+            Kelola Stok Motor Showroom
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Total {vehicles.length} unit motor terdaftar dalam sistem
+            Tambah, edit foto, atur posisi/ukuran gambar, dan kelola unit motor di 4 cabang showroom
           </p>
         </div>
 
         <button
           type="button"
           onClick={handleOpenAddModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95 shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B63E5] hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Motor Baru</span>
@@ -278,44 +336,43 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         
         {/* Search */}
-        <div className="sm:col-span-6 relative">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari nama motor, merk, atau ID..."
-            className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-blue-500"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-none focus:border-blue-500 focus:bg-white"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
 
-        {/* Branch Filter */}
-        <div className="sm:col-span-3">
+        {/* Filters */}
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {/* Branch Filter */}
           <select
             value={selectedBranchFilter}
             onChange={(e) => setSelectedBranchFilter(e.target.value)}
-            className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-blue-500 font-medium"
+            className="px-3 py-2 bg-slate-50 border border-gray-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500"
           >
-            <option value="all">Semua Cabang Showroom</option>
+            <option value="all">Semua Cabang ({vehicles.length})</option>
             {branches.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-        </div>
 
-        {/* Condition Filter */}
-        <div className="sm:col-span-3">
+          {/* Condition Filter */}
           <select
             value={selectedConditionFilter}
             onChange={(e) => setSelectedConditionFilter(e.target.value)}
-            className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-blue-500 font-medium"
+            className="px-3 py-2 bg-slate-50 border border-gray-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500"
           >
-            <option value="all">Semua Kondisi (Baru & Bekas)</option>
-            <option value="baru">Hanya Unit Baru</option>
-            <option value="bekas">Hanya Unit Bekas</option>
+            <option value="all">Semua Kondisi</option>
+            <option value="baru">✨ Unit Baru 100%</option>
+            <option value="bekas">🛵 Unit Bekas Pilihan</option>
           </select>
         </div>
 
@@ -334,22 +391,41 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
           <div className="divide-y divide-gray-100">
             {filteredVehicles.map((vehicle) => {
               const branch = branches.find((b) => b.id === vehicle.branchId);
+              const vFit = vehicle.imageFit || 'cover';
+              const vPosX = vehicle.imagePosX ?? 50;
+              const vPosY = vehicle.imagePosY ?? 50;
+              const vScale = (vehicle.imageScale || 100) / 100;
+
               return (
                 <div key={vehicle.id} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50/70 transition">
                   
                   {/* Photo Preview & Info */}
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-20 h-16 sm:w-24 sm:h-18 rounded-xl bg-slate-100 border border-gray-200 overflow-hidden shrink-0 relative group">
+                    <div className="w-20 h-16 sm:w-24 sm:h-18 rounded-xl bg-slate-900 border border-gray-200 overflow-hidden shrink-0 relative group">
+                      {vFit === 'contain' && (
+                        <div 
+                          className="absolute inset-0 bg-cover bg-center filter blur-lg opacity-40 scale-110 pointer-events-none"
+                          style={{ backgroundImage: `url(${vehicle.images[0] || '/images/momotor_banner_nmax_aerox.avif'})` }}
+                        />
+                      )}
                       <img
                         src={vehicle.images[0] || '/images/momotor_banner_nmax_aerox.avif'}
                         alt={vehicle.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        className="w-full h-full relative z-10 transition-transform"
+                        style={{
+                          objectFit: vFit === 'auto' ? 'contain' : (vFit as any),
+                          objectPosition: `${vPosX}% ${vPosY}%`,
+                          transform: `scale(${vScale})`,
+                        }}
                       />
                       {vehicle.images.length > 1 && (
-                        <div className="absolute bottom-1 right-1 bg-slate-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                        <div className="absolute bottom-1 right-1 z-20 bg-slate-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
                           {vehicle.images.length} Foto
                         </div>
                       )}
+                      <div className="absolute top-1 left-1 z-20 bg-blue-600/90 text-white text-[8px] font-bold px-1 py-0.2 rounded uppercase">
+                        {vFit}
+                      </div>
                     </div>
 
                     <div className="min-w-0">
@@ -363,6 +439,9 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
                         </span>
                         <span className="text-xs font-semibold text-slate-400">
                           {vehicle.brand} • {vehicle.year}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                          Fokus: {vPosX}% {vPosY}%
                         </span>
                       </div>
 
@@ -385,16 +464,16 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => handleOpenEditModal(vehicle)}
-                      className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
-                      <span>Edit</span>
+                      <span>Edit &amp; Atur Foto</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleDelete(vehicle)}
-                      className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Hapus</span>
@@ -410,21 +489,26 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* MODAL: Form Tambah / Edit Motor (Full Cerah & Visual Preview)             */}
+      {/* MODAL TAMBAH / EDIT MOTOR (LENGKAP DENGAN LIVE PHOTO POSITIONING)         */}
       {/* ========================================================================= */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-blue-100 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-blue-100 overflow-hidden my-auto">
             
             {/* Modal Header */}
-            <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-blue-50/50">
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-slate-900">
-                  {editingVehicle ? 'Edit Unit Motor' : 'Tambah Unit Motor Baru'}
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Isi data motor dan ganti foto dengan preview langsung
-                </p>
+            <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-blue-50/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                  <Sliders className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900">
+                    {editingVehicle ? 'Edit Data Motor & Posisi Foto' : 'Tambah Unit Motor Baru'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Sesuaikan foto motor, mode fit, dan titik fokus agar tidak terpotong di katalog
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
@@ -436,7 +520,7 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
             </div>
 
             {/* Modal Body Form */}
-            <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1">
               
               {saveError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-2">
@@ -445,71 +529,316 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
                 </div>
               )}
 
-              {/* 1. FOTO MOTOR & LIVE PREVIEW */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+              {/* 1. FOTO MOTOR & LIVE INTERACTIVE POSITIONING */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-gray-200 space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    Foto Unit Motor ({formData.images.length} Terpilih)
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Live Preview Foto Katalog Motor</span>
+                    </label>
+                    <span className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full font-medium">
+                      🎯 Klik pada gambar untuk ubah titik fokus
+                    </span>
+                  </div>
                   <span className="text-[11px] text-blue-600 font-semibold">
-                    *Foto pertama akan jadi cover utama
+                    {formData.images.length} Foto Terunggah
                   </span>
                 </div>
 
-                {/* Thumbnails Live Grid */}
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                  {formData.images.map((img, idx) => (
-                    <div key={idx} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-white border border-gray-300 shadow-2xs group">
-                      <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 transition cursor-pointer"
-                        title="Hapus foto ini"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                      {idx === 0 && (
-                        <div className="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded">
-                          Cover
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Upload New Box */}
-                  <label className="aspect-[4/3] rounded-xl border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 hover:bg-blue-50 flex flex-col items-center justify-center cursor-pointer transition p-2 text-center">
-                    <Upload className="w-5 h-5 text-blue-600 mb-1" />
-                    <span className="text-[10px] font-bold text-blue-600">
-                      {uploadingImage ? 'Mengupload...' : 'Upload Foto'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      disabled={uploadingImage}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* Or add via URL */}
-                <div className="flex items-center gap-2 pt-2">
-                  <input
-                    type="text"
-                    value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    placeholder="Atau tempel link gambar (URL)..."
-                    className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddImageUrl}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold cursor-pointer"
+                {/* Main Interactive Card Preview */}
+                <div className="flex justify-center bg-slate-900/90 rounded-2xl p-3 border border-slate-800">
+                  <div 
+                    className="relative w-full max-w-[360px] aspect-[4/3] rounded-xl overflow-hidden shadow-xl border border-white/10 select-none bg-slate-950"
                   >
-                    Tambah URL
-                  </button>
+                    {/* Ambient backdrop for contain mode */}
+                    {formData.imageFit === 'contain' && (
+                      <div 
+                        className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-50 scale-115 pointer-events-none"
+                        style={{ backgroundImage: `url(${activePhoto})` }}
+                      />
+                    )}
+
+                    {/* Interactive Click Frame */}
+                    <div 
+                      ref={previewBoxRef}
+                      onClick={handlePreviewClick}
+                      className="absolute inset-0 cursor-crosshair group flex items-center justify-center overflow-hidden"
+                      title="Klik di mana saja untuk menggeser posisi fokus foto"
+                    >
+                      <img
+                        src={activePhoto}
+                        alt="Vehicle Preview"
+                        className="w-full h-full pointer-events-none transition-all duration-200"
+                        style={{
+                          objectFit: formData.imageFit === 'auto' ? 'contain' : (formData.imageFit as any),
+                          objectPosition: `${formData.imagePosX ?? 50}% ${formData.imagePosY ?? 50}%`,
+                          transform: `scale(${(formData.imageScale || 100) / 100})`,
+                        }}
+                      />
+
+                      {/* Visual Focal Point Pin */}
+                      <div 
+                        className="absolute w-7 h-7 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 transition-all duration-150 flex items-center justify-center"
+                        style={{
+                          left: `${formData.imagePosX ?? 50}%`,
+                          top: `${formData.imagePosY ?? 50}%`,
+                        }}
+                      >
+                        <div className="w-6 h-6 rounded-full border-2 border-amber-400 bg-amber-400/30 flex items-center justify-center shadow-md animate-pulse">
+                          <Target className="w-3.5 h-3.5 text-amber-300" />
+                        </div>
+                      </div>
+
+                      {/* Simulated Badge */}
+                      <div className="absolute top-2 left-2 z-20 pointer-events-none">
+                        <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-slate-900/90 text-slate-200 backdrop-blur-xs shadow-xs">
+                          {formData.condition === 'baru' ? 'Baru 100%' : 'Bekas Pilihan'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Fit Mode Selector */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Mode Penyesuaian Foto (Fit Mode)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, imageFit: 'contain' })}
+                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        formData.imageFit === 'contain'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold ring-2 ring-blue-500/20'
+                          : 'border-gray-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <span>Contain (Utuh 100%)</span>
+                        {formData.imageFit === 'contain' && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-normal mt-0.5">
+                        Motor tampil utuh (ban, spion &amp; body bebas terpotong).
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, imageFit: 'cover' })}
+                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        formData.imageFit === 'cover'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold ring-2 ring-blue-500/20'
+                          : 'border-gray-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <span>Cover (Penuh Box)</span>
+                        {formData.imageFit === 'cover' && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-normal mt-0.5">
+                        Mengisi penuh frame kartu katalog motor.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, imageFit: 'auto' })}
+                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        formData.imageFit === 'auto'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold ring-2 ring-blue-500/20'
+                          : 'border-gray-200 bg-white hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <span>Auto (Rasio Asli)</span>
+                        {formData.imageFit === 'auto' && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-normal mt-0.5">
+                        Mengikuti aspek rasio asli gambar berkas.
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 9-Point Grid & Sliders */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+                  
+                  {/* 9-Point Grid */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Titik Fokus Cepat (9 Titik)
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5 max-w-[240px]">
+                      {positionPresets.map((preset) => {
+                        const isSelected = 
+                          (formData.imagePosX ?? 50) === preset.x && 
+                          (formData.imagePosY ?? 50) === preset.y;
+
+                        return (
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => handlePositionPreset(preset.x, preset.y)}
+                            className={`py-1.5 px-1 rounded-lg border text-center text-[11px] font-bold transition cursor-pointer ${
+                              isSelected
+                                ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
+                                : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            {preset.label.replace('Pas ', '')}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Sliders */}
+                  <div className="space-y-2.5">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Presisi Posisi &amp; Skala Zoom
+                    </label>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-600">
+                        <span>Posisi Horizontal (X)</span>
+                        <span className="font-mono text-blue-600">{formData.imagePosX ?? 50}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.imagePosX ?? 50}
+                        onChange={(e) => handlePositionPreset(Number(e.target.value), formData.imagePosY ?? 50)}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-600">
+                        <span>Posisi Vertikal (Y)</span>
+                        <span className="font-mono text-blue-600">{formData.imagePosY ?? 50}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.imagePosY ?? 50}
+                        onChange={(e) => handlePositionPreset(formData.imagePosX ?? 50, Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-600">
+                        <span>Skala / Zoom Gambar</span>
+                        <span className="font-mono text-blue-600">{formData.imageScale ?? 100}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="80"
+                        max="150"
+                        value={formData.imageScale ?? 100}
+                        onChange={(e) => setFormData({ ...formData, imageScale: Number(e.target.value) })}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                      />
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {/* Thumbnails Gallery Management */}
+                <div className="pt-2 border-t border-slate-200 space-y-2">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Daftar Foto Unit ({formData.images.length} Foto)
+                  </label>
+                  
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    {formData.images.map((img, idx) => {
+                      const isActive = activePhotoIdx === idx;
+                      return (
+                        <div 
+                          key={idx} 
+                          onClick={() => setActivePhotoIdx(idx)}
+                          className={`relative aspect-[4/3] rounded-xl overflow-hidden bg-white border cursor-pointer transition shadow-2xs group ${
+                            isActive ? 'border-blue-600 ring-2 ring-blue-500/30' : 'border-gray-200 hover:border-slate-400'
+                          }`}
+                        >
+                          <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                          
+                          {/* Delete */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImage(idx);
+                            }}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 transition cursor-pointer"
+                            title="Hapus foto ini"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+
+                          {/* Set as cover */}
+                          {idx !== 0 ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSetCoverPhoto(idx);
+                              }}
+                              className="absolute bottom-1 left-1 bg-slate-900/80 hover:bg-blue-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded transition flex items-center gap-0.5 cursor-pointer"
+                              title="Jadikan foto utama (cover)"
+                            >
+                              <Star className="w-2.5 h-2.5 text-amber-400" />
+                              <span>Cover</span>
+                            </button>
+                          ) : (
+                            <div className="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded">
+                              Utama
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Upload Box */}
+                    <label className="aspect-[4/3] rounded-xl border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 hover:bg-blue-50 flex flex-col items-center justify-center cursor-pointer transition p-2 text-center">
+                      <Upload className="w-4 h-4 text-blue-600 mb-1" />
+                      <span className="text-[10px] font-bold text-blue-600">
+                        {uploadingImage ? '...' : 'Upload'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        disabled={uploadingImage}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Or add via URL */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="text"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      placeholder="Atau tempel link gambar (URL)..."
+                      className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddImageUrl}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Tambah URL
+                    </button>
+                  </div>
+                </div>
+
               </div>
 
               {/* 2. INFORMASI UTAMA */}

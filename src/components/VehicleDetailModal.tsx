@@ -89,16 +89,37 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
             
             {/* Gallery */}
             <div className="md:col-span-7 space-y-3">
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-slate-100 border border-gray-200">
-                <img
-                  src={vehicle.images[activeImageIdx]}
-                  alt={vehicle.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-slate-800 shadow-xs border border-gray-200">
-                  {vehicle.condition === 'baru' ? '✨ Unit Baru 100% OTR' : '🔍 Bekas Mulus'}
-                </div>
-              </div>
+              {(() => {
+                const activeImg = vehicle.images[activeImageIdx] || vehicle.images[0];
+                const vFit = vehicle.imageFit || 'cover';
+                const vPosX = vehicle.imagePosX ?? 50;
+                const vPosY = vehicle.imagePosY ?? 50;
+                const vScale = (vehicle.imageScale || 100) / 100;
+
+                return (
+                  <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-slate-950 border border-gray-200">
+                    {vFit === 'contain' && (
+                      <div 
+                        className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-50 scale-115 pointer-events-none"
+                        style={{ backgroundImage: `url(${activeImg})` }}
+                      />
+                    )}
+                    <img
+                      src={activeImg}
+                      alt={vehicle.name}
+                      className="w-full h-full relative z-10"
+                      style={{
+                        objectFit: vFit === 'auto' ? 'contain' : (vFit as any),
+                        objectPosition: `${vPosX}% ${vPosY}%`,
+                        transform: `scale(${vScale})`,
+                      }}
+                    />
+                    <div className="absolute top-3 left-3 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-slate-800 shadow-xs border border-gray-200">
+                      {vehicle.condition === 'baru' ? '✨ Unit Baru 100% OTR' : '🔍 Bekas Mulus'}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Thumbnails */}
               {vehicle.images.length > 1 && (

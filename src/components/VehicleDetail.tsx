@@ -93,47 +93,67 @@ export const VehicleDetail: React.FC<VehicleDetailProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
             {/* Main Featured Photo */}
-            <div className="lg:col-span-9 relative aspect-[16/10] sm:aspect-[16/9] bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden group">
-              <img
-                src={vehicle.images[activeImageIndex] || vehicle.images[0]}
-                alt={vehicle.name}
-                className="w-full h-full object-cover transition-transform duration-500"
-              />
+            {(() => {
+              const activeImg = vehicle.images[activeImageIndex] || vehicle.images[0];
+              const vFit = vehicle.imageFit || 'cover';
+              const vPosX = vehicle.imagePosX ?? 50;
+              const vPosY = vehicle.imagePosY ?? 50;
+              const vScale = (vehicle.imageScale || 100) / 100;
 
-              {/* Prev / Next Arrows */}
-              {vehicle.images.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setActiveImageIndex((prev) => (prev - 1 + vehicle.images.length) % vehicle.images.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveImageIndex((prev) => (prev + 1) % vehicle.images.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </>
-              )}
+              return (
+                <div className="lg:col-span-9 relative aspect-[16/10] sm:aspect-[16/9] bg-slate-950 rounded-xl sm:rounded-2xl overflow-hidden group">
+                  {vFit === 'contain' && (
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-50 scale-115 pointer-events-none"
+                      style={{ backgroundImage: `url(${activeImg})` }}
+                    />
+                  )}
+                  <img
+                    src={activeImg}
+                    alt={vehicle.name}
+                    className="w-full h-full relative z-10 transition-transform duration-500"
+                    style={{
+                      objectFit: vFit === 'auto' ? 'contain' : (vFit as any),
+                      objectPosition: `${vPosX}% ${vPosY}%`,
+                      transform: `scale(${vScale})`,
+                    }}
+                  />
 
-              {/* Badge Condition Overlay */}
-              <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider shadow-sm text-white ${
-                  vehicle.condition === 'baru' ? 'bg-[#0B63E5]' : 'bg-slate-900/90 backdrop-blur-md'
-                }`}>
-                  {vehicle.condition === 'baru' ? 'Tersedia Unit Baru 100%' : 'Tersedia Unit Bekas Mulus'}
-                </span>
-              </div>
+                  {/* Prev / Next Arrows */}
+                  {vehicle.images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setActiveImageIndex((prev) => (prev - 1 + vehicle.images.length) % vehicle.images.length)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveImageIndex((prev) => (prev + 1) % vehicle.images.length)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                  {/* Badge Condition Overlay */}
+                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
+                    <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider shadow-sm text-white ${
+                      vehicle.condition === 'baru' ? 'bg-[#0B63E5]' : 'bg-slate-900/90 backdrop-blur-md'
+                    }`}>
+                      {vehicle.condition === 'baru' ? 'Tersedia Unit Baru 100%' : 'Tersedia Unit Bekas Mulus'}
+                    </span>
+                  </div>
 
-              {/* Image Counter */}
-              <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg">
-                {activeImageIndex + 1} / {vehicle.images.length} Foto
-              </div>
-            </div>
+                  {/* Image Counter */}
+                  <div className="absolute bottom-3 right-3 z-20 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-lg">
+                    {activeImageIndex + 1} / {vehicle.images.length} Foto
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Thumbnail Column */}
             <div className="lg:col-span-3 flex lg:flex-col gap-2.5 overflow-x-auto no-scrollbar">

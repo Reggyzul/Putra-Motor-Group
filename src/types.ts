@@ -59,6 +59,12 @@ export interface Vehicle {
   isFeatured?: boolean;
   isHotPromo?: boolean;
   discountPrice?: number;
+  imageFit?: 'cover' | 'contain' | 'auto' | 'fill';
+  imagePosition?: string;
+  imagePosX?: number;
+  imagePosY?: number;
+  imageScale?: number;
+  aspectRatio?: '4:3' | '16:9' | '1:1' | 'auto' | 'custom';
 }
 
 export interface LoanApplicationData {
