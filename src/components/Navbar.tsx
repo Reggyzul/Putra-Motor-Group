@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {siteSettings?.header_promo_text && (
         <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-slate-950 text-white text-[10px] sm:text-xs py-1.5 px-3 text-center font-bold flex items-center justify-center gap-2 border-b border-amber-400/20 shadow-xs">
           <span className="text-amber-400">⚡</span>
-          <span>{siteSettings.header_promo_text}</span>
+          <span>{siteSettings.header_promo_text.replace(/\s*[-•|]?\s*(since|est\.?|sejak)\s*2021/gi, '')}</span>
         </div>
       )}
 
@@ -102,12 +102,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Nama Logo Sejajar dalam 1 Baris (Warna Merah Resmi) */}
               <div className="flex items-center text-sm sm:text-lg md:text-xl font-black tracking-tight leading-tight whitespace-nowrap">
                 <span className="text-[#DC2626] font-['Outfit',sans-serif]">
-                  {siteSettings?.brand_name || 'Pandu Motor Group'}
+                  {(siteSettings?.brand_name || 'Pandu Motor Group').replace(/\s*[-•|]?\s*(since|est\.?|sejak)\s*2021/gi, '')}
                 </span>
               </div>
               {/* Tagline */}
               <div className="text-[9px] sm:text-[11px] md:text-xs font-semibold text-slate-500 tracking-tight mt-0.5 leading-none">
-                {siteSettings?.tagline || 'Melayani Sepenuh Hati'}
+                {(siteSettings?.tagline || 'Melayani Sepenuh Hati').replace(/\s*[-•|]?\s*(since|est\.?|sejak)\s*2021/gi, '')}
               </div>
             </div>
           </div>

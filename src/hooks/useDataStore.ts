@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase, pingSupabaseKeepAlive, globalSyncChannel, broadcastRemoteSync } from '../lib/supabase';
 import { Vehicle, Branch, HeroBanner, SiteSettings, Announcement } from '../types';
 import { VEHICLES_DATA } from '../data/vehicles';
-import { BRANCHES_DATA, BRANCH_MAPS_URLS } from '../data/branches';
+import { BRANCHES_DATA, BRANCH_MAPS_URLS, DEFAULT_SALES_POSTS } from '../data/branches';
 
 export const DEFAULT_BANNERS: HeroBanner[] = [
   {
@@ -118,7 +118,7 @@ const LS_BRANCHES_KEY = 'pmg_cache_branches';
 const LS_BANNERS_KEY = 'pmg_cache_banners';
 const LS_SETTINGS_KEY = 'pmg_cache_settings';
 const LS_ANNOUNCEMENTS_KEY = 'pmg_cache_announcements';
-const CACHE_VERSION = 'pmg_v6_admin_jual_and_socials';
+const CACHE_VERSION = 'pmg_v7_pos_penjualan_sync';
 
 // Instant local broadcast helper across all tabs on current device
 function triggerLocalBroadcast() {
@@ -280,6 +280,11 @@ export function useDataStore() {
             image: b.image,
             logo: b.logo,
             socialMedia: b.social_media || {},
+            salesPosts: Array.isArray(b.sales_posts) && b.sales_posts.length > 0
+              ? b.sales_posts
+              : (Array.isArray(b.social_media?.salesPosts) && b.social_media.salesPosts.length > 0
+                ? b.social_media.salesPosts
+                : (DEFAULT_SALES_POSTS[b.id] || [])),
           }));
           setBranches(formatted);
           localStorage.setItem(LS_BRANCHES_KEY, JSON.stringify(formatted));
@@ -575,6 +580,11 @@ export function useDataStore() {
   // MUTATION: Save Branch
   const saveBranch = async (branch: Branch): Promise<{ success: boolean; error?: string }> => {
     try {
+      const socialMediaWithSalesPosts = {
+        ...(branch.socialMedia || {}),
+        salesPosts: branch.salesPosts || DEFAULT_SALES_POSTS[branch.id] || [],
+      };
+
       const dbPayload = {
         id: branch.id,
         name: branch.name,
@@ -590,7 +600,7 @@ export function useDataStore() {
         operational_hours: branch.operationalHours,
         image: branch.image,
         logo: branch.logo,
-        social_media: branch.socialMedia,
+        social_media: socialMediaWithSalesPosts,
         updated_at: new Date().toISOString(),
       };
 

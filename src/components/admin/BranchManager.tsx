@@ -167,6 +167,23 @@ export const BranchManager: React.FC<BranchManagerProps> = ({
                   </div>
                 </div>
 
+                {/* Pos Penjualan Display in Admin Card */}
+                {branch.salesPosts && branch.salesPosts.length > 0 && (
+                  <div className="pt-2 border-t border-gray-100">
+                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block mb-1.5">
+                      Pos Penjualan Resmi ({branch.salesPosts.length} Titik):
+                    </span>
+                    <div className="space-y-1">
+                      {branch.salesPosts.map((pos, pIdx) => (
+                        <div key={pIdx} className="flex items-center justify-between text-[11px] bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                          <span className="font-bold text-slate-800 truncate">{pos.name}</span>
+                          <span className="text-slate-500 text-[10px] font-semibold shrink-0 ml-2">WA: {pos.phone}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
 

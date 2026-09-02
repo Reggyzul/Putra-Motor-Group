@@ -1,3 +1,10 @@
+export interface SalesPost {
+  name: string;
+  phone: string;
+  whatsapp: string;
+  googleMapsUrl: string;
+}
+
 export interface Branch {
   id: string;
   name: string;
@@ -17,11 +24,12 @@ export interface Branch {
     instagramUrl?: string;
     tiktok?: string;
     tiktokUrl?: string;
-    [key: string]: string | undefined;
+    [key: string]: any;
   };
   operationalHours: string;
   image: string;
   logo?: string;
+  salesPosts?: SalesPost[];
 }
 
 export type VehicleCondition = 'baru' | 'bekas';

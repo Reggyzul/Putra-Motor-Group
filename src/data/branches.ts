@@ -1,10 +1,87 @@
-import { Branch } from '../types';
+import { Branch, SalesPost } from '../types';
 
 export const BRANCH_MAPS_URLS: Record<string, string> = {
   kisaran: 'https://maps.app.goo.gl/JWgjwnCJrjnXKyot6',
   perdagangan: 'https://maps.app.goo.gl/mC3Sp6pWzSwYnMrP7?g_st=aw',
   cikampak: 'https://maps.app.goo.gl/nzHjDtWnQitAaAKf6?g_st=aw',
   dumai: 'https://maps.app.goo.gl/G16opnzCUJ98irnq9?g_st=aw',
+};
+
+export const DEFAULT_SALES_POSTS: Record<string, SalesPost[]> = {
+  kisaran: [
+    {
+      name: 'PANDU MOTOR AEK KANOPAN',
+      phone: '0812-7503-8495',
+      whatsapp: '0812-7503-8495',
+      googleMapsUrl: 'https://share.google/laoCr3R2LxY7fmP4u',
+    },
+    {
+      name: 'PANDU MOTOR PETATAL',
+      phone: '0853-7367-7299',
+      whatsapp: '0853-7367-7299',
+      googleMapsUrl: 'https://maps.app.goo.gl/CENKjrJEKA6i7BYk6?g_st=aw',
+    },
+    {
+      name: 'PANDU MOTOR AIR BATU',
+      phone: '0852-7664-7895',
+      whatsapp: '0852-7664-7895',
+      googleMapsUrl: 'https://maps.app.goo.gl/AUDQsX2qBwoCb5F1A?g_st=aw',
+    },
+  ],
+  perdagangan: [
+    {
+      name: 'PANDU MOTOR SERBELAWAN',
+      phone: '0822-7255-6655',
+      whatsapp: '0822-7255-6655',
+      googleMapsUrl: 'https://maps.google.com/maps/search/Pandu%20Motor%20Serbelawan/@3.12002918,99.14407334,17z?hl=id',
+    },
+    {
+      name: 'PANDU MOTOR SIMPANG KOPI',
+      phone: '0822-7447-4269',
+      whatsapp: '0822-7447-4269',
+      googleMapsUrl: 'https://maps.google.com/maps?q=3.3019129%2C99.3344276&z=17&hl=id',
+    },
+    {
+      name: 'PANDU MOTOR MANDOGE',
+      phone: '0852-7445-2439',
+      whatsapp: '0852-7445-2439',
+      googleMapsUrl: 'https://maps.google.com/maps?q=2.7708505%2C99.3400837&z=17&hl=id',
+    },
+    {
+      name: 'PANDU MOTOR TANAH JAWA',
+      phone: '0813-9641-7369',
+      whatsapp: '0813-9641-7369',
+      googleMapsUrl: 'https://maps.google.com/maps?q=2.8862593%2C99.1639182&z=17&hl=id',
+    },
+  ],
+  cikampak: [
+    {
+      name: 'IKABINA MOTOR MAHATO',
+      phone: '0812-6665-5050',
+      whatsapp: '0812-6665-5050',
+      googleMapsUrl: 'https://share.google/R9tWjMH5Yk10mREwW',
+    },
+    {
+      name: 'IKABINA MOTOR AEK NABARA',
+      phone: '0812-7084-8668',
+      whatsapp: '0812-7084-8668',
+      googleMapsUrl: 'https://maps.app.goo.gl/XbCn9TnQ8ZrbVWJg9',
+    },
+    {
+      name: 'IKABINA MOTOR TELUK PANJI',
+      phone: '0812-6511-6556',
+      whatsapp: '0812-6511-6556',
+      googleMapsUrl: 'https://share.google/uQRqT9QlI0NCFhYkJ',
+    },
+  ],
+  dumai: [
+    {
+      name: 'SUKMA LUBUK GAUNG',
+      phone: '0823-7441-4522',
+      whatsapp: '0823-7441-4522',
+      googleMapsUrl: 'https://maps.google.com/maps?q=1.7478348%2C101.3649219&z=17&hl=id',
+    },
+  ],
 };
 
 export interface BranchSocialItem {
@@ -99,6 +176,7 @@ export const BRANCHES_DATA: Branch[] = [
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
     image: '/images/pandu motor kisaran.avif',
     logo: '/images/logo_pandumotor.avif',
+    salesPosts: DEFAULT_SALES_POSTS.kisaran,
   },
   {
     id: 'perdagangan',
@@ -120,6 +198,7 @@ export const BRANCHES_DATA: Branch[] = [
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
     image: '/images/pandu motor 2.avif',
     logo: '/images/logo_pandumotor.avif',
+    salesPosts: DEFAULT_SALES_POSTS.perdagangan,
   },
   {
     id: 'cikampak',
@@ -139,6 +218,7 @@ export const BRANCHES_DATA: Branch[] = [
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
     image: '/images/ikabina.avif',
     logo: '/images/logo_ikabina.avif',
+    salesPosts: DEFAULT_SALES_POSTS.cikampak,
   },
   {
     id: 'dumai',
@@ -160,6 +240,7 @@ export const BRANCHES_DATA: Branch[] = [
     operationalHours: 'Setiap Hari: 08.00 - 17.00 WIB (Kecuali Hari Libur Besar)',
     image: '/images/motoran daya bukit.avif',
     logo: '/images/logo_motoriandaya.avif',
+    salesPosts: DEFAULT_SALES_POSTS.dumai,
   },
 ];
 
