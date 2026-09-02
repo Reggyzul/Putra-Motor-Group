@@ -259,17 +259,6 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                     loading="lazy"
                   />
 
-                  {/* Badge Kondisi (Top Left - Refined Minimalist) */}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1">
-                    <span className={`px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-xs ${
-                      vehicle.condition === 'baru'
-                        ? 'bg-slate-900 text-amber-400 border border-slate-800'
-                        : 'bg-slate-900/90 text-slate-200 backdrop-blur-xs'
-                    }`}>
-                      {vehicle.condition === 'baru' ? 'Baru 100%' : 'Bekas Pilihan'}
-                    </span>
-                  </div>
-
                   {/* Left & Right Mini Arrow Controls */}
                   {vehicle.images.length > 1 && (
                     <>

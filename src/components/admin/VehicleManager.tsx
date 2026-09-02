@@ -589,13 +589,6 @@ export const VehicleManager: React.FC<VehicleManagerProps> = ({
                           <Target className="w-3.5 h-3.5 text-amber-300" />
                         </div>
                       </div>
-
-                      {/* Simulated Badge */}
-                      <div className="absolute top-2 left-2 z-20 pointer-events-none">
-                        <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-slate-900/90 text-slate-200 backdrop-blur-xs shadow-xs">
-                          {formData.condition === 'baru' ? 'Baru 100%' : 'Bekas Pilihan'}
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>
