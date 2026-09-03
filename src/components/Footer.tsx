@@ -280,8 +280,34 @@ export const Footer: React.FC<FooterProps> = ({
 
         </div>
 
+        {/* SEO Keyword & Regional Index Links for Google Rank 1 */}
+        <div className="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-400 space-y-2">
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-slate-500">
+            <span className="font-bold text-slate-400">Pencarian Populer:</span>
+            <button type="button" onClick={() => onNavigate('katalog')} className="hover:text-amber-400 transition cursor-pointer">Jual Beli Motor Sumut</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('katalog')} className="hover:text-amber-400 transition cursor-pointer">Motor Bekas Berkualitas</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('dana-tunai')} className="hover:text-amber-400 transition cursor-pointer">Dana Tunai BPKB Motor</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('dana-tunai')} className="hover:text-amber-400 transition cursor-pointer">Gadai BPKB Cepat Cair</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('tukar-tambah')} className="hover:text-amber-400 transition cursor-pointer">Tukar Tambah Motor Bekas</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('jual-motor')} className="hover:text-amber-400 transition cursor-pointer">Jual Motor Harga Tinggi</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('cabang')} className="hover:text-amber-400 transition cursor-pointer">Showroom Motor Kisaran Asahan</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('cabang')} className="hover:text-amber-400 transition cursor-pointer">Motor Bekas Perdagangan Simalungun</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('cabang')} className="hover:text-amber-400 transition cursor-pointer">Showroom Cikampak Labusel</button>
+            <span>•</span>
+            <button type="button" onClick={() => onNavigate('cabang')} className="hover:text-amber-400 transition cursor-pointer">Showroom Dumai Riau</button>
+          </div>
+        </div>
+
         {/* Bottom Legal & Copyright (Dipadatkan) */}
-        <div className="mt-5 pt-3.5 border-t border-slate-800 text-center text-[10px] sm:text-[11px] text-slate-500">
+        <div className="mt-3 pt-3 border-t border-slate-800/80 text-center text-[10px] sm:text-[11px] text-slate-500">
           {footerCopyright}
         </div>
 

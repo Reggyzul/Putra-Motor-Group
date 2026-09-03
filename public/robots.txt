@@ -1,0 +1,17 @@
+# Robots.txt for Pandu Motor Group (https://pandumotorgroup.com/)
+User-agent: *
+Allow: /
+Disallow: /#admin
+
+# Search engine crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Direct link to XML Sitemap
+Sitemap: https://pandumotorgroup.com/sitemap.xml

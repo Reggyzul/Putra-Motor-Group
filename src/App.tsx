@@ -12,10 +12,12 @@ import { SellMotorSection } from './components/SellMotorSection';
 import { BranchShowcase } from './components/BranchShowcase';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
+import { SeoContentSection } from './components/SeoContentSection';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { useDataStore } from './hooks/useDataStore';
 import { supabase } from './lib/supabase';
+import { updatePageSeo } from './utils/seo';
 import { ArrowLeft, Home, ChevronRight, BadgeDollarSign, ArrowLeftRight, Building2, Bike, Sparkles } from 'lucide-react';
 
 export type PageView = 'home' | 'dana-tunai' | 'tukar-tambah' | 'jual-motor' | 'cabang' | 'katalog' | 'detail' | 'admin';
@@ -93,10 +95,20 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Scroll to top whenever page changes
+  // Scroll to top and synchronize dynamic SEO metadata whenever page changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage]);
+
+    if (currentPage === 'detail' && selectedVehicle) {
+      updatePageSeo('detail', {
+        title: `${selectedVehicle.name} ${selectedVehicle.year} - Jual Beli Motor Berkualitas | Pandu Motor Group`,
+        description: `Beli sepeda motor ${selectedVehicle.name} tahun ${selectedVehicle.year} kondisi ${selectedVehicle.condition} istimewa. Garansi mesin resmi dealer, BPKB/STNK lengkap, kredit cicilan ringan di Pandu Motor Group.`,
+        canonical: `https://pandumotorgroup.com/#detail`,
+      });
+    } else {
+      updatePageSeo(currentPage);
+    }
+  }, [currentPage, selectedVehicle]);
 
   const handleSelectVehicle = (vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
@@ -263,6 +275,12 @@ export default function App() {
               isLandingPage={true}
               vehicles={vehicles}
               branches={branches}
+            />
+
+            {/* 3. Pusat Edukasi SEO & FAQ Layanan (Jual Beli Motor, Dana Tunai BPKB, Tukar Tambah Sumut) */}
+            <SeoContentSection
+              onNavigate={handleNavigate}
+              selectedBranch={selectedBranch}
             />
           </div>
         )}
