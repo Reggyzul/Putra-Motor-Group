@@ -248,6 +248,9 @@ export default function App() {
               selectedBranch={selectedBranch}
               onNavigate={handleNavigate}
               banners={banners}
+              branches={branches}
+              onSelectBranch={setSelectedBranch}
+              siteSettings={siteSettings}
             />
 
             {/* 2. Katalog Motor Dinamis */}
