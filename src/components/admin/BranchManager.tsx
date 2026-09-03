@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Edit3, MapPin, Phone, MessageSquare, Clock, Upload, X, Check, Building2 } from 'lucide-react';
-import { Branch } from '../../types';
+import { Edit3, MapPin, Phone, MessageSquare, Clock, Upload, X, Check, Building2, Plus, Trash2, Navigation, Store } from 'lucide-react';
+import { Branch, SalesPost } from '../../types';
 import { uploadImageFile } from '../../lib/supabase';
 
 interface BranchManagerProps {
@@ -54,7 +54,36 @@ export const BranchManager: React.FC<BranchManagerProps> = ({
         tiktok: branch.socialMedia?.tiktok || '',
         tiktokUrl: branch.socialMedia?.tiktokUrl || '',
       },
+      salesPosts: (branch.salesPosts || []).map(p => ({ ...p })),
     });
+  };
+
+  // --- Sales Post Helpers ---
+  const handleAddSalesPost = () => {
+    const current = formData.salesPosts || [];
+    setFormData({
+      ...formData,
+      salesPosts: [
+        ...current,
+        { name: '', phone: '', whatsapp: '', googleMapsUrl: '' },
+      ],
+    });
+  };
+
+  const handleRemoveSalesPost = (index: number) => {
+    const current = [...(formData.salesPosts || [])];
+    current.splice(index, 1);
+    setFormData({ ...formData, salesPosts: current });
+  };
+
+  const handleUpdateSalesPost = (index: number, field: keyof SalesPost, value: string) => {
+    const current = [...(formData.salesPosts || [])];
+    current[index] = { ...current[index], [field]: value };
+    // Keep phone synced with whatsapp for display
+    if (field === 'whatsapp') {
+      current[index].phone = value;
+    }
+    setFormData({ ...formData, salesPosts: current });
   };
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -463,6 +492,140 @@ export const BranchManager: React.FC<BranchManagerProps> = ({
                   </div>
 
                 </div>
+              </div>
+
+              {/* ============================================================= */}
+              {/* POS PENJUALAN / SALES POSTS EDITOR                             */}
+              {/* ============================================================= */}
+              <div className="pt-3 border-t border-gray-200 space-y-3 bg-amber-50/60 p-4 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <Store className="w-3.5 h-3.5 text-amber-600" />
+                      Pos Penjualan Resmi Cabang
+                    </h4>
+                    <p className="text-[10px] text-slate-500 mt-0.5">
+                      Kelola titik pos penjualan, nomor WA, dan link Google Maps masing-masing.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddSalesPost}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-[11px] shadow-xs cursor-pointer transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Tambah Pos</span>
+                  </button>
+                </div>
+
+                {(!formData.salesPosts || formData.salesPosts.length === 0) && (
+                  <div className="text-center py-6 text-slate-400 text-xs">
+                    Belum ada pos penjualan. Klik "Tambah Pos" untuk menambahkan titik penjualan baru.
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {(formData.salesPosts || []).map((post, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 bg-white rounded-xl border border-amber-200 space-y-2.5 relative group"
+                    >
+                      {/* Header: Index + Delete */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 text-[11px] font-black flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          <span className="text-xs font-bold text-slate-700">
+                            {post.name || `Pos Penjualan #${idx + 1}`}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSalesPost(idx)}
+                          className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer opacity-60 group-hover:opacity-100"
+                          title="Hapus pos penjualan ini"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Fields */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {/* Nama Pos */}
+                        <div className="sm:col-span-2">
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">
+                            Nama Pos Penjualan
+                          </label>
+                          <input
+                            type="text"
+                            value={post.name}
+                            onChange={(e) => handleUpdateSalesPost(idx, 'name', e.target.value)}
+                            placeholder="Contoh: PANDU MOTOR AEK KANOPAN"
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-bold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20"
+                          />
+                        </div>
+
+                        {/* No WhatsApp */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5 flex items-center gap-1">
+                            <MessageSquare className="w-2.5 h-2.5 text-emerald-500" />
+                            Nomor WhatsApp
+                          </label>
+                          <input
+                            type="text"
+                            value={post.whatsapp}
+                            onChange={(e) => handleUpdateSalesPost(idx, 'whatsapp', e.target.value)}
+                            placeholder="Contoh: 0812-7503-8495"
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-semibold text-emerald-700 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
+                          />
+                        </div>
+
+                        {/* No Telepon (opsional, auto-sync dari WA) */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5 flex items-center gap-1">
+                            <Phone className="w-2.5 h-2.5 text-blue-500" />
+                            Telepon Tampil
+                          </label>
+                          <input
+                            type="text"
+                            value={post.phone}
+                            onChange={(e) => handleUpdateSalesPost(idx, 'phone', e.target.value)}
+                            placeholder="Contoh: 0812-7503-8495"
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-semibold text-blue-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
+                          />
+                        </div>
+
+                        {/* Google Maps URL */}
+                        <div className="sm:col-span-2">
+                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5 flex items-center gap-1">
+                            <Navigation className="w-2.5 h-2.5 text-red-500" />
+                            Link Google Maps
+                          </label>
+                          <input
+                            type="text"
+                            value={post.googleMapsUrl}
+                            onChange={(e) => handleUpdateSalesPost(idx, 'googleMapsUrl', e.target.value)}
+                            placeholder="https://maps.app.goo.gl/... atau https://maps.google.com/..."
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-gray-300 rounded-lg text-xs font-mono text-blue-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick Add Another Button at Bottom */}
+                {formData.salesPosts && formData.salesPosts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleAddSalesPost}
+                    className="w-full py-2 border-2 border-dashed border-amber-300 hover:border-amber-400 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Tambah Pos Penjualan Baru
+                  </button>
+                )}
               </div>
 
               {/* Actions */}
