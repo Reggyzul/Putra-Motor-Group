@@ -12,7 +12,6 @@ import { SellMotorSection } from './components/SellMotorSection';
 import { BranchShowcase } from './components/BranchShowcase';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
-import { SeoContentSection } from './components/SeoContentSection';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { useDataStore } from './hooks/useDataStore';
@@ -275,12 +274,6 @@ export default function App() {
               isLandingPage={true}
               vehicles={vehicles}
               branches={branches}
-            />
-
-            {/* 3. Pusat Edukasi SEO & FAQ Layanan (Jual Beli Motor, Dana Tunai BPKB, Tukar Tambah Sumut) */}
-            <SeoContentSection
-              onNavigate={handleNavigate}
-              selectedBranch={selectedBranch}
             />
           </div>
         )}

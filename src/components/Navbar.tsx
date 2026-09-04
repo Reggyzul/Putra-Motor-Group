@@ -5,7 +5,7 @@ import {
   X 
 } from 'lucide-react';
 import { VEHICLES_DATA } from '../data/vehicles';
-import { Branch, Vehicle } from '../types';
+import { Branch, Vehicle, SiteSettings } from '../types';
 import { formatRupiah } from '../utils/formatters';
 
 interface NavbarProps {
