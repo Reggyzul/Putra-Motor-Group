@@ -311,11 +311,24 @@ ON CONFLICT (id) DO UPDATE SET
 -- 6. AKTIFKAN SUPABASE REALTIME REPLICATION UNTUK SEMUA TABEL
 -- Memastikan perubahan data langsung terdorong secara instan ke semua browser / device / IP manapun
 -- ============================================================================
-ALTER PUBLICATION supabase_realtime ADD TABLE public.vehicles;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.branches;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.hero_banners;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.site_settings;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'vehicles') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.vehicles;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'branches') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.branches;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'hero_banners') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.hero_banners;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'site_settings') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.site_settings;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'announcements') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
+  END IF;
+END $$;
 
 -- Set Replica Identity DEFAULT (cukup kirim primary key, hemat kuota realtime egress)
 ALTER TABLE public.vehicles REPLICA IDENTITY DEFAULT;
