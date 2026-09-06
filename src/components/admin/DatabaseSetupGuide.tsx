@@ -241,12 +241,85 @@ ALTER TABLE public.branches REPLICA IDENTITY FULL;
 ALTER TABLE public.hero_banners REPLICA IDENTITY FULL;
 ALTER TABLE public.site_settings REPLICA IDENTITY FULL;
 ALTER TABLE public.announcements REPLICA IDENTITY FULL;
+
+-- 7. STORAGE POLICIES (BUCKET: pandu-motor-images)
+-- Mengatasi error: "new row violates row-level security policy"
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('pandu-motor-images', 'pandu-motor-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Allow public uploads pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public uploads pandu-motor-images"
+ON storage.objects FOR INSERT
+TO public
+WITH CHECK (bucket_id = 'pandu-motor-images');
+
+DROP POLICY IF EXISTS "Allow public read pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public read pandu-motor-images"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'pandu-motor-images');
+
+DROP POLICY IF EXISTS "Allow public updates pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public updates pandu-motor-images"
+ON storage.objects FOR UPDATE
+TO public
+USING (bucket_id = 'pandu-motor-images')
+WITH CHECK (bucket_id = 'pandu-motor-images');
+
+DROP POLICY IF EXISTS "Allow public deletes pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public deletes pandu-motor-images"
+ON storage.objects FOR DELETE
+TO public
+USING (bucket_id = 'pandu-motor-images');
 `;
+
+export const STORAGE_RLS_SQL = `-- ============================================================================
+-- STORAGE RLS FIX (BUCKET: pandu-motor-images)
+-- Salin dan jalankan script ini di SQL Editor Supabase untuk mengatasi
+-- error: "new row violates row-level security policy"
+-- ============================================================================
+
+-- 1. Pastikan bucket 'pandu-motor-images' berstatus Public
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('pandu-motor-images', 'pandu-motor-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- 2. Kebijakan RLS agar user bisa INSERT (Upload foto banner/motor)
+DROP POLICY IF EXISTS "Allow public uploads pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public uploads pandu-motor-images"
+ON storage.objects FOR INSERT
+TO public
+WITH CHECK (bucket_id = 'pandu-motor-images');
+
+-- 3. Kebijakan RLS agar siapapun bisa SELECT (Melihat foto di website)
+DROP POLICY IF EXISTS "Allow public read pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public read pandu-motor-images"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'pandu-motor-images');
+
+-- 4. Kebijakan RLS agar user bisa UPDATE (Ganti/replace foto)
+DROP POLICY IF EXISTS "Allow public updates pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public updates pandu-motor-images"
+ON storage.objects FOR UPDATE
+TO public
+USING (bucket_id = 'pandu-motor-images')
+WITH CHECK (bucket_id = 'pandu-motor-images');
+
+-- 5. Kebijakan RLS agar user bisa DELETE (Hapus foto)
+DROP POLICY IF EXISTS "Allow public deletes pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public deletes pandu-motor-images"
+ON storage.objects FOR DELETE
+TO public
+USING (bucket_id = 'pandu-motor-images');`;
 
 export const DatabaseSetupGuide: React.FC = () => {
   const [copied, setCopied] = useState(false);
+  const [storageCopied, setStorageCopied] = useState(false);
   const [pinging, setPinging] = useState(false);
   const [checkingTables, setCheckingTables] = useState(false);
+  const [storageStatus, setStorageStatus] = useState<'testing' | 'ready' | 'rls_error' | 'bucket_missing'>('testing');
   const [tableStatus, setTableStatus] = useState<{
     vehicles: boolean;
     branches: boolean;
@@ -284,8 +357,27 @@ export const DatabaseSetupGuide: React.FC = () => {
 
       setTableStatus(status);
       setAllReady(Object.values(status).every(Boolean));
+
+      // Test storage bucket & RLS write permission
+      try {
+        const { data: bList, error: bListErr } = await supabase.storage.from('pandu-motor-images').list('', { limit: 1 });
+        if (bListErr && bListErr.message.includes('not found')) {
+          setStorageStatus('bucket_missing');
+        } else {
+          const testBlob = new Blob(['pmg-test'], { type: 'text/plain' });
+          const { error: upErr } = await supabase.storage.from('pandu-motor-images').upload('.keepalive_test', testBlob, { upsert: true });
+          if (upErr) {
+            setStorageStatus('rls_error');
+          } else {
+            setStorageStatus('ready');
+          }
+        }
+      } catch {
+        setStorageStatus('rls_error');
+      }
     } catch {
       setAllReady(false);
+      setStorageStatus('rls_error');
     } finally {
       setCheckingTables(false);
     }
@@ -301,6 +393,12 @@ export const DatabaseSetupGuide: React.FC = () => {
     navigator.clipboard.writeText(FULL_SQL_SCHEMA);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleCopyStorageSql = () => {
+    navigator.clipboard.writeText(STORAGE_RLS_SQL);
+    setStorageCopied(true);
+    setTimeout(() => setStorageCopied(false), 2500);
   };
 
   const handleTestKeepAlive = async () => {
@@ -420,6 +518,7 @@ export const DatabaseSetupGuide: React.FC = () => {
             { id: 'hero_banners', name: 'public.hero_banners (Promo Slide)', ready: tableStatus.hero_banners },
             { id: 'site_settings', name: 'public.site_settings (Pengaturan)', ready: tableStatus.site_settings },
             { id: 'announcements', name: 'public.announcements (Pengumuman)', ready: tableStatus.announcements },
+            { id: 'storage', name: 'storage.objects (Upload Foto & Media)', ready: storageStatus === 'ready' },
           ].map((t) => (
             <div
               key={t.id}
@@ -431,11 +530,76 @@ export const DatabaseSetupGuide: React.FC = () => {
               <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
                 t.ready ? 'bg-emerald-200 text-emerald-900' : 'bg-red-200 text-red-900'
               }`}>
-                {t.ready ? 'Aktif ✓' : 'Belum Dibuat ✕'}
+                {t.ready ? 'Aktif ✓' : 'Belum Ada Policy ✕'}
               </span>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* STORAGE RLS NOTICE / FIX CARD */}
+      <div className={`p-6 rounded-3xl border shadow-sm space-y-4 ${
+        storageStatus === 'ready' 
+          ? 'bg-emerald-50/70 border-emerald-300' 
+          : 'bg-amber-500/10 border-2 border-amber-500'
+      }`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
+              storageStatus === 'ready' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
+            }`}>
+              {storageStatus === 'ready' ? <CheckCircle2 className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}
+            </div>
+            <div>
+              <div className={`text-xs font-black uppercase tracking-wider ${
+                storageStatus === 'ready' ? 'text-emerald-700' : 'text-amber-700'
+              }`}>
+                {storageStatus === 'ready' ? 'Supabase Storage: Siap Upload 100%' : 'Perhatian: Storage RLS Policy Diperlukan'}
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 mt-0.5">
+                {storageStatus === 'ready' 
+                  ? 'Bucket "pandu-motor-images" Bebas Upload & Update Foto' 
+                  : 'Solusi Error: "new row violates row-level security policy"'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                {storageStatus === 'ready'
+                  ? 'Kebijakan akses RLS Storage telah aktif. Anda dapat mengunggah gambar motor, banner promo, dan dokumen secara bebas dari Admin Dashboard.'
+                  : 'Supabase secara default mengunci upload berkas sampai Policy RLS dibuat. Cukup salin script SQL Storage di bawah, lalu paste & Run di Supabase SQL Editor.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleCopyStorageSql}
+              className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              {storageCopied ? <Check className="w-4 h-4 text-emerald-200" /> : <Copy className="w-4 h-4" />}
+              <span>{storageCopied ? 'Tersalin!' : '1. Salin SQL Storage RLS'}</span>
+            </button>
+
+            <a
+              href="https://supabase.com/dashboard/project/nmmajxrcbojvabkrnatu/sql/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 border border-gray-300 rounded-xl text-xs font-bold transition flex items-center gap-2"
+            >
+              <span>2. Buka SQL Editor</span>
+              <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+            </a>
+          </div>
+        </div>
+
+        {storageStatus !== 'ready' && (
+          <div className="bg-slate-900 text-slate-200 p-4 rounded-2xl font-mono text-xs overflow-x-auto space-y-1 max-h-48 border border-slate-800">
+            <div className="text-slate-400 pb-1 text-[11px] font-sans font-bold flex items-center justify-between border-b border-slate-800">
+              <span>Script SQL Storage RLS (Bucket: pandu-motor-images)</span>
+              <span className="text-amber-400">Jalankan di Supabase SQL Editor</span>
+            </div>
+            <pre className="text-[11px] leading-relaxed pt-2 text-emerald-400">{STORAGE_RLS_SQL}</pre>
+          </div>
+        )}
       </div>
 
       {/* KEEP-ALIVE CARD */}

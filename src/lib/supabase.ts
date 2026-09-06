@@ -217,14 +217,18 @@ export async function uploadMediaFile(
     return publicUrlData.publicUrl;
   }
 
-  // Handle specific Supabase Quota / Egress errors
+  // Handle specific Supabase Storage errors
   const errMsg = uploadError?.message || uploadError?.error || String(uploadError) || 'Upload gagal';
   if (errMsg.includes('exceed_egress_quota') || uploadError?.statusCode === 402 || uploadError?.status === 402) {
     throw new Error('Supabase Storage terkunci: Melebihi kuota bandwidth (Egress Quota Exceeded). Buka Supabase Dashboard > Project Settings > Billing untuk memulihkan akses atau upgrade paket.');
   }
 
+  if (errMsg.includes('row-level security') || errMsg.includes('row-level security policy') || uploadError?.statusCode === '403' || uploadError?.statusCode === 403) {
+    throw new Error(`Akses upload Supabase Storage terkunci kebijakan RLS (${errMsg}). Solusi cepat: Buka menu "Status DB & Keep-Alive" di Admin Dashboard, lalu salin dan jalankan script "Storage RLS Fix" di Supabase SQL Editor.`);
+  }
+
   // IMPORTANT: Do NOT fall back to Base64. Base64 stored in DB causes 504 timeouts on all devices.
-  throw new Error(`Gagal upload ke Supabase Storage: ${errMsg}. Pastikan bucket "${bucket}" sudah dibuat di Supabase Dashboard → Storage.`);
+  throw new Error(`Gagal upload ke Supabase Storage: ${errMsg}. Pastikan bucket "${bucket}" sudah dibuat dengan akses Public di Supabase Dashboard → Storage.`);
 }
 
 export const uploadImageFile = uploadMediaFile;

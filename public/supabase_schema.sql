@@ -182,6 +182,39 @@ DROP POLICY IF EXISTS "Public can manage announcements" ON public.announcements;
 CREATE POLICY "Public can manage announcements" ON public.announcements FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================================
+-- STORAGE POLICIES (BUCKET: pandu-motor-images)
+-- Wajib agar upload foto dari Admin Dashboard tidak terblokir RLS (new row violates row-level security policy)
+-- ============================================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('pandu-motor-images', 'pandu-motor-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Allow public uploads pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public uploads pandu-motor-images"
+ON storage.objects FOR INSERT
+TO public
+WITH CHECK (bucket_id = 'pandu-motor-images');
+
+DROP POLICY IF EXISTS "Allow public read pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public read pandu-motor-images"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'pandu-motor-images');
+
+DROP POLICY IF EXISTS "Allow public updates pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public updates pandu-motor-images"
+ON storage.objects FOR UPDATE
+TO public
+USING (bucket_id = 'pandu-motor-images')
+WITH CHECK (bucket_id = 'pandu-motor-images');
+
+DROP POLICY IF EXISTS "Allow public deletes pandu-motor-images" ON storage.objects;
+CREATE POLICY "Allow public deletes pandu-motor-images"
+ON storage.objects FOR DELETE
+TO public
+USING (bucket_id = 'pandu-motor-images');
+
+-- ============================================================================
 -- SEED INITIAL DATA LENGKAP
 -- ============================================================================
 
