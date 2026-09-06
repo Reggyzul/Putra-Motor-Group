@@ -355,7 +355,7 @@ export const DatabaseSetupGuide: React.FC = () => {
             </button>
 
             <a
-              href="https://supabase.com/dashboard/project/baslrzduqfqrrozbwgwh/sql/new"
+              href="https://supabase.com/dashboard/project/nmmajxrcbojvabkrnatu/sql/new"
               target="_blank"
               rel="noopener noreferrer"
               className="px-5 py-3 bg-white hover:bg-slate-50 text-slate-800 border border-gray-300 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2"

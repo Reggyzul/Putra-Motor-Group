@@ -21,8 +21,8 @@ if (fs.existsSync(envPath)) {
   });
 }
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://baslrzduqfqrrozbwgwh.supabase.co';
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhc2xyemR1cWZxcnJvemJ3Z3doIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjgzOTIsImV4cCI6MjEwNDI0NDM5Mn0.ZKhJ3efXOxOEuiemzZ56w1WJVuqrJ41KaJ9ezVqynUM';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://nmmajxrcbojvabkrnatu.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tbWFqeHJjYm9qdmFia3JuYXR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2OTA4NjUsImV4cCI6MjEwNDI2Njg2NX0.wVZVONHtEUJ8AOQVJ7xaRAHsFf9wJEtXHUl1fGwsuO0';
 
 export async function pingSupabase() {
   const startTime = Date.now();
