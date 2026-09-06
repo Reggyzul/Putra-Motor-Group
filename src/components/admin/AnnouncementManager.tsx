@@ -115,9 +115,18 @@ export const AnnouncementManager: React.FC<AnnouncementManagerProps> = ({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const file = files[0];
+    // Batasi dokumen upload langsung ke Supabase max 2 MB agar hemat kuota egress & storage
+    if (file.size > 2 * 1024 * 1024) {
+      alert(
+        `File "${file.name}" berukuran ${(file.size / (1024 * 1024)).toFixed(1)} MB (Batas maksimal upload langsung adalah 2 MB).\n\n💡 Saran Hemat Kuota: Upload PDF/file besar Anda ke Google Drive / Dropbox / MediaFire, lalu masukkan tautannya via tombol "Tambah Link Eksternal" di bawah agar tidak memakan kuota Supabase sama sekali!`
+      );
+      e.target.value = '';
+      return;
+    }
+
     setUploadingDoc(true);
     try {
-      const file = files[0];
       const uploadedUrl = await uploadImageFile(file, 'pandu-motor-images', 'documents');
       const sizeStr = file.size > 1024 * 1024 
         ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` 
@@ -139,6 +148,7 @@ export const AnnouncementManager: React.FC<AnnouncementManagerProps> = ({
       alert('Gagal mengupload dokumen: ' + err.message);
     } finally {
       setUploadingDoc(false);
+      e.target.value = '';
     }
   };
 

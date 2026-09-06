@@ -387,39 +387,44 @@ export function useDataStore() {
     }
   }, []);
 
-  // Multi-Device Realtime Listener & Window Focus Synchronization (Guaranteed Instant Sync on All IPs & Devices)
+  // Multi-Device Realtime Listener with Egress Bandwidth Optimization
   useEffect(() => {
     // Initial fetch
     syncWithSupabase();
 
-    // 1. Supabase Global Realtime Broadcast & Postgres Changes Subscription
-    const channel = globalSyncChannel
-      .on('broadcast', { event: 'PMG_DATA_CHANGED' }, (payload) => {
+    let debounceTimer: any = null;
+    let lastSyncTime = Date.now();
+
+    // Debounced sync function to prevent multiple simultaneous requests
+    const debouncedSync = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        lastSyncTime = Date.now();
         syncWithSupabase();
+      }, 500);
+    };
+
+    // 1. Supabase Global Realtime Broadcast & Specific Postgres Changes Subscription
+    const channel = globalSyncChannel
+      .on('broadcast', { event: 'PMG_DATA_CHANGED' }, () => {
+        debouncedSync();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, () => {
-        syncWithSupabase();
+        debouncedSync();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'branches' }, () => {
-        syncWithSupabase();
+        debouncedSync();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hero_banners' }, () => {
-        syncWithSupabase();
+        debouncedSync();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, () => {
-        syncWithSupabase();
+        debouncedSync();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => {
-        syncWithSupabase();
+        debouncedSync();
       })
-      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-        syncWithSupabase();
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          // Channel connected
-        }
-      });
+      .subscribe();
 
     // 2. BroadcastChannel for instant zero-latency cross-tab sync on same machine
     let localBroadcastChannel: BroadcastChannel | null = null;
@@ -428,7 +433,7 @@ export function useDataStore() {
         localBroadcastChannel = new BroadcastChannel('pmg_realtime_broadcast');
         localBroadcastChannel.onmessage = (event) => {
           if (event.data?.type === 'SYNC') {
-            syncWithSupabase();
+            debouncedSync();
           }
         };
       }
@@ -439,28 +444,28 @@ export function useDataStore() {
     // 3. Storage event listener across browser tabs
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key && e.key.startsWith('pmg_cache_')) {
-        syncWithSupabase();
+        debouncedSync();
       }
     };
     window.addEventListener('storage', handleStorageChange);
 
-    // 4. Window Focus & Visibility Listener (Auto-fetch when user switches back to browser tab)
-    const handleFocus = () => syncWithSupabase();
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') syncWithSupabase();
+    // 4. Window Focus Listener (only sync if tab has been inactive for more than 10 minutes)
+    const handleFocus = () => {
+      const TEN_MINUTES = 10 * 60 * 1000;
+      if (Date.now() - lastSyncTime > TEN_MINUTES) {
+        debouncedSync();
+      }
     };
-
     window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleVisibility);
 
-    // 5. Gentle 20s background polling fallback (Prevents server connection exhaustion while ensuring reliability)
-    const interval = setInterval(syncWithSupabase, 20000);
+    // 5. Quiet fallback interval (15 menit, bukan 20 detik, agar menghemat kuota Egress)
+    const interval = setInterval(debouncedSync, 15 * 60 * 1000);
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       if (localBroadcastChannel) localBroadcastChannel.close();
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(interval);
     };
   }, [syncWithSupabase]);

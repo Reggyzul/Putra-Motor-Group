@@ -284,10 +284,11 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.hero_banners;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.site_settings;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
 
--- Set Replica Identity Full agar payload update/delete terkirim lengkap ke realtime websocket
-ALTER TABLE public.vehicles REPLICA IDENTITY FULL;
-ALTER TABLE public.branches REPLICA IDENTITY FULL;
-ALTER TABLE public.hero_banners REPLICA IDENTITY FULL;
-ALTER TABLE public.site_settings REPLICA IDENTITY FULL;
-ALTER TABLE public.announcements REPLICA IDENTITY FULL;
+-- Set Replica Identity DEFAULT (cukup kirim primary key, hemat kuota realtime egress)
+ALTER TABLE public.vehicles REPLICA IDENTITY DEFAULT;
+ALTER TABLE public.branches REPLICA IDENTITY DEFAULT;
+ALTER TABLE public.hero_banners REPLICA IDENTITY DEFAULT;
+ALTER TABLE public.site_settings REPLICA IDENTITY DEFAULT;
+ALTER TABLE public.announcements REPLICA IDENTITY DEFAULT;
+
 

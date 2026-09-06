@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://buvlwphnwaqrcsuravot.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1dmx3cGhud2FxcmNzdXJhdm90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNTcxMDIsImV4cCI6MjEwMzYzMzEwMn0.8264FnnUes_a6m9lo8EtQBeVd9KWJUb5nPCCrDi_U-c';
+const rawSupabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://baslrzduqfqrrozbwgwh.supabase.co';
+const supabaseUrl = rawSupabaseUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhc2xyemR1cWZxcnJvemJ3Z3doIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjgzOTIsImV4cCI6MjEwNDI0NDM5Mn0.ZKhJ3efXOxOEuiemzZ56w1WJVuqrJ41KaJ9ezVqynUM';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -71,9 +72,14 @@ export async function pingSupabaseKeepAlive(): Promise<{ success: boolean; times
 /**
  * Helper to compress images on client side to prevent huge payload rejection (>2MB)
  */
-async function compressImageFile(file: File, maxWidth = 1600, maxHeight = 1200, quality = 0.85): Promise<Blob | File> {
+/**
+ * Helper to compress images on client side to prevent huge payload rejection & save Supabase storage/egress
+ * Uses WebP format (or JPEG fallback), max 1000x750px, quality 0.75 -> file size drops to ~30-60KB!
+ */
+async function compressImageFile(file: File, maxWidth = 1000, maxHeight = 750, quality = 0.75): Promise<{ blob: Blob; ext: string; mime: string }> {
   if (!file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif') {
-    return file;
+    const ext = file.name.split('.').pop() || 'jpg';
+    return { blob: file, ext, mime: file.type || 'image/jpeg' };
   }
   return new Promise((resolve) => {
     try {
@@ -96,25 +102,38 @@ async function compressImageFile(file: File, maxWidth = 1600, maxHeight = 1200, 
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          resolve(file);
+          resolve({ blob: file, ext: 'jpg', mime: 'image/jpeg' });
           return;
         }
         ctx.drawImage(img, 0, 0, width, height);
+
+        // Try WebP first for 80-90% size reduction
         canvas.toBlob(
           (blob) => {
-            resolve(blob || file);
+            if (blob) {
+              resolve({ blob, ext: 'webp', mime: 'image/webp' });
+            } else {
+              // Fallback to JPEG
+              canvas.toBlob(
+                (jpegBlob) => {
+                  resolve({ blob: jpegBlob || file, ext: 'jpg', mime: 'image/jpeg' });
+                },
+                'image/jpeg',
+                quality
+              );
+            }
           },
-          'image/jpeg',
+          'image/webp',
           quality
         );
       };
       img.onerror = () => {
         URL.revokeObjectURL(objectUrl);
-        resolve(file);
+        resolve({ blob: file, ext: 'jpg', mime: 'image/jpeg' });
       };
       img.src = objectUrl;
     } catch {
-      resolve(file);
+      resolve({ blob: file, ext: 'jpg', mime: 'image/jpeg' });
     }
   });
 }
@@ -136,9 +155,24 @@ export async function uploadMediaFile(
 ): Promise<string> {
   const isImage = file.type.startsWith('image/');
 
-  // Compress image before upload (max 1200x900, 80% quality → ~100-200KB)
-  const fileToUpload = isImage ? await compressImageFile(file, 1200, 900, 0.80) : file;
-  const fileExt = isImage ? 'jpg' : (file.name.split('.').pop() || 'mp4');
+  // Guardrail: Batasi file non-gambar (PDF, Dokumen) max 3 MB agar tidak memakan storage & egress Supabase
+  if (!isImage && file.size > 3 * 1024 * 1024) {
+    throw new Error(
+      `File dokumen terlalu besar (${(file.size / (1024 * 1024)).toFixed(1)} MB). Batas upload dokumen ke Supabase adalah 3 MB untuk mencegah storage & egress membengkak. Silakan gunakan tautan Google Drive / link eksternal untuk file besar.`
+    );
+  }
+
+  let fileToUpload: Blob | File = file;
+  let fileExt = file.name.split('.').pop() || 'mp4';
+  let mimeType = file.type || 'application/octet-stream';
+
+  if (isImage) {
+    const compressed = await compressImageFile(file, 1000, 750, 0.75);
+    fileToUpload = compressed.blob;
+    fileExt = compressed.ext;
+    mimeType = compressed.mime;
+  }
+
   const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
 
   // Attempt 1: Try uploading to existing bucket
@@ -149,9 +183,9 @@ export async function uploadMediaFile(
     const res = await supabase.storage
       .from(bucket)
       .upload(fileName, fileToUpload, {
-        cacheControl: '86400',
+        cacheControl: '31536000, immutable', // Cache 1 tahun di browser agar kuota egress hemat
         upsert: true,
-        contentType: isImage ? 'image/jpeg' : (file.type || 'application/octet-stream'),
+        contentType: mimeType,
       });
     uploadData = res.data;
     uploadError = res.error;
@@ -167,9 +201,9 @@ export async function uploadMediaFile(
       const res = await supabase.storage
         .from(bucket)
         .upload(fileName, fileToUpload, {
-          cacheControl: '86400',
+          cacheControl: '31536000, immutable',
           upsert: true,
-          contentType: isImage ? 'image/jpeg' : (file.type || 'application/octet-stream'),
+          contentType: mimeType,
         });
       uploadData = res.data;
       uploadError = res.error;
@@ -183,9 +217,13 @@ export async function uploadMediaFile(
     return publicUrlData.publicUrl;
   }
 
-  // IMPORTANT: Do NOT fall back to Base64. Base64 stored in DB causes 504 timeouts on all devices.
-  // Instead, throw so the UI shows a clear error message to the admin.
+  // Handle specific Supabase Quota / Egress errors
   const errMsg = uploadError?.message || uploadError?.error || String(uploadError) || 'Upload gagal';
+  if (errMsg.includes('exceed_egress_quota') || uploadError?.statusCode === 402 || uploadError?.status === 402) {
+    throw new Error('Supabase Storage terkunci: Melebihi kuota bandwidth (Egress Quota Exceeded). Buka Supabase Dashboard > Project Settings > Billing untuk memulihkan akses atau upgrade paket.');
+  }
+
+  // IMPORTANT: Do NOT fall back to Base64. Base64 stored in DB causes 504 timeouts on all devices.
   throw new Error(`Gagal upload ke Supabase Storage: ${errMsg}. Pastikan bucket "${bucket}" sudah dibuat di Supabase Dashboard → Storage.`);
 }
 
