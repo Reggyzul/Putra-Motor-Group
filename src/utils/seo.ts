@@ -55,6 +55,8 @@ export const updatePageSeo = (page: string, customConfig?: Partial<SeoConfig>) =
     ...customConfig,
   };
 
+  if (typeof document === 'undefined') return;
+
   // Update document.title
   if (config.title) {
     document.title = config.title;

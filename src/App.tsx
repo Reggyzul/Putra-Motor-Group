@@ -262,6 +262,7 @@ export default function App() {
               branches={branches}
               onSelectBranch={setSelectedBranch}
               siteSettings={siteSettings}
+              isLoading={isLoading}
             />
 
             {/* 2. Katalog Motor Dinamis */}
@@ -274,6 +275,7 @@ export default function App() {
               isLandingPage={true}
               vehicles={vehicles}
               branches={branches}
+              isLoading={isLoading}
             />
           </div>
         )}
@@ -368,6 +370,7 @@ export default function App() {
               pageSubtitle="Jelajahi seluruh pilihan motor baru & motor bekas berkualitas dari seluruh jaringan showroom Pandu Motor Group."
               vehicles={vehicles}
               branches={branches}
+              isLoading={isLoading}
             />
           </div>
         )}

@@ -12,9 +12,12 @@ import {
   Award,
   Clock,
   MessageCircle,
-  FileText
+  FileText,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { SiteSettings } from '../../types';
+import { uploadImageFile } from '../../lib/supabase';
 
 interface SiteSettingsManagerProps {
   siteSettings: SiteSettings;
@@ -28,7 +31,23 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
   const [formData, setFormData] = useState<SiteSettings>({ ...siteSettings });
   const [activeTab, setActiveTab] = useState<'branding' | 'header' | 'footer'>('branding');
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploadingLogo(true);
+    try {
+      const file = files[0];
+      const uploadedUrl = await uploadImageFile(file, 'pandu-motor-images', 'brand');
+      setFormData((prev) => ({ ...prev, brand_logo: uploadedUrl }));
+    } catch (err: any) {
+      alert('Gagal mengupload logo: ' + err.message);
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +128,67 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
         {/* TAB 1: BRANDING & KONTAK */}
         {activeTab === 'branding' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-in fade-in">
+            
+            {/* Logo Brand Upload & Preview (Full Cerah & Mudah) */}
+            <div className="sm:col-span-2 p-4.5 bg-gradient-to-r from-blue-50/70 via-indigo-50/30 to-sky-50/50 rounded-2xl border border-blue-100/90 shadow-2xs">
+              <label className="block text-xs font-bold text-slate-800 mb-2.5 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-blue-600" />
+                  <span>Logo Brand Resmi Showroom &amp; Website</span>
+                </span>
+                <span className="text-[10px] font-semibold text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">
+                  Kompresi WebP Otomatis (Hemat Kuota Egress)
+                </span>
+              </label>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                {/* Logo Image Preview */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border border-blue-200 shadow-sm p-2 flex items-center justify-center overflow-hidden shrink-0 group relative">
+                  <img
+                    src={formData.brand_logo || '/images/pandu_logo.avif'}
+                    alt="Logo Brand Showroom"
+                    className="w-full h-full object-contain"
+                  />
+                  {uploadingLogo && (
+                    <div className="absolute inset-0 bg-white/90 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload & URL Controls */}
+                <div className="flex-1 space-y-2 w-full">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow transition active:scale-95">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{uploadingLogo ? 'Mengunggah...' : 'Ganti & Upload Logo Baru'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingLogo}
+                        onChange={handleUploadLogo}
+                      />
+                    </label>
+
+                    {formData.brand_logo && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, brand_logo: '/images/pandu_logo.avif' })}
+                        className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition cursor-pointer"
+                      >
+                        Reset ke Default
+                      </button>
+                    )}
+                  </div>
+
+                  <p className="text-[11px] text-slate-500">
+                    Preview logo langsung diperbarui di dashboard &amp; website. Format yang didukung: PNG, JPG, WEBP, AVIF.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Brand Name */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">

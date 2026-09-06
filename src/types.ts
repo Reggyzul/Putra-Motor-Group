@@ -149,7 +149,8 @@ export interface SiteSettings {
   official_phone: string;
   tagline: string;
   brand_name: string;
-  [key: string]: string;
+  brand_logo?: string;
+  [key: string]: string | undefined;
 }
 
 export interface AnnouncementAttachment {

@@ -23,6 +23,7 @@ interface VehicleCatalogProps {
   pageSubtitle?: string;
   vehicles?: Vehicle[];
   branches?: Branch[];
+  isLoading?: boolean;
 }
 
 export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
@@ -35,8 +36,9 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   isLandingPage = false,
   pageTitle,
   pageSubtitle,
-  vehicles = VEHICLES_DATA,
+  vehicles = [],
   branches = BRANCHES_DATA,
+  isLoading = false,
 }) => {
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<string>(initialCondition);
@@ -220,20 +222,62 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
         )}
 
         {/* ========================================================================= */}
-        {/* VEHICLE GRID (Keterangan Tersedia Baru / Bekas Jelas)                     */}
+        {/* VEHICLE GRID (Anti-Flashing Skeleton State or Live Supabase Vehicles)     */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4.5">
-          {displayedVehicles.map((vehicle) => {
-            const matchedBranch = BRANCHES_DATA.find((b) => b.id === vehicle.branchId) || selectedBranch;
-            const currentImgIndex = activeImageIndexes[vehicle.id] || 0;
-            const isFav = favorites[vehicle.id];
-            const currentImg = vehicle.images[currentImgIndex] || vehicle.images[0];
-            const vFit = vehicle.imageFit || 'cover';
-            const vPosX = vehicle.imagePosX ?? 50;
-            const vPosY = vehicle.imagePosY ?? 50;
-            const vScale = (vehicle.imageScale || 100) / 100;
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4.5">
+            {Array.from({ length: isLandingPage ? 8 : 12 }).map((_, i) => (
+              <div
+                key={`veh-skel-${i}`}
+                className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xs flex flex-col justify-between animate-pulse"
+              >
+                {/* Image Placeholder with Shimmer */}
+                <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 flex items-center justify-center">
+                  <div className="absolute top-2.5 left-2.5 w-16 h-4 bg-slate-300/80 rounded-md"></div>
+                  <Bike className="w-8 h-8 text-slate-300/50" />
+                </div>
 
-            return (
+                {/* Content Placeholder */}
+                <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="w-14 h-3 bg-slate-200 rounded"></div>
+                    <div className="w-4/5 h-4 sm:h-5 bg-slate-300 rounded"></div>
+                  </div>
+
+                  <div className="space-y-1 pt-1">
+                    <div className="w-24 h-5 bg-slate-300 rounded"></div>
+                    <div className="w-32 h-3.5 bg-blue-100 rounded"></div>
+                  </div>
+
+                  <div className="w-full h-8 sm:h-9 bg-slate-100 rounded-xl mt-1"></div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="w-16 h-2.5 bg-slate-200 rounded"></div>
+                    <div className="w-12 h-2.5 bg-slate-200 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : displayedVehicles.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+            <Bike className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+            <div className="text-sm font-bold text-slate-700">Tidak ada motor yang cocok</div>
+            <p className="text-xs text-slate-400 mt-0.5">Silakan gunakan filter lain atau hubungi CS kami.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4.5">
+            {displayedVehicles.map((vehicle) => {
+              const matchedBranch = BRANCHES_DATA.find((b) => b.id === vehicle.branchId) || selectedBranch;
+              const currentImgIndex = activeImageIndexes[vehicle.id] || 0;
+              const isFav = favorites[vehicle.id];
+              const currentImg = vehicle.images[currentImgIndex] || vehicle.images[0];
+              const vFit = vehicle.imageFit || 'cover';
+              const vPosX = vehicle.imagePosX ?? 50;
+              const vPosY = vehicle.imagePosY ?? 50;
+              const vScale = (vehicle.imageScale || 100) / 100;
+
+              return (
               <div
                 key={vehicle.id}
                 onClick={() => handleCardClick(vehicle)}
@@ -325,19 +369,10 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
                     <span className="shrink-0 text-slate-400">Hari ini</span>
                   </div>
                 </div>
-
               </div>
             );
           })}
         </div>
-
-        {/* Empty State */}
-        {displayedVehicles.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-            <Bike className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <div className="text-sm font-bold text-slate-700">Tidak ada motor yang cocok</div>
-            <p className="text-xs text-slate-400 mt-0.5">Silakan gunakan filter lain atau hubungi CS kami.</p>
-          </div>
         )}
 
         {/* ========================================================================= */}

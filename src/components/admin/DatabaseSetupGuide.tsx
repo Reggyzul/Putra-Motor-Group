@@ -355,13 +355,13 @@ export const DatabaseSetupGuide: React.FC = () => {
             </button>
 
             <a
-              href="https://supabase.com/dashboard/project/buvlwphnwaqrcsuravot/sql/new"
+              href="https://supabase.com/dashboard/project/baslrzduqfqrrozbwgwh/sql/new"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2 cursor-pointer"
+              className="px-5 py-3 bg-white hover:bg-slate-50 text-slate-800 border border-gray-300 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-2"
             >
-              <span>2. Buka Supabase SQL Editor (Paste & Klik Run)</span>
-              <ExternalLink className="w-4 h-4" />
+              <span>Buka SQL Editor Supabase</span>
+              <ExternalLink className="w-4 h-4 text-blue-600" />
             </a>
 
             <button

@@ -99,18 +99,20 @@ interface HeroProps {
   branches?: Branch[];
   onSelectBranch?: (branch: Branch) => void;
   siteSettings?: SiteSettings;
+  isLoading?: boolean;
 }
 
 export const Hero: React.FC<HeroProps> = ({
   selectedBranch,
   onNavigate,
-  banners = DEFAULT_SLIDES,
+  banners = [],
   branches = BRANCHES_DATA,
   onSelectBranch,
   siteSettings,
+  isLoading = false,
 }) => {
   const activeBanners = banners.filter((b: any) => b.isActive !== false);
-  const slides = activeBanners.length > 0 ? activeBanners : DEFAULT_SLIDES;
+  const slides = activeBanners.length > 0 ? activeBanners : (isLoading ? [] : DEFAULT_SLIDES);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
 
@@ -182,16 +184,16 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   // Sizing & Positioning Styles
-  const fitMode = currentSlide.imageFit || 'cover';
-  const posX = currentSlide.imagePosX ?? 50;
-  const posY = currentSlide.imagePosY ?? 50;
-  const scale = (currentSlide.imageScale || 100) / 100;
-  const showText = currentSlide.showTextOverlay !== false;
-  const overlayOpacity = (currentSlide.overlayOpacity ?? 70) / 100;
-  const aspectRatio = currentSlide.aspectRatio || '16:9';
+  const fitMode = currentSlide?.imageFit || 'cover';
+  const posX = currentSlide?.imagePosX ?? 50;
+  const posY = currentSlide?.imagePosY ?? 50;
+  const scale = (currentSlide?.imageScale || 100) / 100;
+  const showText = currentSlide ? currentSlide.showTextOverlay !== false : true;
+  const overlayOpacity = (currentSlide?.overlayOpacity ?? 70) / 100;
+  const aspectRatio = currentSlide?.aspectRatio || '16:9';
 
-  const isVideo = isVideoMedia(currentSlide.mediaType, currentSlide.videoUrl || currentSlide.image);
-  const videoSrc = currentSlide.videoUrl || currentSlide.image;
+  const isVideo = currentSlide ? isVideoMedia(currentSlide.mediaType, currentSlide.videoUrl || currentSlide.image) : false;
+  const videoSrc = currentSlide ? (currentSlide.videoUrl || currentSlide.image) : '';
   const isYT = isYouTubeUrl(videoSrc);
 
   return (
@@ -201,12 +203,37 @@ export const Hero: React.FC<HeroProps> = ({
         {/* ========================================================================= */}
         {/* 1. HERO PROMO BANNER CAROUSEL (Dinamis Foto & Video)                      */}
         {/* ========================================================================= */}
-        <div 
-          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200/80 shadow-sm group transition-all"
-          style={{
-            backgroundColor: currentSlide.themeColor || '#0f172a',
-          }}
-        >
+        {isLoading || !currentSlide ? (
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-r from-slate-100 via-blue-50/70 to-slate-100 border border-blue-100 shadow-sm animate-pulse min-h-[260px] sm:min-h-[340px] md:min-h-[380px] p-6 sm:p-10 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="h-6 sm:h-7 w-36 sm:w-48 bg-blue-200/60 rounded-full"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping"></div>
+                <span className="text-[11px] font-bold text-blue-600/70">Memuat Promo Supabase...</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 my-auto max-w-xl">
+              <div className="h-7 sm:h-10 w-4/5 bg-slate-300/60 rounded-xl"></div>
+              <div className="h-5 sm:h-6 w-3/5 bg-slate-200/70 rounded-lg"></div>
+              <div className="flex items-center gap-3 pt-2">
+                <div className="h-12 w-28 sm:w-36 bg-white/80 rounded-2xl border border-blue-100/60 shadow-2xs"></div>
+                <div className="h-12 w-28 sm:w-36 bg-white/80 rounded-2xl border border-blue-100/60 shadow-2xs"></div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200/40">
+              <div className="h-4 w-48 bg-slate-200/60 rounded"></div>
+              <div className="h-10 w-36 sm:w-44 bg-blue-600/30 rounded-xl"></div>
+            </div>
+          </div>
+        ) : (
+          <div 
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200/80 shadow-sm group transition-all"
+            style={{
+              backgroundColor: currentSlide.themeColor || '#0f172a',
+            }}
+          >
           
           {/* Main Slide Container */}
           <div 
@@ -375,6 +402,7 @@ export const Hero: React.FC<HeroProps> = ({
           )}
 
         </div>
+        )}
 
         {/* ========================================================================= */}
         {/* 2. SECTION: CARI MOTOR IMPIAN & CABANG KAMI                                */}

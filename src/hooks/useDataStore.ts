@@ -148,21 +148,31 @@ export function useDataStore() {
     // ignore
   }
 
+  const hasVerifiedCache = typeof window !== 'undefined' && Boolean(localStorage.getItem('pmg_cache_valid'));
+
   const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     try {
-      const cached = localStorage.getItem(LS_VEHICLES_KEY);
-      return cached ? JSON.parse(cached) : VEHICLES_DATA;
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem(LS_VEHICLES_KEY);
+        if (cached && hasVerifiedCache) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      }
+      return [];
     } catch {
-      return VEHICLES_DATA;
+      return [];
     }
   });
 
   const [branches, setBranches] = useState<Branch[]>(() => {
     try {
-      const cached = localStorage.getItem(LS_BRANCHES_KEY);
-      if (cached) {
-        const parsed: Branch[] = JSON.parse(cached);
-        return parsed;
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem(LS_BRANCHES_KEY);
+        if (cached && hasVerifiedCache) {
+          const parsed: Branch[] = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
       }
       return BRANCHES_DATA;
     } catch {
@@ -172,17 +182,26 @@ export function useDataStore() {
 
   const [banners, setBanners] = useState<HeroBanner[]>(() => {
     try {
-      const cached = localStorage.getItem(LS_BANNERS_KEY);
-      return cached ? JSON.parse(cached) : DEFAULT_BANNERS;
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem(LS_BANNERS_KEY);
+        if (cached && hasVerifiedCache) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      }
+      return [];
     } catch {
-      return DEFAULT_BANNERS;
+      return [];
     }
   });
 
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
     try {
-      const cached = localStorage.getItem(LS_SETTINGS_KEY);
-      return cached ? JSON.parse(cached) : DEFAULT_SITE_SETTINGS;
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem(LS_SETTINGS_KEY);
+        if (cached) return JSON.parse(cached);
+      }
+      return DEFAULT_SITE_SETTINGS;
     } catch {
       return DEFAULT_SITE_SETTINGS;
     }
@@ -190,14 +209,17 @@ export function useDataStore() {
 
   const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
     try {
-      const cached = localStorage.getItem(LS_ANNOUNCEMENTS_KEY);
-      return cached ? JSON.parse(cached) : DEFAULT_ANNOUNCEMENTS;
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem(LS_ANNOUNCEMENTS_KEY);
+        if (cached) return JSON.parse(cached);
+      }
+      return DEFAULT_ANNOUNCEMENTS;
     } catch {
       return DEFAULT_ANNOUNCEMENTS;
     }
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(!hasVerifiedCache || vehicles.length === 0 || banners.length === 0);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const [supabaseConnected, setSupabaseConnected] = useState<boolean>(true);
@@ -378,6 +400,12 @@ export function useDataStore() {
 
       setSupabaseConnected(true);
       setLastSynced(new Date());
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pmg_cache_valid', 'true');
+      }
+      // Automated Keep-Alive Ping on data sync
+      pingSupabaseKeepAlive().catch(() => {});
     } catch (err) {
       console.warn('Supabase sync notice:', err);
       setSupabaseConnected(false);
