@@ -708,21 +708,24 @@ export function useDataStore() {
         video_poster: banner.videoPoster || '',
         video_autoplay: banner.videoAutoplay !== false,
         video_loop: banner.videoLoop !== false,
-        videoMuted: banner.videoMuted !== false,
+        video_muted: banner.videoMuted !== false,
         updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase.from('hero_banners').upsert(fullDbPayload, { onConflict: 'id' });
       
       // If error occurred (e.g. columns do not exist yet in Supabase table), fallback to base columns
+      // IMPORTANT: We still store visual metadata inside offer1._meta so fit/position is never lost.
       if (error) {
-        console.warn('Supabase upsert with new columns returned error, attempting fallback to base columns:', error.message);
+        console.warn('[Banner] Upsert with extended columns failed, trying fallback with base columns + _meta:', error.message);
+        console.warn('[Banner] HINT: Run the ALTER TABLE migrations in supabase_schema.sql to fix this permanently.');
+        // Fallback: core columns + offer1._meta (which stores fit/pos/scale/video as backup)
         const basePayload = {
           id: banner.id,
           tagline_ribbon: banner.taglineRibbon,
           title: banner.title,
           title_highlight: banner.titleHighlight,
-          offer1: offer1WithMeta,
+          offer1: offer1WithMeta,  // _meta contains fit, x, y, scale, mediaType etc.
           offer2: banner.offer2,
           period: banner.period,
           image: banner.image,
@@ -734,7 +737,8 @@ export function useDataStore() {
         };
         const fallbackRes = await supabase.from('hero_banners').upsert(basePayload, { onConflict: 'id' });
         if (fallbackRes.error) {
-          console.error('Fallback base save also failed:', fallbackRes.error);
+          console.error('[Banner] Fallback base save also failed:', fallbackRes.error);
+          throw new Error(fallbackRes.error.message);
         }
       }
 

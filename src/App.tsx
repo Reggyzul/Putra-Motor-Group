@@ -53,6 +53,7 @@ export default function App() {
   // Auth state for Admin Dashboard
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [authChecking, setAuthChecking] = useState<boolean>(true);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   // Sync selected branch & vehicle once dynamic data arrives
   useEffect(() => {
@@ -72,11 +73,13 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAdminAuthenticated(!!session);
+      setUserEmail(session?.user?.email || '');
       setAuthChecking(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAdminAuthenticated(!!session);
+      setUserEmail(session?.user?.email || '');
     });
 
     return () => subscription.unsubscribe();
@@ -203,6 +206,26 @@ export default function App() {
       );
     }
 
+    const handleSaveAnnouncement = async (announcement: Announcement) => {
+      if ((userEmail || '').toLowerCase().trim() !== 'pandumotorgroup.id@gmail.com') {
+        return {
+          success: false,
+          error: 'Akses Ditolak: Hanya email pandumotorgroup.id@gmail.com yang berhak mengedit dan update pengumuman kantor.',
+        };
+      }
+      return await saveAnnouncement(announcement);
+    };
+
+    const handleDeleteAnnouncement = async (id: string) => {
+      if ((userEmail || '').toLowerCase().trim() !== 'pandumotorgroup.id@gmail.com') {
+        return {
+          success: false,
+          error: 'Akses Ditolak: Hanya email pandumotorgroup.id@gmail.com yang berhak menghapus pengumuman kantor.',
+        };
+      }
+      return await deleteAnnouncement(id);
+    };
+
     return (
       <AdminDashboard
         vehicles={vehicles}
@@ -213,6 +236,7 @@ export default function App() {
         isSyncing={isSyncing}
         supabaseConnected={supabaseConnected}
         dbTablesReady={dbTablesReady}
+        userEmail={userEmail}
         onSync={syncWithSupabase}
         onSaveVehicle={saveVehicle}
         onDeleteVehicle={deleteVehicle}
@@ -220,8 +244,8 @@ export default function App() {
         onSaveBanner={saveBanner}
         onDeleteBanner={deleteBanner}
         onSaveSiteSettings={saveSiteSettings}
-        onSaveAnnouncement={saveAnnouncement}
-        onDeleteAnnouncement={deleteAnnouncement}
+        onSaveAnnouncement={handleSaveAnnouncement}
+        onDeleteAnnouncement={handleDeleteAnnouncement}
         onBackToWebsite={() => handleNavigate('home')}
         onLogout={() => setIsAdminAuthenticated(false)}
       />

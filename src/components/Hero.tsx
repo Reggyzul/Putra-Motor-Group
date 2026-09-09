@@ -242,8 +242,10 @@ export const Hero: React.FC<HeroProps> = ({
               aspectRatio: aspectRatio === '21:9' ? '21/9' : 
                            aspectRatio === '16:7' ? '16/7' : 
                            aspectRatio === '3:1' ? '3/1' : 
-                           aspectRatio === 'custom' ? undefined : '16/9',
-              minHeight: aspectRatio === 'custom' ? `${currentSlide.bannerHeight || 380}px` : undefined,
+                           (aspectRatio === 'custom' || aspectRatio === 'auto') ? undefined : '16/9',
+              minHeight: (aspectRatio === 'custom' || aspectRatio === 'auto') 
+                ? `${currentSlide.bannerHeight || 380}px` 
+                : undefined,
             }}
           >
             

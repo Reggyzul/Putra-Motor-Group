@@ -43,6 +43,7 @@ interface AdminDashboardProps {
   isSyncing: boolean;
   supabaseConnected: boolean;
   dbTablesReady?: boolean;
+  userEmail: string;
   onSync: () => void;
   onSaveVehicle: (vehicle: Vehicle) => Promise<{ success: boolean; error?: string }>;
   onDeleteVehicle: (id: string) => Promise<{ success: boolean; error?: string }>;
@@ -67,6 +68,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   isSyncing,
   supabaseConnected,
   dbTablesReady = true,
+  userEmail,
   onSync,
   onSaveVehicle,
   onDeleteVehicle,
@@ -327,10 +329,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </span>
                       </div>
 
-                      <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate mt-1">
+                      <h4 className="text-sm sm:text-base font-extrabold text-slate-900 truncate mt-1">
                         {latestAnnouncement.title}
                       </h4>
-                      <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">
+                      <p className="text-sm text-slate-700 line-clamp-2 mt-1 leading-relaxed">
                         {latestAnnouncement.content}
                       </p>
                     </div>
@@ -504,6 +506,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               announcements={announcements}
               onSaveAnnouncement={onSaveAnnouncement}
               onDeleteAnnouncement={onDeleteAnnouncement}
+              userEmail={userEmail}
             />
           )}
 
@@ -585,7 +588,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-snug">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
                 {selectedAnnouncementDetail.title}
               </h2>
 
@@ -595,7 +598,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               )}
 
-              <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line font-medium">
+              <div className="text-base sm:text-lg text-slate-800 leading-relaxed whitespace-pre-line font-normal">
                 {selectedAnnouncementDetail.content}
               </div>
 

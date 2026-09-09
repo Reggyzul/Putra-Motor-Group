@@ -327,12 +327,47 @@ ON storage.objects FOR DELETE
 TO public
 USING (bucket_id = 'pandu-motor-images');`;
 
+export const VISUAL_MIGRATION_SQL = `-- ============================================================
+-- MIGRASI KOLOM VISUAL FOTO (Mode Fit, Posisi, Skala, Video)
+-- Jalankan SEKALI di Supabase SQL Editor jika Fit Mode banner
+-- atau kendaraan tidak bisa disimpan / tidak berubah.
+-- ============================================================
+
+-- Kolom visual untuk tabel hero_banners (Banner Promo)
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_fit TEXT DEFAULT 'cover';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_position TEXT DEFAULT '50% 50%';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_pos_x INTEGER DEFAULT 50;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_pos_y INTEGER DEFAULT 50;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS image_scale INTEGER DEFAULT 100;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS aspect_ratio TEXT DEFAULT '16:9';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS banner_height INTEGER DEFAULT 380;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS show_text_overlay BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS overlay_opacity INTEGER DEFAULT 70;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS cta_link_type TEXT DEFAULT 'whatsapp';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS cta_custom_url TEXT DEFAULT '';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'image';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_url TEXT DEFAULT '';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_poster TEXT DEFAULT '';
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_autoplay BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_loop BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.hero_banners ADD COLUMN IF NOT EXISTS video_muted BOOLEAN DEFAULT TRUE;
+
+-- Kolom visual untuk tabel vehicles (Stok Kendaraan)
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_fit TEXT DEFAULT 'cover';
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_position TEXT DEFAULT '50% 50%';
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_pos_x INTEGER DEFAULT 50;
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_pos_y INTEGER DEFAULT 50;
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS image_scale INTEGER DEFAULT 100;
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS aspect_ratio TEXT DEFAULT '4:3';`;
+
 export const DatabaseSetupGuide: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [storageCopied, setStorageCopied] = useState(false);
+  const [visualCopied, setVisualCopied] = useState(false);
   const [pinging, setPinging] = useState(false);
   const [checkingTables, setCheckingTables] = useState(false);
   const [storageStatus, setStorageStatus] = useState<'testing' | 'ready' | 'rls_error' | 'bucket_missing'>('testing');
+  const [visualColStatus, setVisualColStatus] = useState<'checking' | 'ok' | 'needs_migration'>('checking');
   const [tableStatus, setTableStatus] = useState<{
     vehicles: boolean;
     branches: boolean;
@@ -348,6 +383,19 @@ export const DatabaseSetupGuide: React.FC = () => {
   });
   const [allReady, setAllReady] = useState<boolean>(false);
   const [lastPingTime, setLastPingTime] = useState<string | null>(null);
+
+  const checkVisualColumns = async () => {
+    try {
+      // Check if image_fit column exists by selecting it
+      const { error } = await supabase
+        .from('hero_banners')
+        .select('id, image_fit, image_pos_x, image_pos_y, image_scale, aspect_ratio, show_text_overlay')
+        .limit(1);
+      setVisualColStatus(error ? 'needs_migration' : 'ok');
+    } catch {
+      setVisualColStatus('needs_migration');
+    }
+  };
 
   const checkAllTables = async () => {
     setCheckingTables(true);
@@ -398,6 +446,7 @@ export const DatabaseSetupGuide: React.FC = () => {
 
   useEffect(() => {
     checkAllTables();
+    checkVisualColumns();
     const saved = localStorage.getItem('supabase_last_keepalive');
     if (saved) setLastPingTime(saved);
   }, []);
@@ -412,6 +461,12 @@ export const DatabaseSetupGuide: React.FC = () => {
     navigator.clipboard.writeText(STORAGE_RLS_SQL);
     setStorageCopied(true);
     setTimeout(() => setStorageCopied(false), 2500);
+  };
+
+  const handleCopyVisualSql = () => {
+    navigator.clipboard.writeText(VISUAL_MIGRATION_SQL);
+    setVisualCopied(true);
+    setTimeout(() => setVisualCopied(false), 2500);
   };
 
   const handleTestKeepAlive = async () => {
@@ -615,7 +670,91 @@ export const DatabaseSetupGuide: React.FC = () => {
         )}
       </div>
 
-      {/* KEEP-ALIVE CARD */}
+      {/* VISUAL COLUMNS MIGRATION CARD */}
+      <div className={`p-6 rounded-3xl border shadow-sm space-y-4 ${
+        visualColStatus === 'ok'
+          ? 'bg-emerald-50/70 border-emerald-300'
+          : visualColStatus === 'checking'
+          ? 'bg-slate-50 border-gray-200'
+          : 'bg-orange-500/10 border-2 border-orange-500'
+      }`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
+              visualColStatus === 'ok' ? 'bg-emerald-600 text-white' :
+              visualColStatus === 'checking' ? 'bg-slate-400 text-white' : 'bg-orange-500 text-white'
+            }`}>
+              {visualColStatus === 'ok' ? (
+                <CheckCircle2 className="w-6 h-6" />
+              ) : visualColStatus === 'checking' ? (
+                <RefreshCw className="w-6 h-6 animate-spin" />
+              ) : (
+                <AlertTriangle className="w-6 h-6" />
+              )}
+            </div>
+            <div>
+              <div className={`text-xs font-black uppercase tracking-wider ${
+                visualColStatus === 'ok' ? 'text-emerald-700' :
+                visualColStatus === 'checking' ? 'text-slate-500' : 'text-orange-700'
+              }`}>
+                {visualColStatus === 'ok' ? 'Kolom Visual: Lengkap ✓' :
+                 visualColStatus === 'checking' ? 'Mengecek kolom...' : '⚠ Kolom Visual Belum Ada — Fit Mode Tidak Akan Tersimpan!'}
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 mt-0.5">
+                {visualColStatus === 'ok'
+                  ? 'Fit Mode, Posisi Foto & Video Tersimpan dengan Benar'
+                  : 'Perbaiki: Mode Penyesuaian Foto (Fit Mode) Tidak Berfungsi'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                {visualColStatus === 'ok'
+                  ? 'Kolom image_fit, image_pos_x, image_pos_y, dan kolom video sudah ada. Semua pengaturan visual banner dan motor tersimpan ke Supabase.'
+                  : 'Kolom image_fit, image_pos_x, dll. belum ada di tabel Supabase. Akibatnya Fit Mode (Contain/Cover/Auto) tidak tersimpan. Salin SQL migrasi di bawah dan jalankan sekali di Supabase SQL Editor.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleCopyVisualSql}
+              className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              {visualCopied ? <Check className="w-4 h-4 text-emerald-200" /> : <Copy className="w-4 h-4" />}
+              <span>{visualCopied ? 'Tersalin!' : 'Salin SQL Migrasi'}</span>
+            </button>
+
+            <a
+              href="https://supabase.com/dashboard/project/nmmajxrcbojvabkrnatu/sql/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 border border-gray-300 rounded-xl text-xs font-bold transition flex items-center gap-2"
+            >
+              <span>Buka SQL Editor</span>
+              <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+            </a>
+
+            <button
+              type="button"
+              onClick={checkVisualColumns}
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-gray-300 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Cek Ulang</span>
+            </button>
+          </div>
+        </div>
+
+        {visualColStatus === 'needs_migration' && (
+          <div className="bg-slate-900 text-slate-200 p-4 rounded-2xl font-mono text-xs overflow-x-auto space-y-1 max-h-52 border border-slate-800">
+            <div className="text-slate-400 pb-1 text-[11px] font-sans font-bold flex items-center justify-between border-b border-slate-800">
+              <span>Migrasi Kolom Visual (hero_banners + vehicles)</span>
+              <span className="text-orange-400">Copy → Paste → Run di SQL Editor Supabase</span>
+            </div>
+            <pre className="text-[11px] leading-relaxed pt-2 text-emerald-400 whitespace-pre-wrap">{VISUAL_MIGRATION_SQL}</pre>
+          </div>
+        )}
+      </div>
+
       <div className="bg-gradient-to-br from-emerald-500/10 via-white to-blue-50 p-6 rounded-3xl border border-emerald-200 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

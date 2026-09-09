@@ -540,8 +540,10 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                           aspectRatio: formData.aspectRatio === '21:9' ? '21/9' : 
                                        formData.aspectRatio === '16:7' ? '16/7' : 
                                        formData.aspectRatio === '3:1' ? '3/1' : 
-                                       formData.aspectRatio === 'custom' ? undefined : '16/9',
-                          minHeight: formData.aspectRatio === 'custom' ? `${formData.bannerHeight || 380}px` : (previewDevice === 'mobile' ? '220px' : '280px'),
+                                       (formData.aspectRatio === 'custom' || formData.aspectRatio === 'auto') ? undefined : '16/9',
+                          minHeight: (formData.aspectRatio === 'custom' || formData.aspectRatio === 'auto') 
+                            ? `${formData.bannerHeight || 380}px` 
+                            : (previewDevice === 'mobile' ? '220px' : '280px'),
                           maxHeight: previewDevice === 'mobile' ? '360px' : '420px',
                           backgroundColor: formData.themeColor || '#0f172a',
                         }}
